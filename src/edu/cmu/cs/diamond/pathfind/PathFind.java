@@ -41,112 +41,39 @@
 package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.JFrame;
+import javax.swing.JToggleButton;
 
 import edu.cmu.cs.diamond.wholeslide.Wholeslide;
 import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
 
-public class PathFind {
+public class PathFind extends JFrame {
+
+    private final Box slideViews = Box.createHorizontalBox();
+    private final JToggleButton linkButton = new JToggleButton("Link");
+    
+    public PathFind(String filename) {
+        super("PathFind");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        WholeslideView ws = new WholeslideView(new Wholeslide(new File(filename)));
+
+        // main view
+        slideViews.add(ws);
+        
+        linkButton.setVisible(false);
+        
+        
+        getContentPane().add(slideViews);
+        add(linkButton, BorderLayout.SOUTH);
+    }
 
     public static void main(String[] args) {
-        /* Toplevel frame and layout */
-
-        JFrame jf = new JFrame("PathFind");
-        jf.setSize(800, 600);
-        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // jf.setExtendedState(JFrame.MAXIMIZED_BOTH);
-
-        final JPanel j = new JPanel(new BorderLayout());
-
-        /* Wholeslide view */
-
-        final File wsf;
-
-        if (args.length > 0) {
-            wsf = new File(args[0]);
-        } else {
-            JFileChooser ch = new JFileChooser();
-            ch.showOpenDialog(jf);
-
-            wsf = ch.getSelectedFile();
-        }
-
-        WholeslideView ws = new WholeslideView(new Wholeslide(wsf));
-        ws.setBackground(Color.WHITE);
-
-        /* Menu bar and doodads */
-
-        JMenuBar mb = new JMenuBar();
-
-        JMenuItem z = new JMenuItem("Simulate selection search");
-        /* Search pane */
-
-        z.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final Box search = Box.createHorizontalBox();
-
-                JButton close = new JButton("Cancel search");
-                close.addMouseListener(new MouseAdapter() {
-                    public void mousePressed(MouseEvent e) {
-                        search.setVisible(false);
-                    }
-                });
-
-                Box summary = Box.createVerticalBox();
-                summary.setAlignmentY(Component.TOP_ALIGNMENT);
-                summary.add(new JLabel("Search results"));
-                summary.add(Box.createVerticalStrut(4));
-                summary.add(new JSeparator());
-                summary.add(Box.createVerticalStrut(4));
-                summary.add(close);
-                // summary.add(Box.createVerticalStrut(100));
-                summary.setBorder(BorderFactory.createEmptyBorder(5, 5, 90, 5));
-
-                Box results = Box.createHorizontalBox();
-                for (int i = 0; i < 6; i++) {
-                    WholeslideView r = new WholeslideView(new Wholeslide(wsf));
-                    // r.setBackground(Color.WHITE);
-                    r.setEnabled(false);
-                    r.setAlignmentY(Component.TOP_ALIGNMENT);
-                    r.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createEmptyBorder(5, 15, 15, 0),
-                            BorderFactory.createLineBorder(Color.GRAY)));
-
-                    results.add(r);
-                }
-
-                search.add(summary);
-                search.add(results);
-
-                j.add(search, BorderLayout.NORTH);
-                j.revalidate();
-            }
-        });
-
-        JMenu f = new JMenu("File");
-        f.add(z);
-        mb.add(f);
-        mb.add(new JMenu("Image"));
-        mb.add(new JMenu("Case"));
-        mb.add(new JMenu("View"));
-        mb.add(new JMenu("Window"));
-        mb.add(new JMenu("Help"));
-
-        jf.setJMenuBar(mb);
-
-        /* Toplevel component */
-
-        j.add(ws);
-
-        jf.getContentPane().add(j);
-        jf.setVisible(true);
+        PathFind pf = new PathFind(args[0]);
+        pf.setVisible(true);
     }
 }
