@@ -43,118 +43,110 @@ package edu.cmu.cs.diamond.pathfind;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
+import javax.swing.*;
 
 import edu.cmu.cs.diamond.wholeslide.Wholeslide;
 import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
 
 public class PathFind {
 
-	public static void main(String[] args) {
-		/* Toplevel frame and layout */
+    public static void main(String[] args) {
+        /* Toplevel frame and layout */
 
-		JFrame jf = new JFrame("PathFind");
-		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jf.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        JFrame jf = new JFrame("PathFind");
+        jf.setSize(800, 600);
+        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // jf.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-		final JPanel j = new JPanel(new BorderLayout());
-        
-		/* Wholeslide view */
+        final JPanel j = new JPanel(new BorderLayout());
 
-		final File wsf;
+        /* Wholeslide view */
 
-		if (args.length > 0) {
-			wsf = new File(args[0]);
-		} else {
-			JFileChooser ch = new JFileChooser();
-			ch.showOpenDialog(jf);
+        final File wsf;
 
-			wsf = ch.getSelectedFile();
-		}
+        if (args.length > 0) {
+            wsf = new File(args[0]);
+        } else {
+            JFileChooser ch = new JFileChooser();
+            ch.showOpenDialog(jf);
 
-		WholeslideView ws = new WholeslideView(new Wholeslide(wsf));
-		ws.setBackground(Color.WHITE);
+            wsf = ch.getSelectedFile();
+        }
 
-		/* Menu bar and doodads */
+        WholeslideView ws = new WholeslideView(new Wholeslide(wsf));
+        ws.setBackground(Color.WHITE);
 
-		JMenuBar mb = new JMenuBar();
+        /* Menu bar and doodads */
 
-		JMenuItem z = new JMenuItem("Simulate selection search");
-		/* Search pane */
+        JMenuBar mb = new JMenuBar();
 
-		z.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				final Box search = Box.createHorizontalBox();
-				
-				JButton close = new JButton("Cancel search");
-				close.addMouseListener(new MouseAdapter() {
-					public void mousePressed(MouseEvent e) {
-					    search.setVisible(false);
-					}
-				});
-				
-				Box summary = Box.createVerticalBox();
-				summary.setAlignmentY(Component.TOP_ALIGNMENT);
-				summary.add(new JLabel("Search results"));
-		        summary.add(Box.createVerticalStrut(4));
-				summary.add(new JSeparator());
-				summary.add(Box.createVerticalStrut(4));
-				summary.add(close);
-				// summary.add(Box.createVerticalStrut(100));
-				summary.setBorder(BorderFactory.createEmptyBorder(5, 5, 90, 5));
+        JMenuItem z = new JMenuItem("Simulate selection search");
+        /* Search pane */
 
-				Box results = Box.createHorizontalBox();
-				for (int i = 0; i < 6; i++) {
-					WholeslideView r = new WholeslideView(new Wholeslide(wsf));
-					// r.setBackground(Color.WHITE);
-					r.setEnabled(false);
-					r.setAlignmentY(Component.TOP_ALIGNMENT);
-					r.setBorder(BorderFactory.createCompoundBorder(
-							BorderFactory.createEmptyBorder(5, 15, 15, 0),
-							BorderFactory.createLineBorder(Color.GRAY)));
+        z.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                final Box search = Box.createHorizontalBox();
 
-					results.add(r);
-				}
+                JButton close = new JButton("Cancel search");
+                close.addMouseListener(new MouseAdapter() {
+                    public void mousePressed(MouseEvent e) {
+                        search.setVisible(false);
+                    }
+                });
 
-				search.add(summary);
-				search.add(results);
+                Box summary = Box.createVerticalBox();
+                summary.setAlignmentY(Component.TOP_ALIGNMENT);
+                summary.add(new JLabel("Search results"));
+                summary.add(Box.createVerticalStrut(4));
+                summary.add(new JSeparator());
+                summary.add(Box.createVerticalStrut(4));
+                summary.add(close);
+                // summary.add(Box.createVerticalStrut(100));
+                summary.setBorder(BorderFactory.createEmptyBorder(5, 5, 90, 5));
 
-				j.add(search, BorderLayout.NORTH);
-				j.revalidate();
-			}
-		});
+                Box results = Box.createHorizontalBox();
+                for (int i = 0; i < 6; i++) {
+                    WholeslideView r = new WholeslideView(new Wholeslide(wsf));
+                    // r.setBackground(Color.WHITE);
+                    r.setEnabled(false);
+                    r.setAlignmentY(Component.TOP_ALIGNMENT);
+                    r.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createEmptyBorder(5, 15, 15, 0),
+                            BorderFactory.createLineBorder(Color.GRAY)));
 
-		JMenu f = new JMenu("File");
-		f.add(z);
-		mb.add(f);
-		mb.add(new JMenu("Image"));
-		mb.add(new JMenu("Case"));
-		mb.add(new JMenu("View"));
-		mb.add(new JMenu("Window"));
-		mb.add(new JMenu("Help"));
+                    results.add(r);
+                }
 
-		jf.setJMenuBar(mb);
+                search.add(summary);
+                search.add(results);
 
-		/* Toplevel component */
-		
-		j.add(ws);
-		
-		jf.getContentPane().add(j);
+                j.add(search, BorderLayout.NORTH);
+                j.revalidate();
+            }
+        });
+
+        JMenu f = new JMenu("File");
+        f.add(z);
+        mb.add(f);
+        mb.add(new JMenu("Image"));
+        mb.add(new JMenu("Case"));
+        mb.add(new JMenu("View"));
+        mb.add(new JMenu("Window"));
+        mb.add(new JMenu("Help"));
+
+        jf.setJMenuBar(mb);
+
+        /* Toplevel component */
+
+        j.add(ws);
+
+        jf.getContentPane().add(j);
         jf.setVisible(true);
-	}
+    }
 }
