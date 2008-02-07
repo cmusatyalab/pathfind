@@ -41,35 +41,106 @@
 package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Shape;
+import java.awt.event.ActionEvent;
 import java.io.File;
 
-import javax.swing.Box;
-import javax.swing.JFrame;
-import javax.swing.JToggleButton;
+import javax.swing.*;
 
 import edu.cmu.cs.diamond.wholeslide.Wholeslide;
 import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
 
 public class PathFind extends JFrame {
 
-    private final Box slideViews = Box.createHorizontalBox();
-    private final JToggleButton linkButton = new JToggleButton("Link");
-    
+    private final JPanel slideViews;
+
+    private final JToggleButton linkButton;
+
+    private final JPanel searchResults;
+
+    private final WholeslideView slides[] = new WholeslideView[2];
+
+    private final JPanel selectionPanel;
+
+    private final JList savedSelections;
+
+    private SavedSelectionModel ssModel;
+
     public PathFind(String filename) {
         super("PathFind");
-        setSize(800, 600);
+        setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        WholeslideView ws = new WholeslideView(new Wholeslide(new File(filename)));
-
-        // main view
-        slideViews.add(ws);
-        
-        linkButton.setVisible(false);
-        
-        
-        getContentPane().add(slideViews);
+        // link button at bottom
+        linkButton = new JToggleButton("Link");
         add(linkButton, BorderLayout.SOUTH);
+        linkButton.setVisible(false);
+
+        // search results at top
+        searchResults = new JPanel();
+        searchResults.setBorder(BorderFactory
+                .createTitledBorder("Search Results"));
+        searchResults.setVisible(false);
+
+        // save searches at left
+        selectionPanel = new JPanel(new BorderLayout());
+        savedSelections = new JList();
+        savedSelections.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        savedSelections.setLayoutOrientation(JList.VERTICAL);
+        selectionPanel.add(new JScrollPane(savedSelections,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+        selectionPanel.setBorder(BorderFactory
+                .createTitledBorder("Saved Selections"));
+        selectionPanel.setPreferredSize(new Dimension(280, 100));
+        add(selectionPanel, BorderLayout.WEST);
+
+        // main view in center
+        slideViews = new JPanel(new GridLayout(1, 2));
+        add(slideViews);
+        setLeftSlide(new Wholeslide(new File(filename)), filename);
+    }
+
+    private void setLeftSlide(Wholeslide wholeslide, String title) {
+        setSlide(wholeslide, 0, title);
+    }
+
+    private void setSlide(Wholeslide wholeslide, int index, String title) {
+        WholeslideView oldSlide = slides[index];
+        if (oldSlide != null) {
+            oldSlide.unlinkOther();
+            oldSlide.getActionMap().put("save selection", null);
+        }
+        final WholeslideView wv = createNewView(wholeslide, title);
+
+        slides[index] = wv;
+        slideViews.add(wv, index);
+        wv.getInputMap()
+                .put(KeyStroke.getKeyStroke("INSERT"), "save selection");
+        wv.getActionMap().put("save selection", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveSelection(wv);
+            }
+        });
+        ssModel = new SavedSelectionModel(wv);
+        savedSelections.setModel(ssModel);
+        savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
+    }
+
+    protected void saveSelection(WholeslideView wv) {
+        Shape s = wv.getSelection();
+        if (s != null) {
+            ssModel.addElement(s);
+        }
+    }
+
+    private WholeslideView createNewView(Wholeslide wholeslide, String title) {
+        WholeslideView wv = new WholeslideView(wholeslide);
+        wv.setBorder(BorderFactory.createTitledBorder(title));
+        return wv;
     }
 
     public static void main(String[] args) {
