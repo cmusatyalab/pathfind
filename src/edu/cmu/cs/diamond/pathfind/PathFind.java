@@ -62,6 +62,8 @@ public class PathFind extends JFrame {
 
     private final JPanel searchResults;
 
+    private final JList searchResultsList;
+
     private final WholeslideView slides[] = new WholeslideView[2];
 
     private final JPanel selectionPanel;
@@ -85,6 +87,23 @@ public class PathFind extends JFrame {
         searchResults.setBorder(BorderFactory
                 .createTitledBorder("Search Results"));
         searchResults.setVisible(false);
+        searchResultsList = new JList();
+        searchResultsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        searchResultsList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        searchResultsList.setVisibleRowCount(1);
+        searchResults.add(new JScrollPane(searchResultsList,
+                JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+        searchResults.setPreferredSize(new Dimension(100, 200));
+        searchResultsList.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                Shape selection = (Shape) searchResultsList.getSelectedValue();
+
+                // TODO
+            }
+        });
+        add(searchResults, BorderLayout.NORTH);
 
         // save searches at left
         selectionPanel = new JPanel(new BorderLayout());
@@ -110,6 +129,28 @@ public class PathFind extends JFrame {
         slideViews = new JPanel(new GridLayout(1, 2));
         add(slideViews);
         setLeftSlide(new Wholeslide(new File(filename)), filename);
+
+        // fake menus for now
+        JMenuBar mb = new JMenuBar();
+        setJMenuBar(mb);
+
+        JMenu searchMenu = new JMenu("Search");
+        JMenuItem searchMenuItem = new JMenuItem("ImageJ Search");
+        searchMenuItem.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                doImageJSearch();
+            }
+        });
+
+        searchMenu.add(searchMenuItem);
+        mb.add(searchMenu);
+    }
+
+    protected void doImageJSearch() {
+        searchResults.setVisible(true);
+        
+        // TODO
     }
 
     private void setLeftSlide(Wholeslide wholeslide, String title) {
