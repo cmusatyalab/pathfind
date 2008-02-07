@@ -48,6 +48,8 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import edu.cmu.cs.diamond.wholeslide.Wholeslide;
 import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
@@ -95,6 +97,13 @@ public class PathFind extends JFrame {
         selectionPanel.setBorder(BorderFactory
                 .createTitledBorder("Saved Selections"));
         selectionPanel.setPreferredSize(new Dimension(280, 100));
+        savedSelections.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                Shape selection = (Shape) savedSelections.getSelectedValue();
+                slides[0].setSelection(selection);
+            }
+        });
         add(selectionPanel, BorderLayout.WEST);
 
         // main view in center
