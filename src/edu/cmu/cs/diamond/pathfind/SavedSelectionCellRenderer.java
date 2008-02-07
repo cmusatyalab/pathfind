@@ -24,7 +24,7 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
     final private static int THUMBNAIL_SIZE = 200;
 
     public SavedSelectionCellRenderer(WholeslideView wv) {
-        Wholeslide ws = wv.getWholeSlide();
+        Wholeslide ws = wv.getWholeslide();
         thumb = ws.createThumbnailImage(THUMBNAIL_SIZE);
 
         Dimension d = ws.getLayer0Dimension();
