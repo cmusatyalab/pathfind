@@ -43,11 +43,15 @@ package edu.cmu.cs.diamond.pathfind;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.Random;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -70,7 +74,9 @@ public class PathFind extends JFrame {
 
     private final JList savedSelections;
 
-    private SavedSelectionModel ssModel;
+    private DefaultListModel ssModel;
+
+    private DefaultListModel srModel;
 
     public PathFind(String filename) {
         super("PathFind");
@@ -81,9 +87,19 @@ public class PathFind extends JFrame {
         linkButton = new JToggleButton("Link");
         add(linkButton, BorderLayout.SOUTH);
         linkButton.setVisible(false);
+        linkButton.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (linkButton.isSelected()) {
+                    slides[0].linkWithOther(slides[1]);
+                } else {
+                    slides[0].unlinkOther();
+                }
+            }
+        });
 
         // search results at top
-        searchResults = new JPanel();
+        searchResults = new JPanel(new BorderLayout());
         searchResults.setBorder(BorderFactory
                 .createTitledBorder("Search Results"));
         searchResults.setVisible(false);
@@ -95,12 +111,19 @@ public class PathFind extends JFrame {
                 JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
         searchResults.setPreferredSize(new Dimension(100, 200));
+        srModel = new DefaultListModel();
+        searchResultsList.setModel(srModel);
         searchResultsList.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 Shape selection = (Shape) searchResultsList.getSelectedValue();
 
-                // TODO
+                if (selection == null) {
+                    setRightSlide(null, null);
+                } else {
+                    setRightSlide(slides[0].getWholeslide(), "Search Result");
+                    slides[1].setSelection(selection);
+                }
             }
         });
         add(searchResults, BorderLayout.NORTH);
@@ -148,25 +171,27 @@ public class PathFind extends JFrame {
     }
 
     protected void doImageJSearch() {
+        Random rand = new Random();
+
         searchResults.setVisible(true);
-        
-        // TODO
+
+        for (int i = 0; i < 40; i++) {
+            Rectangle r = new Rectangle(rand.nextInt(40000), rand
+                    .nextInt(20000), rand.nextInt(1000), rand.nextInt(1000));
+            srModel.addElement(r);
+        }
     }
 
     private void setLeftSlide(Wholeslide wholeslide, String title) {
-        setSlide(wholeslide, 0, title);
-    }
-
-    private void setSlide(Wholeslide wholeslide, int index, String title) {
-        WholeslideView oldSlide = slides[index];
+        WholeslideView oldSlide = slides[0];
         if (oldSlide != null) {
             oldSlide.unlinkOther();
             oldSlide.getActionMap().put("save selection", null);
         }
         final WholeslideView wv = createNewView(wholeslide, title);
 
-        slides[index] = wv;
-        slideViews.add(wv, index);
+        slides[0] = wv;
+        slideViews.add(wv, 0);
         wv.getInputMap()
                 .put(KeyStroke.getKeyStroke("INSERT"), "save selection");
         wv.getActionMap().put("save selection", new AbstractAction() {
@@ -178,6 +203,26 @@ public class PathFind extends JFrame {
         ssModel = new SavedSelectionModel(wv);
         savedSelections.setModel(ssModel);
         savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
+        searchResultsList.setCellRenderer(new SavedSelectionCellRenderer(wv));
+    }
+
+    private void setRightSlide(Wholeslide wholeslide, String title) {
+        WholeslideView oldView = slides[1];
+        linkButton.setSelected(false);
+        if (oldView != null) {
+            oldView.unlinkOther();
+            slideViews.remove(oldView);
+        }
+
+        if (wholeslide == null) {
+            linkButton.setVisible(false);
+        } else {
+            slides[1] = createNewView(wholeslide, title);
+            slideViews.add(slides[1]);
+            linkButton.setVisible(true);
+        }
+        
+        slideViews.revalidate();
     }
 
     protected void saveSelection(WholeslideView wv) {
