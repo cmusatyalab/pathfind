@@ -1,7 +1,7 @@
 /*
- *  Wholeslide -- a library for reading virtual slides
+ *  PathFind -- a Diamond system for pathology
  *
- *  Copyright (c) 2007-2008 Carnegie Mellon University
+ *  Copyright (c) 2008 Carnegie Mellon University
  *  All rights reserved.
  *
  *  PathFind is free software: you can redistribute it and/or modify
