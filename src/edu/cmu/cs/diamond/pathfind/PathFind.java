@@ -88,7 +88,6 @@ public class PathFind extends JFrame {
         add(linkButton, BorderLayout.SOUTH);
         linkButton.setVisible(false);
         linkButton.addChangeListener(new ChangeListener() {
-            @Override
             public void stateChanged(ChangeEvent e) {
                 if (linkButton.isSelected()) {
                     slides[0].linkWithOther(slides[1]);
@@ -114,7 +113,6 @@ public class PathFind extends JFrame {
         srModel = new DefaultListModel();
         searchResultsList.setModel(srModel);
         searchResultsList.addListSelectionListener(new ListSelectionListener() {
-            @Override
             public void valueChanged(ListSelectionEvent e) {
                 Shape selection = (Shape) searchResultsList.getSelectedValue();
 
@@ -140,7 +138,6 @@ public class PathFind extends JFrame {
                 .createTitledBorder("Saved Selections"));
         selectionPanel.setPreferredSize(new Dimension(280, 100));
         savedSelections.addListSelectionListener(new ListSelectionListener() {
-            @Override
             public void valueChanged(ListSelectionEvent e) {
                 Shape selection = (Shape) savedSelections.getSelectedValue();
                 slides[0].setSelection(selection);
@@ -160,7 +157,6 @@ public class PathFind extends JFrame {
         JMenu searchMenu = new JMenu("Search");
         JMenuItem searchMenuItem = new JMenuItem("ImageJ Search");
         searchMenuItem.addActionListener(new AbstractAction() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 doImageJSearch();
             }
@@ -195,7 +191,6 @@ public class PathFind extends JFrame {
         wv.getInputMap()
                 .put(KeyStroke.getKeyStroke("INSERT"), "save selection");
         wv.getActionMap().put("save selection", new AbstractAction() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 saveSelection(wv);
             }
