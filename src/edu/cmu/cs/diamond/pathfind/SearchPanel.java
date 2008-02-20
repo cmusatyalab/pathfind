@@ -26,6 +26,8 @@ public class SearchPanel extends JPanel implements ListSelectionListener {
     public SearchPanel(PathFind pf) {
     	/* XXX NEW */
         pathFind = pf;
+
+        setLayout(new BorderLayout());
         
         setBorder(BorderFactory.createTitledBorder("Search Results"));
         
@@ -35,10 +37,11 @@ public class SearchPanel extends JPanel implements ListSelectionListener {
         list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         list.setVisibleRowCount(1);
         
+        setPreferredSize(new Dimension(100, 280));
+
         add(new JScrollPane(list,
                 JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
-        setPreferredSize(new Dimension(100, 200));
     }
 
     @Override
