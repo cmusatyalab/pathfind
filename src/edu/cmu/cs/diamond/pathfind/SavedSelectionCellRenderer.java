@@ -41,34 +41,25 @@
 package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.ImageIcon;
-import javax.swing.JList;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 import edu.cmu.cs.diamond.wholeslide.Wholeslide;
 import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
 
 public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
 
-    final private BufferedImage thumb;
-
-    final private double downsample;
-
     final private static int THUMBNAIL_SIZE = 200;
 
-    public SavedSelectionCellRenderer(WholeslideView wv) {
-        Wholeslide ws = wv.getWholeslide();
-        thumb = ws.createThumbnailImage(THUMBNAIL_SIZE);
+    final private Wholeslide ws;
 
-        Dimension d = ws.getLayer0Dimension();
-        downsample = Math.max(d.height, d.width) / THUMBNAIL_SIZE;
+    public SavedSelectionCellRenderer(WholeslideView wv) {
+        ws = wv.getWholeslide();
     }
 
     @Override
@@ -80,16 +71,28 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
 
         Shape s = (Shape) value;
 
+        Rectangle2D bb = s.getBounds2D();
+
+        double downsample = Math.max(bb.getWidth(), bb.getHeight())
+                / THUMBNAIL_SIZE;
+
+        if (downsample < 1.0) {
+            downsample = 1.0;
+        }
+        
         c.setText(null);
 
-        BufferedImage b = new BufferedImage(thumb.getWidth(),
-                thumb.getHeight(), thumb.getType());
-        Graphics2D g = b.createGraphics();
-        g.drawImage(thumb, 0, 0, null);
-        WholeslideView.paintSelection(g, s, 0, 0, downsample);
+        BufferedImage thumb = ws.createThumbnailImage((int) bb.getX(), (int) bb
+                .getY(), (int) bb.getWidth(), (int) bb.getHeight(),
+                THUMBNAIL_SIZE);
+        Graphics2D g = thumb.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        WholeslideView.paintSelection(g, s, (int) (-bb.getX() / downsample),
+                (int) (-bb.getY() / downsample), downsample);
         g.dispose();
 
-        c.setIcon(new ImageIcon(b));
+        c.setIcon(new ImageIcon(thumb));
 
         c.setHorizontalAlignment(SwingConstants.CENTER);
         c.setVerticalAlignment(SwingConstants.CENTER);
