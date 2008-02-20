@@ -107,7 +107,6 @@ final public class SearchModel extends AbstractListModel implements
                             public void run() {
                                 System.out.println(" *** adding " + r);
 
-                                // else, try the other one
                                 byte data[] = r.getValue("_rgb_image.rgbimage");
                                 byte tmp[] = r.getValue("_cols.int");
                                 int w = Util.extractInt(tmp);
