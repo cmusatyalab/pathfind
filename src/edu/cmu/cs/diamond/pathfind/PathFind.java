@@ -47,6 +47,10 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.*;
@@ -54,6 +58,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import edu.cmu.cs.diamond.opendiamond.Filter;
+import edu.cmu.cs.diamond.opendiamond.FilterCode;
+import edu.cmu.cs.diamond.opendiamond.Scope;
+import edu.cmu.cs.diamond.opendiamond.ScopeSource;
+import edu.cmu.cs.diamond.opendiamond.Search;
+import edu.cmu.cs.diamond.opendiamond.Searchlet;
 
 import edu.cmu.cs.diamond.wholeslide.Wholeslide;
 import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
@@ -64,19 +75,17 @@ public class PathFind extends JFrame {
 
     private final JToggleButton linkButton;
 
-    private final JPanel searchResults;
-
-    private final JList searchResultsList;
+    private final SearchPanel searchPanel;
 
     private final WholeslideView slides[] = new WholeslideView[2];
 
     private final JPanel selectionPanel;
 
     private final JList savedSelections;
-
+    
+    private final Scope scope;
+    
     private DefaultListModel ssModel;
-
-    private DefaultListModel srModel;
 
     public PathFind(String filename) {
         super("PathFind");
@@ -98,35 +107,11 @@ public class PathFind extends JFrame {
         });
 
         // search results at top
-        searchResults = new JPanel(new BorderLayout());
-        searchResults.setBorder(BorderFactory
-                .createTitledBorder("Search Results"));
-        searchResults.setVisible(false);
-        searchResultsList = new JList();
-        searchResultsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        searchResultsList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-        searchResultsList.setVisibleRowCount(1);
-        searchResults.add(new JScrollPane(searchResultsList,
-                JScrollPane.VERTICAL_SCROLLBAR_NEVER,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
-        searchResults.setPreferredSize(new Dimension(100, 200));
-        srModel = new DefaultListModel();
-        searchResultsList.setModel(srModel);
-        searchResultsList.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                Shape selection = (Shape) searchResultsList.getSelectedValue();
+        searchPanel = new SearchPanel(this);
+        searchPanel.setVisible(false);
+        add(searchPanel, BorderLayout.NORTH);
 
-                if (selection == null) {
-                    setRightSlide(null, null);
-                } else {
-                    setRightSlide(slides[0].getWholeslide(), "Search Result");
-                    slides[1].setSelection(selection);
-                }
-            }
-        });
-        add(searchResults, BorderLayout.NORTH);
-
-        // save searches at left
+        // save selections at left
         selectionPanel = new JPanel(new BorderLayout());
         savedSelections = new JList();
         savedSelections.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -164,20 +149,67 @@ public class PathFind extends JFrame {
 
         searchMenu.add(searchMenuItem);
         mb.add(searchMenu);
+        
+        // load scope
+        ScopeSource.commitScope();
+        List<Scope> scopes = ScopeSource.getPredefinedScopeList();
+        this.scope = scopes.get(0);
     }
+    
+    /* XXX IMPORTED XXX */
+    
+    public void doImageJSearch() {
+        // search
+    	/* DEATH BY CAST */
+        Shape s = (Shape) savedSelections.getSelectedValue();
 
-    protected void doImageJSearch() {
-        Random rand = new Random();
-
-        searchResults.setVisible(true);
-
-        for (int i = 0; i < 40; i++) {
-            Rectangle r = new Rectangle(rand.nextInt(40000), rand
-                    .nextInt(20000), rand.nextInt(1000), rand.nextInt(1000));
-            srModel.addElement(r);
+        if (s != null) {
+            // start a search
+            startSearch(s);
+            return;
         }
     }
+    
+    public void startSearch(Shape shape) {
+        System.out.println("start search");
+        
+        Search search = Search.getSharedInstance();
+        // TODO fill in search parameters
+        search.setScope(scope);
+        search.setSearchlet(prepareSearchlet(shape));
 
+        searchPanel.beginSearch(search);
+    }
+
+    private Searchlet prepareSearchlet(Shape shape) {
+        // set up the rgb filter
+        Filter rgb = null;
+        try {
+            FilterCode c = new FilterCode(new FileInputStream(
+                    "/opt/snapfind/lib/fil_rgb.a"));
+            rgb = new Filter("RGB", c, "f_eval_img2rgb", "f_init_img2rgb",
+                    "f_fini_img2rgb", 1, new String[0], new String[0], 400);
+            System.out.println(rgb);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // init diamond
+        Search search = Search.getSharedInstance();
+        search.setScope(scope);
+
+        // make a new searchlet
+        Searchlet searchlet = new Searchlet();
+        searchlet.addFilter(rgb);
+        searchlet.setApplicationDependencies(new String[] { "RGB" });
+        
+        return searchlet;
+    }
+    
+    /* XXX END IMPORTED XXX */
+    
     private void setLeftSlide(Wholeslide wholeslide, String title) {
         WholeslideView oldSlide = slides[0];
         if (oldSlide != null) {
@@ -198,7 +230,6 @@ public class PathFind extends JFrame {
         ssModel = new SavedSelectionModel(wv);
         savedSelections.setModel(ssModel);
         savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
-        searchResultsList.setCellRenderer(new SavedSelectionCellRenderer(wv));
     }
 
     private void setRightSlide(Wholeslide wholeslide, String title) {

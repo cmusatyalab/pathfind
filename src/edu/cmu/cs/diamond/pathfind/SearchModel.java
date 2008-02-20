@@ -40,18 +40,27 @@
 
 package edu.cmu.cs.diamond.pathfind;
 
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractListModel;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import edu.cmu.cs.diamond.opendiamond.Result;
 import edu.cmu.cs.diamond.opendiamond.Search;
 import edu.cmu.cs.diamond.opendiamond.SearchEvent;
 import edu.cmu.cs.diamond.opendiamond.SearchEventListener;
+import edu.cmu.cs.diamond.opendiamond.Util;
 
 final public class SearchModel extends AbstractListModel implements
         SearchEventListener {
@@ -63,7 +72,7 @@ final public class SearchModel extends AbstractListModel implements
 
     final protected Object lock = new Object();
 
-    final protected List<Shape> list = new LinkedList<Shape>();
+    final protected List<BufferedImage> list = new LinkedList<BufferedImage>();
 
     public SearchModel(Search search, int limit) {
         this.search = search;
@@ -98,12 +107,33 @@ final public class SearchModel extends AbstractListModel implements
                             public void run() {
                                 System.out.println(" *** adding " + r);
 
-                                String name = r.getObjectName();
+                                // else, try the other one
+                                byte data[] = r.getValue("_rgb_image.rgbimage");
+                                byte tmp[] = r.getValue("_cols.int");
+                                int w = Util.extractInt(tmp);
+                                tmp = r.getValue("_rows.int");
+                                int h = Util.extractInt(tmp);
+
+                                System.out.println(w + "x" + h);
+
+                                BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                                for (int y = 0; y < h; y++) {
+                                    for (int x = 0; x < w; x++) {
+                                        int i = (y * w + x) * 4;
+                                        // System.out.println(x);
+                                        // System.out.println(y);
+                                        int val = (data[i] & 0xFF) << 16
+                                                | (data[i + 1] & 0xFF) << 8 | (data[i + 2] & 0xFF);
+                                        img.setRGB(x, y, val);
+                                    }
+                                }
                                 
-                                list.add(new Rectangle(100, 100, 100, 100));
+                                System.out.println(" >>img is  " + img);
+                                
+                                list.add(img);
                                 int index = list.size();
-                                fireIntervalAdded(SearchModel.this, index,
-                                        index);
+                                fireIntervalAdded(SearchModel.this, index, index);
+                                
                             }
                         });
                         i++;
