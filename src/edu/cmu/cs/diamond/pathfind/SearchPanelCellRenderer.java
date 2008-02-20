@@ -41,54 +41,43 @@
 package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.ImageIcon;
-import javax.swing.JList;
-import javax.swing.SwingConstants;
-
-import edu.cmu.cs.diamond.opendiamond.Util;
-import edu.cmu.cs.diamond.wholeslide.Wholeslide;
-import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
+import javax.swing.*;
 
 public class SearchPanelCellRenderer extends DefaultListCellRenderer {
 
     public SearchPanelCellRenderer() {
-/*        Wholeslide ws = wv.getWholeslide();
-        thumb = ws.createThumbnailImage(THUMBNAIL_SIZE);
-
-        Dimension d = ws.getLayer0Dimension();
-        downsample = Math.max(d.height, d.width) / THUMBNAIL_SIZE;*/
+        /*
+         * Wholeslide ws = wv.getWholeslide(); thumb =
+         * ws.createThumbnailImage(THUMBNAIL_SIZE);
+         * 
+         * Dimension d = ws.getLayer0Dimension(); downsample =
+         * Math.max(d.height, d.width) / THUMBNAIL_SIZE;
+         */
     }
 
     @Override
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) {
 
-    	DefaultListCellRenderer c = (DefaultListCellRenderer) super
-        .getListCellRendererComponent(list, value, index, isSelected,
-                cellHasFocus);
+        DefaultListCellRenderer c = (DefaultListCellRenderer) super
+                .getListCellRendererComponent(list, value, index, isSelected,
+                        cellHasFocus);
 
-    	BufferedImage img = (BufferedImage)value;
+        BufferedImage img = (BufferedImage) value;
         
-    	c.setText("fish");
+        System.out.println("going to draw " + img);
 
-            c.setIcon(new ImageIcon(img));
-            c.setHorizontalAlignment(SwingConstants.CENTER);
-            c.setVerticalAlignment(SwingConstants.CENTER);
-            c.setHorizontalTextPosition(SwingConstants.CENTER);
-            c.setVerticalTextPosition(SwingConstants.BOTTOM);
-            c.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-                
-        
+        c.setText("fish");
+
+        c.setIcon(new ImageIcon(img));
+        c.setHorizontalAlignment(SwingConstants.CENTER);
+        c.setVerticalAlignment(SwingConstants.CENTER);
+        c.setHorizontalTextPosition(SwingConstants.CENTER);
+        c.setVerticalTextPosition(SwingConstants.BOTTOM);
+        c.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+
         return c;
     }
 

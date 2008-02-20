@@ -40,27 +40,14 @@
 
 package edu.cmu.cs.diamond.pathfind;
 
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractListModel;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import edu.cmu.cs.diamond.opendiamond.Result;
-import edu.cmu.cs.diamond.opendiamond.Search;
-import edu.cmu.cs.diamond.opendiamond.SearchEvent;
-import edu.cmu.cs.diamond.opendiamond.SearchEventListener;
-import edu.cmu.cs.diamond.opendiamond.Util;
+import edu.cmu.cs.diamond.opendiamond.*;
 
 final public class SearchModel extends AbstractListModel implements
         SearchEventListener {
