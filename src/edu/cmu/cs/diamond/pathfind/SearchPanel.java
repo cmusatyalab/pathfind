@@ -11,29 +11,28 @@ import edu.cmu.cs.diamond.opendiamond.Search;
 
 public class SearchPanel extends JPanel implements ListSelectionListener {
     final protected JList list;
-    
+
     protected Search theSearch;
 
     final private PathFind pathFind;
 
     public SearchPanel(PathFind pf) {
-    	/* XXX NEW */
+        /* XXX NEW */
         pathFind = pf;
 
         setLayout(new BorderLayout());
-        
+
         setBorder(BorderFactory.createTitledBorder("Search Results"));
-        
+
         list = new JList();
         list.setCellRenderer(new SearchPanelCellRenderer());
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         list.setVisibleRowCount(1);
-        
+
         setPreferredSize(new Dimension(100, 280));
 
-        add(new JScrollPane(list,
-                JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+        add(new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
     }
 
@@ -75,22 +74,19 @@ public class SearchPanel extends JPanel implements ListSelectionListener {
 
         setVisible(true);
     }
-    
-    public void valueChanged(ListSelectionEvent e) {
-        /* Shape selection = (Shape) list.getSelectedValue();
 
-        if (selection == null) {
-            setRightSlide(null, null);
-        } else {
-            setRightSlide(slides[0].getWholeslide(), "Search Result");
-            slides[1].setSelection(selection);
-        }*/
-    }
-/*
     public void valueChanged(ListSelectionEvent e) {
-        if (!e.getValueIsAdjusting()) {
-            MassResult r = (MassResult) list.getSelectedValue();
-            pathFind.setSelectedResult(r);
-        }
-    } */
+        /*
+         * Shape selection = (Shape) list.getSelectedValue();
+         * 
+         * if (selection == null) { setRightSlide(null, null); } else {
+         * setRightSlide(slides[0].getWholeslide(), "Search Result");
+         * slides[1].setSelection(selection); }
+         */
+    }
+    /*
+     * public void valueChanged(ListSelectionEvent e) { if
+     * (!e.getValueIsAdjusting()) { MassResult r = (MassResult)
+     * list.getSelectedValue(); pathFind.setSelectedResult(r); } }
+     */
 }
