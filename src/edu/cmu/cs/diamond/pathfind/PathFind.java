@@ -247,4 +247,11 @@ public class PathFind extends JFrame {
 
         return img;
     }
+    
+    public WholeslideView getLeftSlide() {
+        return psv.getLeftSlide();
+    }
+    public WholeslideView getRightSlide() {
+        return psv.getRightSlide();
+    }
 }
