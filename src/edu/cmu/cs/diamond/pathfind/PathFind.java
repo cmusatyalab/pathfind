@@ -42,7 +42,6 @@ package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -51,25 +50,33 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import edu.cmu.cs.diamond.opendiamond.*;
+import edu.cmu.cs.diamond.opendiamond.Filter;
+import edu.cmu.cs.diamond.opendiamond.FilterCode;
+import edu.cmu.cs.diamond.opendiamond.Scope;
+import edu.cmu.cs.diamond.opendiamond.ScopeSource;
+import edu.cmu.cs.diamond.opendiamond.Search;
+import edu.cmu.cs.diamond.opendiamond.Searchlet;
 import edu.cmu.cs.diamond.wholeslide.Wholeslide;
 import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
 
 public class PathFind extends JFrame {
 
-    private final JPanel slideViews;
-
-    private final JToggleButton linkButton;
-
     private final SearchPanel searchPanel;
-
-    private final WholeslideView slides[] = new WholeslideView[2];
 
     private final JPanel selectionPanel;
 
@@ -79,25 +86,18 @@ public class PathFind extends JFrame {
     
     private DefaultListModel ssModel;
 
+    private final QueryPanel qp = new QueryPanel(this);
+    
+    private final PairedSlideView psv = new PairedSlideView();
+    
+    
     public PathFind(String filename) {
         super("PathFind");
         setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // link button at bottom
-        linkButton = new JToggleButton("Link");
-        add(linkButton, BorderLayout.SOUTH);
-        linkButton.setVisible(false);
-        linkButton.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                if (linkButton.isSelected()) {
-                    slides[0].linkWithOther(slides[1]);
-                } else {
-                    slides[0].unlinkOther();
-                }
-            }
-        });
-
+        add(psv);
+        
         // search results at top
         searchPanel = new SearchPanel(this);
         searchPanel.setVisible(false);
@@ -117,14 +117,11 @@ public class PathFind extends JFrame {
         savedSelections.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
                 Shape selection = (Shape) savedSelections.getSelectedValue();
-                slides[0].setSelection(selection);
+                psv.getLeftSlide().setSelection(selection);
             }
         });
         add(selectionPanel, BorderLayout.WEST);
 
-        // main view in center
-        slideViews = new JPanel(new GridLayout(1, 2));
-        add(slideViews);
         setLeftSlide(new Wholeslide(new File(filename)), filename);
 
         // fake menus for now
@@ -203,15 +200,9 @@ public class PathFind extends JFrame {
     /* XXX END IMPORTED XXX */
     
     private void setLeftSlide(Wholeslide wholeslide, String title) {
-        WholeslideView oldSlide = slides[0];
-        if (oldSlide != null) {
-            oldSlide.unlinkOther();
-            oldSlide.getActionMap().put("save selection", null);
-        }
         final WholeslideView wv = createNewView(wholeslide, title);
 
-        slides[0] = wv;
-        slideViews.add(wv, 0);
+        psv.setLeftSlide(wv);
         wv.getInputMap()
                 .put(KeyStroke.getKeyStroke("INSERT"), "save selection");
         wv.getActionMap().put("save selection", new AbstractAction() {
@@ -225,22 +216,11 @@ public class PathFind extends JFrame {
     }
 
     private void setRightSlide(Wholeslide wholeslide, String title) {
-        WholeslideView oldView = slides[1];
-        linkButton.setSelected(false);
-        if (oldView != null) {
-            oldView.unlinkOther();
-            slideViews.remove(oldView);
-        }
-
         if (wholeslide == null) {
-            linkButton.setVisible(false);
+        	psv.setRightSlide(null);
         } else {
-            slides[1] = createNewView(wholeslide, title);
-            slideViews.add(slides[1]);
-            linkButton.setVisible(true);
+            psv.setRightSlide(createNewView(wholeslide, title));
         }
-        
-        slideViews.revalidate();
     }
 
     protected void saveSelection(WholeslideView wv) {
