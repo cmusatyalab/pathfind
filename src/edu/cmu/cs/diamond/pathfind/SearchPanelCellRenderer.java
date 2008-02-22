@@ -43,9 +43,11 @@ package edu.cmu.cs.diamond.pathfind;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
 
-import javax.swing.*;
-
-import edu.cmu.cs.diamond.opendiamond.Result;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
+import javax.swing.JList;
+import javax.swing.SwingConstants;
 
 public class SearchPanelCellRenderer extends DefaultListCellRenderer {
 
@@ -67,9 +69,10 @@ public class SearchPanelCellRenderer extends DefaultListCellRenderer {
                 .getListCellRendererComponent(list, value, index, isSelected,
                         cellHasFocus);
 
-//        BufferedImage img = (BufferedImage) value;
         WholeslideRegionResult r = (WholeslideRegionResult) value;
+        BufferedImage thumb = r.drawThumbnail(200);
         
+        c.setIcon(new ImageIcon(thumb));
         c.setText(Double.toString(r.value));
 
         c.setHorizontalAlignment(SwingConstants.CENTER);
