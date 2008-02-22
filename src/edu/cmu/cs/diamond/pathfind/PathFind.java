@@ -46,6 +46,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -259,6 +260,11 @@ public class PathFind extends JFrame {
 			throw new SelectionTooBigException();
 		}
 
+		// move selection
+		AffineTransform at = AffineTransform.getTranslateInstance(-bb.getX(),
+				-bb.getY());
+		s = at.createTransformedShape(s);
+
 		BufferedImage img = new BufferedImage((int) bb.getWidth(), (int) bb
 				.getHeight(), BufferedImage.TYPE_INT_RGB);
 
@@ -266,8 +272,9 @@ public class PathFind extends JFrame {
 		g.setBackground(Color.WHITE);
 		g.clearRect(0, 0, img.getWidth(), img.getHeight());
 		g.clip(s);
-		psv.getLeftSlide().getWholeslide().paintRegion(g, 0, 0, (int) bb.getX(),
-				(int) bb.getY(), img.getWidth(), img.getHeight(), 1.0);
+		psv.getLeftSlide().getWholeslide().paintRegion(g, 0, 0,
+				(int) bb.getX(), (int) bb.getY(), img.getWidth(),
+				img.getHeight(), 1.0);
 		g.dispose();
 
 		return img;
