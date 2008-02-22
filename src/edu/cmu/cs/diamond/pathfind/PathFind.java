@@ -41,9 +41,13 @@
 package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -76,168 +80,196 @@ import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
 
 public class PathFind extends JFrame {
 
-    private final SearchPanel searchPanel;
+	private final SearchPanel searchPanel;
 
-    private final JPanel selectionPanel;
+	private final JPanel selectionPanel;
 
-    private final JList savedSelections;
-    
-    private final Scope scope;
-    
-    private DefaultListModel ssModel;
+	private final JList savedSelections;
 
-    private final QueryPanel qp = new QueryPanel(this);
-    
-    private final PairedSlideView psv = new PairedSlideView();
-    
-    
-    public PathFind(String filename) {
-        super("PathFind");
-        setSize(1000, 750);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	private final Scope scope;
 
-        add(psv);
-        
-        // search results at top
-        searchPanel = new SearchPanel(this);
-        searchPanel.setVisible(false);
-        add(searchPanel, BorderLayout.NORTH);
+	private DefaultListModel ssModel;
 
-        // save selections at left
-        selectionPanel = new JPanel(new BorderLayout());
-        savedSelections = new JList();
-        savedSelections.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        savedSelections.setLayoutOrientation(JList.VERTICAL);
-        selectionPanel.add(new JScrollPane(savedSelections,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-        selectionPanel.setBorder(BorderFactory
-                .createTitledBorder("Saved Selections"));
-        selectionPanel.setPreferredSize(new Dimension(280, 100));
-        savedSelections.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                Shape selection = (Shape) savedSelections.getSelectedValue();
-                psv.getLeftSlide().setSelection(selection);
-            }
-        });
-        add(selectionPanel, BorderLayout.WEST);
+	private final QueryPanel qp = new QueryPanel(this);
 
-        setLeftSlide(new Wholeslide(new File(filename)), filename);
+	private final PairedSlideView psv = new PairedSlideView();
 
-        // fake menus for now
-        JMenuBar mb = new JMenuBar();
-        setJMenuBar(mb);
+	public PathFind(String filename) {
+		super("PathFind");
+		setSize(1000, 750);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JMenu searchMenu = new JMenu("Search");
-        JMenuItem searchMenuItem = new JMenuItem("ImageJ Search");
-        searchMenuItem.addActionListener(new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                doImageJSearch();
-            }
-        });
+		// slides in middle
+		add(psv);
 
-        searchMenu.add(searchMenuItem);
-        mb.add(searchMenu);
-        
-        // load scope
-        ScopeSource.commitScope();
-        List<Scope> scopes = ScopeSource.getPredefinedScopeList();
-        this.scope = scopes.get(0);
-    }
-    
-    /* XXX IMPORTED XXX */
-    
-    public void doImageJSearch() {
-        // search
-    	/* DEATH BY CAST */
-        Shape s = (Shape) savedSelections.getSelectedValue();
+		// query bar at bottom
+		add(qp, BorderLayout.SOUTH);
 
-        if (s != null) {
-            // start a search
-            startSearch(s);
-            return;
-        }
-    }
-    
-    public void startSearch(Shape shape) {
-        System.out.println("start search");
-        
-        Search search = Search.getSharedInstance();
-        // TODO fill in search parameters
-        search.setScope(scope);
-        search.setSearchlet(prepareSearchlet(shape));
+		// search results at top
+		searchPanel = new SearchPanel(this);
+		searchPanel.setVisible(false);
+		add(searchPanel, BorderLayout.NORTH);
 
-        searchPanel.beginSearch(search);
-    }
+		// save selections at left
+		selectionPanel = new JPanel(new BorderLayout());
+		savedSelections = new JList();
+		savedSelections.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		savedSelections.setLayoutOrientation(JList.VERTICAL);
+		selectionPanel.add(new JScrollPane(savedSelections,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+		selectionPanel.setBorder(BorderFactory
+				.createTitledBorder("Saved Selections"));
+		selectionPanel.setPreferredSize(new Dimension(280, 100));
+		savedSelections.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				Shape selection = (Shape) savedSelections.getSelectedValue();
+				psv.getLeftSlide().setSelection(selection);
+			}
+		});
+		add(selectionPanel, BorderLayout.WEST);
 
-    private Searchlet prepareSearchlet(Shape shape) {
-        // set up the rgb filter
-        Filter rgb = null;
-        try {
-            FilterCode c = new FilterCode(new FileInputStream(
-                    "/opt/snapfind/lib/fil_rgb.a"));
-            rgb = new Filter("RGB", c, "f_eval_img2rgb", "f_init_img2rgb",
-                    "f_fini_img2rgb", 1, new String[0], new String[0], 400);
-            System.out.println(rgb);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+		setLeftSlide(new Wholeslide(new File(filename)), filename);
 
-        // init diamond
-        Search search = Search.getSharedInstance();
-        search.setScope(scope);
+		// fake menus for now
+		JMenuBar mb = new JMenuBar();
+		setJMenuBar(mb);
 
-        // make a new searchlet
-        Searchlet searchlet = new Searchlet();
-        searchlet.addFilter(rgb);
-        searchlet.setApplicationDependencies(new String[] { "RGB" });
-        
-        return searchlet;
-    }
-    
-    /* XXX END IMPORTED XXX */
-    
-    private void setLeftSlide(Wholeslide wholeslide, String title) {
-        final WholeslideView wv = createNewView(wholeslide, title);
+		JMenu searchMenu = new JMenu("Search");
+		JMenuItem searchMenuItem = new JMenuItem("ImageJ Search");
+		searchMenuItem.addActionListener(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				doImageJSearch();
+			}
+		});
 
-        psv.setLeftSlide(wv);
-        wv.getInputMap()
-                .put(KeyStroke.getKeyStroke("INSERT"), "save selection");
-        wv.getActionMap().put("save selection", new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                saveSelection(wv);
-            }
-        });
-        ssModel = new SavedSelectionModel(wv);
-        savedSelections.setModel(ssModel);
-        savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
-    }
+		searchMenu.add(searchMenuItem);
+		mb.add(searchMenu);
 
-    private void setRightSlide(Wholeslide wholeslide, String title) {
-        if (wholeslide == null) {
-        	psv.setRightSlide(null);
-        } else {
-            psv.setRightSlide(createNewView(wholeslide, title));
-        }
-    }
+		// load scope
+		ScopeSource.commitScope();
+		List<Scope> scopes = ScopeSource.getPredefinedScopeList();
+		this.scope = scopes.get(0);
+	}
 
-    protected void saveSelection(WholeslideView wv) {
-        Shape s = wv.getSelection();
-        if (s != null) {
-            ssModel.addElement(s);
-        }
-    }
+	/* XXX IMPORTED XXX */
 
-    private WholeslideView createNewView(Wholeslide wholeslide, String title) {
-        WholeslideView wv = new WholeslideView(wholeslide);
-        wv.setBorder(BorderFactory.createTitledBorder(title));
-        return wv;
-    }
+	public void doImageJSearch() {
+		// search
+		/* DEATH BY CAST */
+		Shape s = (Shape) savedSelections.getSelectedValue();
 
-    public static void main(String[] args) {
-        PathFind pf = new PathFind(args[0]);
-        pf.setVisible(true);
-    }
+		if (s != null) {
+			// start a search
+			startSearch(s);
+			return;
+		}
+	}
+
+	public void startSearch(Shape shape) {
+		System.out.println("start search");
+
+		Search search = Search.getSharedInstance();
+		// TODO fill in search parameters
+		search.setScope(scope);
+		search.setSearchlet(prepareSearchlet(shape));
+
+		searchPanel.beginSearch(search);
+	}
+
+	private Searchlet prepareSearchlet(Shape shape) {
+		// set up the rgb filter
+		Filter rgb = null;
+		try {
+			FilterCode c = new FilterCode(new FileInputStream(
+					"/opt/snapfind/lib/fil_rgb.a"));
+			rgb = new Filter("RGB", c, "f_eval_img2rgb", "f_init_img2rgb",
+					"f_fini_img2rgb", 1, new String[0], new String[0], 400);
+			System.out.println(rgb);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// init diamond
+		Search search = Search.getSharedInstance();
+		search.setScope(scope);
+
+		// make a new searchlet
+		Searchlet searchlet = new Searchlet();
+		searchlet.addFilter(rgb);
+		searchlet.setApplicationDependencies(new String[] { "RGB" });
+
+		return searchlet;
+	}
+
+	/* XXX END IMPORTED XXX */
+
+	private void setLeftSlide(Wholeslide wholeslide, String title) {
+		final WholeslideView wv = createNewView(wholeslide, title);
+
+		psv.setLeftSlide(wv);
+		wv.getInputMap()
+				.put(KeyStroke.getKeyStroke("INSERT"), "save selection");
+		wv.getActionMap().put("save selection", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				saveSelection(wv);
+			}
+		});
+		ssModel = new SavedSelectionModel(wv);
+		savedSelections.setModel(ssModel);
+		savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
+	}
+
+	private void setRightSlide(Wholeslide wholeslide, String title) {
+		if (wholeslide == null) {
+			psv.setRightSlide(null);
+		} else {
+			psv.setRightSlide(createNewView(wholeslide, title));
+		}
+	}
+
+	protected void saveSelection(WholeslideView wv) {
+		Shape s = wv.getSelection();
+		if (s != null) {
+			ssModel.addElement(s);
+		}
+	}
+
+	private WholeslideView createNewView(Wholeslide wholeslide, String title) {
+		WholeslideView wv = new WholeslideView(wholeslide);
+		wv.setBorder(BorderFactory.createTitledBorder(title));
+		return wv;
+	}
+
+	public static void main(String[] args) {
+		PathFind pf = new PathFind(args[0]);
+		pf.setVisible(true);
+	}
+
+	public BufferedImage getSelectionAsImage() {
+		Shape s = psv.getLeftSlide().getSelection();
+		if (s == null) {
+			return null;
+		}
+
+		Rectangle2D bb = s.getBounds2D();
+		if (bb.getWidth() * bb.getHeight() > 6000 * 6000) {
+			throw new SelectionTooBigException();
+		}
+
+		BufferedImage img = new BufferedImage((int) bb.getWidth(), (int) bb
+				.getHeight(), BufferedImage.TYPE_INT_RGB);
+
+		Graphics2D g = img.createGraphics();
+		g.setBackground(Color.WHITE);
+		g.clearRect(0, 0, img.getWidth(), img.getHeight());
+		g.clip(s);
+		psv.getLeftSlide().getWholeslide().paintRegion(g, 0, 0, (int) bb.getX(),
+				(int) bb.getY(), img.getWidth(), img.getHeight(), 1.0);
+		g.dispose();
+
+		return img;
+	}
 }
