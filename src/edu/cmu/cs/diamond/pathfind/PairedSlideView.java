@@ -42,6 +42,10 @@ public class PairedSlideView extends JPanel {
 		return slides[0];
 	}
 
+	public WholeslideView getRightSlide() {
+	    return slides[1];
+	}
+	
 	public void setLeftSlide(WholeslideView wv) {
         WholeslideView oldSlide = slides[0];
         if (oldSlide != null) {
@@ -54,11 +58,17 @@ public class PairedSlideView extends JPanel {
 	}
 	
 	public void setRightSlide(WholeslideView wv) {
+	    linkButton.setSelected(false);
+	    if (slides[1] != null) {
+	        slideViews.remove(slides[1]);
+	        slides[1].unlinkOther();
+	    }
+	    
         if (wv == null) {
             linkButton.setVisible(false);
         } else {
             slides[1] = wv;
-            slideViews.add(slides[1]);
+            slideViews.add(wv, 1);
             linkButton.setVisible(true);
         }
         

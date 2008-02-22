@@ -175,7 +175,7 @@ public class PathFind extends JFrame {
         return searchlet;
     }
 
-    private void setLeftSlide(Wholeslide wholeslide, String title) {
+    void setLeftSlide(Wholeslide wholeslide, String title) {
         final WholeslideView wv = createNewView(wholeslide, title);
 
         psv.setLeftSlide(wv);
@@ -191,7 +191,7 @@ public class PathFind extends JFrame {
         savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
     }
 
-    private void setRightSlide(Wholeslide wholeslide, String title) {
+    void setRightSlide(Wholeslide wholeslide, String title) {
         if (wholeslide == null) {
             psv.setRightSlide(null);
         } else {

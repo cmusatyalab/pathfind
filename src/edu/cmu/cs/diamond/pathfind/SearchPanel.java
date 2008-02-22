@@ -2,6 +2,7 @@ package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Shape;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -16,7 +17,7 @@ public class SearchPanel extends JPanel implements ListSelectionListener {
 
     final private PathFind pathFind;
 
-    public SearchPanel(PathFind pf) {
+    public SearchPanel(final PathFind pf) {
         /* XXX NEW */
         pathFind = pf;
 
@@ -34,6 +35,16 @@ public class SearchPanel extends JPanel implements ListSelectionListener {
 
         add(new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+
+        list.addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+                WholeslideRegionResult r = (WholeslideRegionResult) list.getSelectedValue();
+                
+                pf.setRightSlide(r.ws, "Search Result");
+                pf.getRightSlide().setSelection(r.region);
+                pf.getRightSlide().centerOnSelection();
+            }
+        });
     }
 
     @Override
