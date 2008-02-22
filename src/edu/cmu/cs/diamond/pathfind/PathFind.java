@@ -126,6 +126,7 @@ public class PathFind extends JFrame {
 			public void valueChanged(ListSelectionEvent e) {
 				Shape selection = (Shape) savedSelections.getSelectedValue();
 				psv.getLeftSlide().setSelection(selection);
+				psv.getLeftSlide().centerOnSelection();
 			}
 		});
 		add(selectionPanel, BorderLayout.WEST);
