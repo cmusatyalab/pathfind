@@ -68,8 +68,9 @@ public class SearchPanelCellRenderer extends DefaultListCellRenderer {
                         cellHasFocus);
 
 //        BufferedImage img = (BufferedImage) value;
+        WholeslideRegionResult r = (WholeslideRegionResult) value;
         
-        c.setText(value.toString());
+        c.setText(Double.toString(r.value));
 
         c.setHorizontalAlignment(SwingConstants.CENTER);
         c.setVerticalAlignment(SwingConstants.CENTER);

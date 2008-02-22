@@ -40,8 +40,11 @@
 
 package edu.cmu.cs.diamond.pathfind;
 
+import java.awt.Rectangle;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractListModel;
 
@@ -49,6 +52,7 @@ import edu.cmu.cs.diamond.opendiamond.Result;
 import edu.cmu.cs.diamond.opendiamond.Search;
 import edu.cmu.cs.diamond.opendiamond.SearchEvent;
 import edu.cmu.cs.diamond.opendiamond.SearchEventListener;
+import edu.cmu.cs.diamond.opendiamond.Util;
 
 final public class SearchModel extends AbstractListModel implements
         SearchEventListener {
@@ -60,7 +64,7 @@ final public class SearchModel extends AbstractListModel implements
 
     final protected Object lock = new Object();
 
-    final protected List<String> list = new LinkedList<String>();
+    final protected List<WholeslideRegionResult> list = new LinkedList<WholeslideRegionResult>();
 
     public SearchModel(Search search, int limit) {
         this.search = search;
@@ -84,14 +88,33 @@ final public class SearchModel extends AbstractListModel implements
 
                 try {
                     int i = 0;
+
+                    Pattern p = Pattern.compile("file1-(\\d+)-(\\d+)\\.ppm$");
+
                     while (running && i < SearchModel.this.limit) {
                         final Result r = SearchModel.this.search
                                 .getNextResult();
                         if (r == null) {
                             break;
                         }
-                        list.add(r.getObjectName());
-                        System.out.println(r);
+
+                        String name = r.getObjectName();
+                        // TODO get metadata from the server in a different way
+                        Matcher m = p.matcher(name);
+                        if (!m.find()) {
+                            continue;
+                        }
+
+                        int x = Integer.parseInt(m.group(1));
+                        int y = Integer.parseInt(m.group(2));
+
+                        Rectangle bb = new Rectangle(x, y, 1024, 1024);
+
+                        // XXX: not null
+                        list.add(new WholeslideRegionResult(null, bb,
+                                Util.extractDouble(r
+                                        .getValue("_matlab_ans.double"))));
+
                         int index = list.size();
                         fireIntervalAdded(SearchModel.this, index, index);
                     }
