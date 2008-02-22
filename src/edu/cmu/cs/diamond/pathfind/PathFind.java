@@ -60,9 +60,6 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
@@ -132,21 +129,6 @@ public class PathFind extends JFrame {
 	add(selectionPanel, BorderLayout.WEST);
 
 	setLeftSlide(new Wholeslide(new File(filename)), filename);
-
-	// fake menus for now
-	JMenuBar mb = new JMenuBar();
-	setJMenuBar(mb);
-
-	JMenu searchMenu = new JMenu("Search");
-	JMenuItem searchMenuItem = new JMenuItem("ImageJ Search");
-	searchMenuItem.addActionListener(new AbstractAction() {
-	    public void actionPerformed(ActionEvent e) {
-		doImageJSearch();
-	    }
-	});
-
-	searchMenu.add(searchMenuItem);
-	mb.add(searchMenu);
 
 	// load scope
 	ScopeSource.commitScope();
