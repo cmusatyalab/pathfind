@@ -107,7 +107,10 @@ public class QueryPanel extends JPanel {
 						sb.append((char) data);
 					}
 
-					result = Double.parseDouble(sb.toString());
+					String sr = sb.toString();
+					System.out.println(sr);
+					String srr[] = sr.split("\n");
+					result = Double.parseDouble(srr[2]);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
