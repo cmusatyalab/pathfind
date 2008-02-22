@@ -40,14 +40,15 @@
 
 package edu.cmu.cs.diamond.pathfind;
 
-import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
-import javax.swing.SwingUtilities;
 
-import edu.cmu.cs.diamond.opendiamond.*;
+import edu.cmu.cs.diamond.opendiamond.Result;
+import edu.cmu.cs.diamond.opendiamond.Search;
+import edu.cmu.cs.diamond.opendiamond.SearchEvent;
+import edu.cmu.cs.diamond.opendiamond.SearchEventListener;
 
 final public class SearchModel extends AbstractListModel implements
         SearchEventListener {
@@ -59,7 +60,7 @@ final public class SearchModel extends AbstractListModel implements
 
     final protected Object lock = new Object();
 
-    final protected List<BufferedImage> list = new LinkedList<BufferedImage>();
+    final protected List<String> list = new LinkedList<String>();
 
     public SearchModel(Search search, int limit) {
         this.search = search;
@@ -89,40 +90,10 @@ final public class SearchModel extends AbstractListModel implements
                         if (r == null) {
                             break;
                         }
-
-                        SwingUtilities.invokeLater(new Runnable() {
-                            public void run() {
-                                System.out.println(" *** adding " + r);
-
-                                byte data[] = r.getValue("_rgb_image.rgbimage");
-                                byte tmp[] = r.getValue("_cols.int");
-                                int w = Util.extractInt(tmp);
-                                tmp = r.getValue("_rows.int");
-                                int h = Util.extractInt(tmp);
-
-                                System.out.println(w + "x" + h);
-
-                                BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-                                for (int y = 0; y < h; y++) {
-                                    for (int x = 0; x < w; x++) {
-                                        int i = (y * w + x) * 4;
-                                        // System.out.println(x);
-                                        // System.out.println(y);
-                                        int val = (data[i] & 0xFF) << 16
-                                                | (data[i + 1] & 0xFF) << 8 | (data[i + 2] & 0xFF);
-                                        img.setRGB(x, y, val);
-                                    }
-                                }
-                                
-                                System.out.println(" >>img is  " + img);
-                                
-                                list.add(img);
-                                int index = list.size();
-                                fireIntervalAdded(SearchModel.this, index, index);
-                                
-                            }
-                        });
-                        i++;
+                        list.add(r.getObjectName());
+                        System.out.println(r);
+                        int index = list.size();
+                        fireIntervalAdded(SearchModel.this, index, index);
                     }
                 } catch (InterruptedException e) {
                 } finally {

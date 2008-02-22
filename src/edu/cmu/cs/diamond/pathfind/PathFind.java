@@ -136,41 +136,26 @@ public class PathFind extends JFrame {
         this.scope = scopes.get(0);
     }
 
-    /* XXX IMPORTED XXX */
-
-    public void doImageJSearch() {
-        // search
-        /* DEATH BY CAST */
-        Shape s = (Shape) savedSelections.getSelectedValue();
-
-        if (s != null) {
-            // start a search
-            startSearch(s);
-            return;
-        }
-    }
-
-    public void startSearch(Shape shape) {
+    public void startSearch(double threshold, byte[] macroBlob) {
         System.out.println("start search");
 
         Search search = Search.getSharedInstance();
         // TODO fill in search parameters
         search.setScope(scope);
-        search.setSearchlet(prepareSearchlet(shape));
+        search.setSearchlet(prepareSearchlet(threshold, macroBlob));
 
         searchPanel.beginSearch(search);
     }
 
-    private Searchlet prepareSearchlet(Shape shape, byte[] macroBlob) {
+    private Searchlet prepareSearchlet(double threshold, byte[] macroBlob) {
         Filter imagej = null;
         try {
             FilterCode c = new FilterCode(new FileInputStream(
                     "/usr/share/imagejfind/filter/fil_imagej_exec.so"));
-            imagej = new Filter("neurites", c, "f_eval_imagej_exec",
+            imagej = new Filter("imagej", c, "f_eval_imagej_exec",
                     "f_init_imagej_exec", "f_fini_imagej_exec", 0,
-                    new String[] { "rgb" }, new String[] {}, 400, macroBlob);
-            System.out.println(neurites);
-            System.out.println(rgb);
+                    new String[] {}, new String[] {}, 400, macroBlob);
+            System.out.println(imagej);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -183,13 +168,11 @@ public class PathFind extends JFrame {
 
         // make a new searchlet
         Searchlet searchlet = new Searchlet();
-        searchlet.addFilter(rgb);
-        searchlet.setApplicationDependencies(new String[] { "RGB" });
+        searchlet.addFilter(imagej);
+        searchlet.setApplicationDependencies(new String[] { "imagej" });
 
         return searchlet;
     }
-
-    /* XXX END IMPORTED XXX */
 
     private void setLeftSlide(Wholeslide wholeslide, String title) {
         final WholeslideView wv = createNewView(wholeslide, title);

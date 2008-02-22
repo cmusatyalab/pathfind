@@ -45,6 +45,8 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.*;
 
+import edu.cmu.cs.diamond.opendiamond.Result;
+
 public class SearchPanelCellRenderer extends DefaultListCellRenderer {
 
     public SearchPanelCellRenderer() {
@@ -65,13 +67,10 @@ public class SearchPanelCellRenderer extends DefaultListCellRenderer {
                 .getListCellRendererComponent(list, value, index, isSelected,
                         cellHasFocus);
 
-        BufferedImage img = (BufferedImage) value;
+//        BufferedImage img = (BufferedImage) value;
         
-        System.out.println("going to draw " + img);
+        c.setText(value.toString());
 
-        c.setText("fish");
-
-        c.setIcon(new ImageIcon(img));
         c.setHorizontalAlignment(SwingConstants.CENTER);
         c.setVerticalAlignment(SwingConstants.CENTER);
         c.setHorizontalTextPosition(SwingConstants.CENTER);
