@@ -131,7 +131,7 @@ public class QueryPanel extends JPanel {
                 // reset hourglass
                 setCursor(null);
             }
-            return result;
+            return result / 10000.0;
         }
     }
 

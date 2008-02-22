@@ -153,8 +153,9 @@ public class PathFind extends JFrame {
             FilterCode c = new FilterCode(new FileInputStream(
                     "/usr/share/imagejfind/filter/fil_imagej_exec.so"));
             imagej = new Filter("imagej", c, "f_eval_imagej_exec",
-                    "f_init_imagej_exec", "f_fini_imagej_exec", 0,
-                    new String[] {}, new String[] {}, 400, macroBlob);
+                    "f_init_imagej_exec", "f_fini_imagej_exec",
+                    (int) (threshold * 10000), new String[] {},
+                    new String[] {}, 400, macroBlob);
             System.out.println(imagej);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

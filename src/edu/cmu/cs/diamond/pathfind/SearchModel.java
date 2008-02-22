@@ -53,6 +53,7 @@ import edu.cmu.cs.diamond.opendiamond.Search;
 import edu.cmu.cs.diamond.opendiamond.SearchEvent;
 import edu.cmu.cs.diamond.opendiamond.SearchEventListener;
 import edu.cmu.cs.diamond.opendiamond.Util;
+import edu.cmu.cs.diamond.wholeslide.Wholeslide;
 
 final public class SearchModel extends AbstractListModel implements
         SearchEventListener {
@@ -63,10 +64,10 @@ final public class SearchModel extends AbstractListModel implements
     final protected int limit;
 
     final protected Object lock = new Object();
-
+    
     final protected List<WholeslideRegionResult> list = new LinkedList<WholeslideRegionResult>();
 
-    public SearchModel(Search search, int limit) {
+    public SearchModel(Search search, final Wholeslide ws, int limit) {
         this.search = search;
         this.limit = limit;
 
@@ -111,9 +112,13 @@ final public class SearchModel extends AbstractListModel implements
                         Rectangle bb = new Rectangle(x, y, 1024, 1024);
 
                         // XXX: not null
-                        list.add(new WholeslideRegionResult(null, bb,
-                                Util.extractDouble(r
-                                        .getValue("_matlab_ans.double"))));
+                        list
+                                .add(new WholeslideRegionResult(
+                                        ws,
+                                        bb,
+                                        Util
+                                                .extractDouble(r
+                                                        .getValue("_matlab_ans.double")) / 10000.0));
 
                         int index = list.size();
                         fireIntervalAdded(SearchModel.this, index, index);
