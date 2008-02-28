@@ -146,6 +146,11 @@ public class PathFind extends JFrame {
 
         searchPanel.beginSearch(search);
     }
+    
+    public void stopSearch()
+    {
+    	searchPanel.endSearch();
+    }
 
     private Searchlet prepareSearchlet(double threshold, byte[] macroBlob) {
         Filter imagej = null;

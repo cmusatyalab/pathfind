@@ -22,7 +22,6 @@ public class SearchPanel extends JPanel implements ListSelectionListener {
         pathFind = pf;
 
         setLayout(new BorderLayout());
-
         setBorder(BorderFactory.createTitledBorder("Search Results"));
 
         list = new JList();
@@ -85,6 +84,11 @@ public class SearchPanel extends JPanel implements ListSelectionListener {
         theSearch.start();
 
         setVisible(true);
+    }
+    
+    void endSearch()
+    {
+    	if (theSearch != null) theSearch.stop();
     }
 
     public void valueChanged(ListSelectionEvent e) {
