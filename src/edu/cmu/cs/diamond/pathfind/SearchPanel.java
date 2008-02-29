@@ -80,7 +80,7 @@ public class SearchPanel extends JPanel implements ListSelectionListener {
         deregisterListener();
 
         list.setModel(new SearchModel(theSearch, pathFind.getLeftSlide()
-                .getWholeslide(), Integer.MAX_VALUE));
+                .getWholeslide(), 50));
 
         theSearch.start();
 
