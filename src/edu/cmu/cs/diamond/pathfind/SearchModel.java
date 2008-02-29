@@ -65,7 +65,7 @@ final public class SearchModel extends AbstractListModel implements
     final protected int limit;
 
     final protected Object lock = new Object();
-    
+
     final protected List<WholeslideRegionResult> list = new LinkedList<WholeslideRegionResult>();
 
     public SearchModel(Search search, final Wholeslide ws, int limit) {
