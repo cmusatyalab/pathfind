@@ -110,7 +110,7 @@ final public class SearchModel extends AbstractListModel implements
                         int x = Integer.parseInt(m.group(1));
                         int y = Integer.parseInt(m.group(2));
 
-                        Rectangle bb = new Rectangle(x, y, 1024, 1024);
+                        Rectangle bb = new Rectangle(x, y, 512, 512);
 
                         list
                                 .add(new WholeslideRegionResult(
