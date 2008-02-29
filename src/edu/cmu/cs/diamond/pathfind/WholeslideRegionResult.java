@@ -10,30 +10,44 @@ import edu.cmu.cs.diamond.wholeslide.Wholeslide;
 import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
 
 public class WholeslideRegionResult {
-    public WholeslideRegionResult(Wholeslide ws, Shape region, double value) {
-        this.ws = ws;
-        this.region = region;
-        this.value = value;
-    }
+    private BufferedImage thumb;
+
     public final Wholeslide ws;
     public final Shape region;
     public final double value;
-    
-    public BufferedImage drawThumbnail(int maxSize) {
+
+    private final int thumbSize;
+
+    public WholeslideRegionResult(Wholeslide ws, Shape region, double value,
+            int thumbSize) {
+        this.ws = ws;
+        this.region = region;
+        this.value = value;
+
+        // this.thumb = drawThumbnail(thumbSize);
+        this.thumbSize = thumbSize;
+    }
+
+    public BufferedImage getThumbnail() {
+        if (thumb == null) {
+            thumb = drawThumbnail(thumbSize);
+        }
+        return thumb;
+    }
+
+    private BufferedImage drawThumbnail(int maxSize) {
         Shape s = region;
-        
+
         Rectangle2D bb = s.getBounds2D();
 
-        double downsample = Math.max(bb.getWidth(), bb.getHeight())
-                / maxSize;
+        double downsample = Math.max(bb.getWidth(), bb.getHeight()) / maxSize;
 
         if (downsample < 1.0) {
             downsample = 1.0;
         }
-        
+
         BufferedImage thumb = ws.createThumbnailImage((int) bb.getX(), (int) bb
-                .getY(), (int) bb.getWidth(), (int) bb.getHeight(),
-                maxSize);
+                .getY(), (int) bb.getWidth(), (int) bb.getHeight(), maxSize);
         Graphics2D g = thumb.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);

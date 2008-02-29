@@ -47,6 +47,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractListModel;
+import javax.swing.SwingUtilities;
 
 import edu.cmu.cs.diamond.opendiamond.Result;
 import edu.cmu.cs.diamond.opendiamond.Search;
@@ -111,17 +112,22 @@ final public class SearchModel extends AbstractListModel implements
 
                         Rectangle bb = new Rectangle(x, y, 1024, 1024);
 
-                        // XXX: not null
                         list
                                 .add(new WholeslideRegionResult(
                                         ws,
                                         bb,
                                         Util
                                                 .extractDouble(r
-                                                        .getValue("_matlab_ans.double")) / 10000.0));
+                                                        .getValue("_matlab_ans.double")) / 10000.0,
+                                        200));
 
-                        int index = list.size();
-                        fireIntervalAdded(SearchModel.this, index, index);
+                        final int index = list.size();
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                fireIntervalAdded(SearchModel.this, index,
+                                        index);
+                            }
+                        });
                     }
                 } catch (InterruptedException e) {
                 } finally {

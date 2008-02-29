@@ -70,7 +70,7 @@ public class SearchPanelCellRenderer extends DefaultListCellRenderer {
                         cellHasFocus);
 
         WholeslideRegionResult r = (WholeslideRegionResult) value;
-        BufferedImage thumb = r.drawThumbnail(200);
+        BufferedImage thumb = r.getThumbnail();
         
         c.setIcon(new ImageIcon(thumb));
         c.setText(Double.toString(r.value));
