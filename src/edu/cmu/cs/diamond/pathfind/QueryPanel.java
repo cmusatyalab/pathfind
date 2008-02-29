@@ -136,7 +136,7 @@ public class QueryPanel extends JPanel {
     }
 
     private final Macro macroList[] = new Macro[] { new Macro(
-            "Nuclear Density", "Nuclear_Area") };
+            "Nuclear Density", "Nuclear_Area"), new Macro("Cribriform", "Crib") };
 
     private final PathFind pf;
     private final JComboBox macroComboBox;
