@@ -41,6 +41,8 @@
 package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.Rectangle;
+import java.io.File;
+import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -49,11 +51,7 @@ import java.util.regex.Pattern;
 import javax.swing.AbstractListModel;
 import javax.swing.SwingUtilities;
 
-import edu.cmu.cs.diamond.opendiamond.Result;
-import edu.cmu.cs.diamond.opendiamond.Search;
-import edu.cmu.cs.diamond.opendiamond.SearchEvent;
-import edu.cmu.cs.diamond.opendiamond.SearchEventListener;
-import edu.cmu.cs.diamond.opendiamond.Util;
+import edu.cmu.cs.diamond.opendiamond.*;
 import edu.cmu.cs.diamond.wholeslide.Wholeslide;
 
 final public class SearchModel extends AbstractListModel implements
@@ -75,7 +73,14 @@ final public class SearchModel extends AbstractListModel implements
         search.addSearchEventListener(this);
 
         Thread t = new Thread(new Runnable() {
+
+            private Connection conn;
+
+            private PreparedStatement ps;
+
             public void run() {
+                initSQL();
+
                 // wait for start
                 synchronized (lock) {
                     while (!running) {
@@ -91,7 +96,8 @@ final public class SearchModel extends AbstractListModel implements
                 try {
                     int i = 0;
 
-                    Pattern p = Pattern.compile("file1-(\\d+)-(\\d+)\\.ppm$");
+                    Pattern p = Pattern
+                            .compile("/([^-]+)-(\\d+)-(\\d+)\\.ppm$");
 
                     while (running && i < SearchModel.this.limit) {
                         final Result r = SearchModel.this.search
@@ -100,6 +106,8 @@ final public class SearchModel extends AbstractListModel implements
                             break;
                         }
 
+                        // System.out.println(r);
+
                         String name = r.getObjectName();
                         // TODO get metadata from the server in a different way
                         Matcher m = p.matcher(name);
@@ -107,8 +115,11 @@ final public class SearchModel extends AbstractListModel implements
                             continue;
                         }
 
-                        int x = Integer.parseInt(m.group(1));
-                        int y = Integer.parseInt(m.group(2));
+                        String caseName = m.group(1);
+                        int x = Integer.parseInt(m.group(2));
+                        int y = Integer.parseInt(m.group(3));
+
+                        String sqlResults[] = getCaseInfo(caseName);
 
                         Rectangle bb = new Rectangle(x, y, 512, 512);
 
@@ -119,7 +130,8 @@ final public class SearchModel extends AbstractListModel implements
                                         Util
                                                 .extractDouble(r
                                                         .getValue("_matlab_ans.double")) / 10000.0,
-                                        200));
+                                        150, sqlResults[0], sqlResults[1],
+                                        sqlResults[2]));
 
                         final int index = list.size();
                         SwingUtilities.invokeLater(new Runnable() {
@@ -133,7 +145,62 @@ final public class SearchModel extends AbstractListModel implements
                 } finally {
                     System.out.println("search done");
                     running = false;
+
+                    try {
+                        ps.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
+            }
+
+            private void initSQL() {
+                try {
+                    Class.forName("com.mysql.jdbc.Driver");
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    conn = DriverManager.getConnection(
+                            "jdbc:mysql://kohinoor.diamond.cs.cmu.edu/diamond",
+                            "diamond", "xxxxxxxx");
+                    ps = conn
+                            .prepareStatement("select clinical_history, diagnosis from pathology_case where name=?");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            private String[] getCaseInfo(String caseName) {
+                String r[] = new String[3];
+
+                if (caseName.equals("file1")) {
+                    caseName = "case3";
+                }
+
+                try {
+                    ps.setString(1, caseName);
+
+                    System.out.println(ps);
+
+                    ResultSet rs = ps.executeQuery();
+                    while (rs.next()) {
+                        String ch = rs.getString(1);
+                        String d = rs.getString(2);
+
+                        r[0] = ch.substring(0, 10) + "...<br>"
+                                + d.substring(0, 10) + "...";
+                        r[1] = ch + "<br>" + d;
+                        r[2] = "<h1>Clinical History</h1>" + ch
+                                + "<h1>Diagnosis</h1>" + d;
+                        break;
+                    }
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                return r;
             }
         });
         t.setDaemon(true);

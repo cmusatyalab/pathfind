@@ -73,7 +73,9 @@ public class SearchPanelCellRenderer extends DefaultListCellRenderer {
         BufferedImage thumb = r.getThumbnail();
         
         c.setIcon(new ImageIcon(thumb));
-        c.setText(Double.toString(r.value));
+        c.setText("<html>" + r.oneLineInfo + "<br>" + Double.toString(r.value) + "</html>");
+        
+        c.setToolTipText("<html>" + r.hoverInfo + "</html>");
 
         c.setHorizontalAlignment(SwingConstants.CENTER);
         c.setVerticalAlignment(SwingConstants.CENTER);

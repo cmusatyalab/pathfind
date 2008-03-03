@@ -15,14 +15,22 @@ public class WholeslideRegionResult {
     public final Wholeslide ws;
     public final Shape region;
     public final double value;
+    
+    public final String oneLineInfo;
+    public final String hoverInfo;
+    public final String fullInfo;
 
     private final int thumbSize;
 
     public WholeslideRegionResult(Wholeslide ws, Shape region, double value,
-            int thumbSize) {
+            int thumbSize, String oneLineInfo, String hoverInfo, String fullInfo) {
         this.ws = ws;
         this.region = region;
         this.value = value;
+        
+        this.oneLineInfo = oneLineInfo;
+        this.hoverInfo = hoverInfo;
+        this.fullInfo = fullInfo;
 
         // this.thumb = drawThumbnail(thumbSize);
         this.thumbSize = thumbSize;

@@ -72,7 +72,7 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
 
         Shape s = (Shape) value;
         BufferedImage thumb = new WholeslideRegionResult(ws, s, 0.0,
-                THUMBNAIL_SIZE).getThumbnail();
+                THUMBNAIL_SIZE, null, null, null).getThumbnail();
 
         c.setText(null);
         c.setIcon(new ImageIcon(thumb));
