@@ -195,7 +195,8 @@ public class QueryPanel extends JPanel {
                 byte macroBlob[];
                 try {
                     macroBlob = Util.readFully(new FileInputStream(mm));
-                    pf.startSearch(result, macroBlob);
+                    pf.startSearch(Double.isNaN(result) ? 0.0 : result,
+                            macroBlob);
                 } catch (FileNotFoundException e1) {
                     e1.printStackTrace();
                 } catch (IOException e1) {
