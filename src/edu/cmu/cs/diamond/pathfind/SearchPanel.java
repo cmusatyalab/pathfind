@@ -2,7 +2,6 @@ package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Shape;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -10,7 +9,7 @@ import javax.swing.event.ListSelectionListener;
 
 import edu.cmu.cs.diamond.opendiamond.Search;
 
-public class SearchPanel extends JPanel implements ListSelectionListener {
+public class SearchPanel extends JPanel {
     final protected JList list;
 
     protected Search theSearch;
@@ -18,7 +17,6 @@ public class SearchPanel extends JPanel implements ListSelectionListener {
     final private PathFind pathFind;
 
     public SearchPanel(final PathFind pf) {
-        /* XXX NEW */
         pathFind = pf;
 
         setLayout(new BorderLayout());
@@ -90,24 +88,9 @@ public class SearchPanel extends JPanel implements ListSelectionListener {
 
         setVisible(true);
     }
-    
-    void endSearch()
-    {
-    	if (theSearch != null) theSearch.stop();
-    }
 
-    public void valueChanged(ListSelectionEvent e) {
-        /*
-         * Shape selection = (Shape) list.getSelectedValue();
-         * 
-         * if (selection == null) { setRightSlide(null, null); } else {
-         * setRightSlide(slides[0].getWholeslide(), "Search Result");
-         * slides[1].setSelection(selection); }
-         */
+    void endSearch() {
+        if (theSearch != null)
+            theSearch.stop();
     }
-    /*
-     * public void valueChanged(ListSelectionEvent e) { if
-     * (!e.getValueIsAdjusting()) { MassResult r = (MassResult)
-     * list.getSelectedValue(); pathFind.setSelectedResult(r); } }
-     */
 }
