@@ -37,11 +37,16 @@ public class SearchPanel extends JPanel implements ListSelectionListener {
 
         list.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                WholeslideRegionResult r = (WholeslideRegionResult) list.getSelectedValue();
-                
-                pf.setRightSlide(r.ws, "Search Result");
-                pf.getRightSlide().setSelection(r.region);
-                pf.getRightSlide().centerOnSelection();
+                WholeslideRegionResult r = (WholeslideRegionResult) list
+                        .getSelectedValue();
+
+                if (r == null) {
+                    pf.setRightSlide(null, null);
+                } else {
+                    pf.setRightSlide(r.ws, "Search Result");
+                    pf.getRightSlide().setSelection(r.region);
+                    pf.getRightSlide().centerOnSelection();
+                }
             }
         });
     }
