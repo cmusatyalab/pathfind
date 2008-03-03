@@ -6,26 +6,13 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 import edu.cmu.cs.diamond.opendiamond.Util;
 
@@ -137,10 +124,6 @@ public class QueryPanel extends JPanel {
         }
     }
 
-    private final Macro macroList[] = new Macro[] {
-            new Macro("Nuclear Density", "Nuclear_Area"),
-            new Macro("Cribriform", "Crib") };
-
     private final PathFind pf;
 
     private final JComboBox macroComboBox;
@@ -156,6 +139,8 @@ public class QueryPanel extends JPanel {
     private final JButton stopButton;
 
     private final JSpinner searchBound;
+
+    private final Macro macroList[] = createMacroList();
 
     public QueryPanel(PathFind pathFind) {
         setLayout(new BorderLayout());
@@ -227,6 +212,28 @@ public class QueryPanel extends JPanel {
 
         b.add(Box.createHorizontalGlue());
         add(b);
+    }
+
+    private Macro[] createMacroList() {
+        List<Macro> r = new ArrayList<Macro>();
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(getClass()
+                .getResourceAsStream("resources/macros.txt")));
+
+        try {
+            String line;
+            while ((line = in.readLine()) != null) {
+                line = line.trim();
+                StringTokenizer t = new StringTokenizer(line, ";");
+                r.add(new Macro(t.nextToken(), t.nextToken()));
+            }
+
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return r.toArray(new Macro[0]);
     }
 
     private void updateResultField() {
