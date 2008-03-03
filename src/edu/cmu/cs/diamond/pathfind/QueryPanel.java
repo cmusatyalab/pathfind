@@ -31,11 +31,13 @@ import edu.cmu.cs.diamond.opendiamond.Util;
 
 public class QueryPanel extends JPanel {
     private static final String IJ_DIR = "/coda/coda.cs.cmu.edu/usr/agoode/ImageJ";
+
     private static final String[] IJ_CMD = {
             "/home/agoode/jre1.6.0_04/bin/java", "-jar", "ij.jar" };
 
     public class Macro {
         private final String name;
+
         private final String macroName;
 
         public Macro(String name, String macroName) {
@@ -135,16 +137,24 @@ public class QueryPanel extends JPanel {
         }
     }
 
-    private final Macro macroList[] = new Macro[] { new Macro(
-            "Nuclear Density", "Nuclear_Area"), new Macro("Cribriform", "Crib") };
+    private final Macro macroList[] = new Macro[] {
+            new Macro("Nuclear Density", "Nuclear_Area"),
+            new Macro("Cribriform", "Crib") };
 
     private final PathFind pf;
+
     private final JComboBox macroComboBox;
+
     private final JLabel resultField;
+
     private double result = Double.NaN;
+
     private final JButton computeButton;
+
     private final JButton searchButton;
+
     private final JButton stopButton;
+
     private final JSpinner searchBound;
 
     public QueryPanel(PathFind pathFind) {
@@ -205,16 +215,16 @@ public class QueryPanel extends JPanel {
             }
         });
         b.add(searchButton);
-        
+
         // add stop button
         stopButton = new JButton("Stop");
         stopButton.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		pf.stopSearch();
-        	}
+            public void actionPerformed(ActionEvent e) {
+                pf.stopSearch();
+            }
         });
         b.add(stopButton);
-        
+
         b.add(Box.createHorizontalGlue());
         add(b);
     }
