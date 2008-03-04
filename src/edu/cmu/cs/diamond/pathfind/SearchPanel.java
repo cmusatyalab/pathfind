@@ -2,10 +2,14 @@ package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 
 import edu.cmu.cs.diamond.opendiamond.Search;
 
@@ -45,6 +49,40 @@ public class SearchPanel extends JPanel {
                     pf.getRightSlide().setSelection(r.region);
                     pf.getRightSlide().centerOnSelection();
                 }
+            }
+        });
+
+        list.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int index = list.locationToIndex(e.getPoint());
+                    if (index == -1) {
+                        return;
+                    }
+
+                    WholeslideRegionResult r = (WholeslideRegionResult) list
+                            .getModel().getElementAt(index);
+                    popupCaseInfo(r.fullInfo);
+                }
+            }
+
+            private void popupCaseInfo(String fullInfo) {
+                JFrame j = new JFrame("Case Report");
+                
+                JEditorPane text = new JEditorPane();
+                text.setEditable(false);
+                text.setDocument(new HTMLDocument());
+                text.setEditorKit(new HTMLEditorKit());
+                text.setText("<html>" + fullInfo + "</html>");
+                
+                JScrollPane jsp = new JScrollPane(text);
+                jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                jsp.setPreferredSize(new Dimension(640, 480));
+                
+                j.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                j.add(jsp);
+                j.pack();
+                j.setVisible(true);
             }
         });
     }
