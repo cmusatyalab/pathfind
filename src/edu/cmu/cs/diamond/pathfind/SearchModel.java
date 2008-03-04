@@ -97,7 +97,7 @@ final public class SearchModel extends AbstractListModel implements
                     int i = 0;
 
                     Pattern p = Pattern
-                            .compile("/([^-]+)-(\\d+)-(\\d+)\\.ppm$");
+                            .compile("/([^/-]+)-(\\d+)-(\\d+)\\.ppm$");
 
                     while (running && i < SearchModel.this.limit) {
                         final Result r = SearchModel.this.search
@@ -106,7 +106,7 @@ final public class SearchModel extends AbstractListModel implements
                             break;
                         }
 
-                        // System.out.println(r);
+//                        System.out.println(r);
 
                         String name = r.getObjectName();
                         // TODO get metadata from the server in a different way
@@ -164,6 +164,8 @@ final public class SearchModel extends AbstractListModel implements
                 } else if (caseName.equals("cases9and10")) {
                     caseName = "cases9&10";
                 }
+                
+                System.out.println("loading wholeslide for " + caseName);
 
                 return new File("/home/agoode/dd/TRESTLE - 20x Images",
                         caseName.toUpperCase() + ".tif");
