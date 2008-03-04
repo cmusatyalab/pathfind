@@ -119,13 +119,16 @@ final public class SearchModel extends AbstractListModel implements
                         int x = Integer.parseInt(m.group(2));
                         int y = Integer.parseInt(m.group(3));
 
+                        Wholeslide resultWS = new Wholeslide(
+                                getFileForCaseName(caseName));
+
                         String sqlResults[] = getCaseInfo(caseName);
 
                         Rectangle bb = new Rectangle(x, y, 512, 512);
 
                         list
                                 .add(new WholeslideRegionResult(
-                                        ws,
+                                        resultWS,
                                         bb,
                                         Util
                                                 .extractDouble(r
@@ -152,6 +155,18 @@ final public class SearchModel extends AbstractListModel implements
                         e.printStackTrace();
                     }
                 }
+            }
+
+            private File getFileForCaseName(String caseName) {
+                // XXX hardcoded
+                if (caseName.equals("file1")) {
+                    caseName = "case3";
+                } else if (caseName.equals("cases9and10")) {
+                    caseName = "cases9&10";
+                }
+
+                return new File("/home/agoode/dd/TRESTLE - 20x Images",
+                        caseName.toUpperCase() + ".tif");
             }
 
             private void initSQL() {
