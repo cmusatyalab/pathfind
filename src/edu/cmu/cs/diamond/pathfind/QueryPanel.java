@@ -16,7 +16,7 @@ import javax.swing.*;
 
 import edu.cmu.cs.diamond.opendiamond.Util;
 
-public class QueryPanel extends JPanel {
+public final class QueryPanel extends JPanel {
     private static final String IJ_DIR = "/coda/coda.cs.cmu.edu/usr/agoode/ImageJ";
 
     private static final String[] IJ_CMD = {
