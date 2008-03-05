@@ -103,6 +103,8 @@ public final class QueryPanel extends JPanel {
                     while ((data = pOut.read()) != -1) {
                         sb.append((char) data);
                     }
+                    
+                    pOut.close();
 
                     String sr = sb.toString();
                     System.out.println(sr);
