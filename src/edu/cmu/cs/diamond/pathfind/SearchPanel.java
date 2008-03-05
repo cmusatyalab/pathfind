@@ -128,7 +128,10 @@ public class SearchPanel extends JPanel {
     }
 
     void endSearch() {
-        if (theSearch != null)
+        if (theSearch != null) {
             theSearch.stop();
+        }
+        
+        deregisterListener();
     }
 }
