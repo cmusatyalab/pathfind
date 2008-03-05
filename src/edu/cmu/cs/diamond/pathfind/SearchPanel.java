@@ -12,6 +12,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import edu.cmu.cs.diamond.opendiamond.Search;
+import edu.cmu.cs.diamond.wholeslide.Wholeslide;
 
 public class SearchPanel extends JPanel {
     final protected JList list;
@@ -45,7 +46,7 @@ public class SearchPanel extends JPanel {
                 if (r == null) {
                     pf.setRightSlide(null, null);
                 } else {
-                    pf.setRightSlide(r.ws, "Search Result");
+                    pf.setRightSlide(new Wholeslide(r.ws), "Search Result");
                     pf.getRightSlide().setSelection(r.region);
                     pf.getRightSlide().centerOnSelection();
                 }
@@ -53,6 +54,7 @@ public class SearchPanel extends JPanel {
         });
 
         list.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     int index = list.locationToIndex(e.getPoint());

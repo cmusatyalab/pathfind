@@ -71,8 +71,8 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
                         cellHasFocus);
 
         Shape s = (Shape) value;
-        BufferedImage thumb = new WholeslideRegionResult(ws, s, 0.0,
-                THUMBNAIL_SIZE, null, null, null).getThumbnail();
+        BufferedImage thumb = WholeslideRegionResult.drawThumbnail(ws, s,
+                THUMBNAIL_SIZE);
 
         c.setText(null);
         c.setIcon(new ImageIcon(thumb));

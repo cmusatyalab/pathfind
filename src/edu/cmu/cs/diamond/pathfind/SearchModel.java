@@ -119,8 +119,7 @@ final public class SearchModel extends AbstractListModel implements
                         int x = Integer.parseInt(m.group(2));
                         int y = Integer.parseInt(m.group(3));
 
-                        Wholeslide resultWS = new Wholeslide(
-                                getFileForCaseName(caseName));
+                        File resultWS = getFileForCaseName(caseName);
 
                         String sqlResults[] = getCaseInfo(caseName);
 
@@ -219,8 +218,9 @@ final public class SearchModel extends AbstractListModel implements
                 }
                 return r;
             }
-        });
+        }, getClass().getName() + " thread");
         t.setDaemon(true);
+        t.setPriority(Thread.MIN_PRIORITY);
         t.start();
     }
 
