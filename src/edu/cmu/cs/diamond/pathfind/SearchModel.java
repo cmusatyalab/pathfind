@@ -119,6 +119,10 @@ final public class SearchModel extends AbstractListModel implements
                         int x = Integer.parseInt(m.group(2));
                         int y = Integer.parseInt(m.group(3));
 
+                        if (caseName.equals("cases9and10")) {
+                            continue;
+                        }
+                        
                         File resultWS = getFileForCaseName(caseName);
 
                         String sqlResults[] = getCaseInfo(caseName);
