@@ -43,47 +43,39 @@ package edu.cmu.cs.diamond.pathfind;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.ImageIcon;
-import javax.swing.JList;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 public class SearchPanelCellRenderer extends DefaultListCellRenderer {
-
-    public SearchPanelCellRenderer() {
-        /*
-         * Wholeslide ws = wv.getWholeslide(); thumb =
-         * ws.createThumbnailImage(THUMBNAIL_SIZE);
-         * 
-         * Dimension d = ws.getLayer0Dimension(); downsample =
-         * Math.max(d.height, d.width) / THUMBNAIL_SIZE;
-         */
-    }
 
     @Override
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus) {
-
-        DefaultListCellRenderer c = (DefaultListCellRenderer) super
-                .getListCellRendererComponent(list, value, index, isSelected,
-                        cellHasFocus);
+        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
         WholeslideRegionResult r = (WholeslideRegionResult) value;
-        BufferedImage thumb = r.getThumbnail();
-        
-        c.setIcon(new ImageIcon(thumb));
-        c.setText("<html>" + r.oneLineInfo + "<br>" + Double.toString(r.value) + "</html>");
-        
-        c.setToolTipText("<html>" + r.hoverInfo + "</html>");
 
-        c.setHorizontalAlignment(SwingConstants.CENTER);
-        c.setVerticalAlignment(SwingConstants.CENTER);
-        c.setHorizontalTextPosition(SwingConstants.CENTER);
-        c.setVerticalTextPosition(SwingConstants.BOTTOM);
-        c.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        setHorizontalAlignment(SwingConstants.CENTER);
+        setHorizontalTextPosition(SwingConstants.CENTER);
+        setVerticalTextPosition(SwingConstants.BOTTOM);
+        setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        setToolTipText("<html>" + r.hoverInfo + "</html>");
 
-        return c;
+        if (r.hidden) {
+            setVerticalAlignment(SwingConstants.TOP);
+            BufferedImage blank = new BufferedImage(2, r.thumbSize,
+                    BufferedImage.TYPE_INT_RGB);
+
+            setIcon(new ImageIcon(blank));
+            setText("x");
+        } else {
+            setVerticalAlignment(SwingConstants.CENTER);
+            BufferedImage thumb = r.getThumbnail();
+
+            setIcon(new ImageIcon(thumb));
+            setText("<html>" + r.oneLineInfo + "<br>"
+                    + Double.toString(r.value) + "</html>");
+        }
+
+        return this;
     }
-
 }

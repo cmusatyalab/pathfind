@@ -251,4 +251,11 @@ final public class SearchModel extends AbstractListModel implements
     public int getSize() {
         return list.size();
     }
+
+    public void toggleHidden(int index) {
+        WholeslideRegionResult w = list.get(index);
+        w.hidden = !w.hidden;
+        
+        fireContentsChanged(this, index, index);
+    }
 }

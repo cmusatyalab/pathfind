@@ -65,6 +65,14 @@ public class SearchPanel extends JPanel {
                     WholeslideRegionResult r = (WholeslideRegionResult) list
                             .getModel().getElementAt(index);
                     popupCaseInfo(r.fullInfo);
+                } else if (e.getButton() == 2) {
+                    int index = list.locationToIndex(e.getPoint());
+                    if (index == -1) {
+                        return;
+                    }
+
+                    SearchModel model = (SearchModel) list.getModel();
+                    model.toggleHidden(index);
                 }
             }
 

@@ -25,8 +25,10 @@ public class WholeslideRegionResult {
 
     public final String fullInfo;
 
-    private final int thumbSize;
+    public final int thumbSize;
 
+    public boolean hidden;
+    
     public WholeslideRegionResult(File ws, Shape region, double value,
             int thumbSize, String oneLineInfo, String hoverInfo, String fullInfo) {
         this.ws = ws;
