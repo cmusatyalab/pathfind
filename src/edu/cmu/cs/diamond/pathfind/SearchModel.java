@@ -186,7 +186,7 @@ final public class SearchModel extends AbstractListModel implements
                             "jdbc:mysql://kohinoor.diamond.cs.cmu.edu/diamond",
                             "diamond", "xxxxxxxx");
                     ps = conn
-                            .prepareStatement("select clinical_history, diagnosis from pathology_case where name=?");
+                            .prepareStatement("select clinical_history, diagnosis, final_diagnosis, gross_description from pathology_case where name=?");
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -208,12 +208,16 @@ final public class SearchModel extends AbstractListModel implements
                     while (rs.next()) {
                         String ch = rs.getString(1);
                         String d = rs.getString(2);
+                        String fd = rs.getString(3);
+                        String gd = rs.getString(4);
 
                         r[0] = ch.substring(0, 10) + "...<br>"
                                 + d.substring(0, 10) + "...";
                         r[1] = ch + "<br>" + d;
                         r[2] = "<h1>Clinical History</h1>" + ch
-                                + "<h1>Diagnosis</h1>" + d;
+                                + "<h1>Diagnosis</h1>" + d
+                                + "<h1>Final Diagnosis</h1>" + fd
+                                + "<h1>Gross Description</h1>" + gd;
                         break;
                     }
                     rs.close();
