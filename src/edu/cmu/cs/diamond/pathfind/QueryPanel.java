@@ -17,10 +17,9 @@ import javax.swing.*;
 import edu.cmu.cs.diamond.opendiamond.Util;
 
 public final class QueryPanel extends JPanel {
-    private static final String IJ_DIR = "/coda/coda.cs.cmu.edu/usr/agoode/ImageJ";
+    public final String[] ijCmd;
 
-    private static final String[] IJ_CMD = {
-            "/home/agoode/jre1.6.0_04/bin/java", "-jar", "ij.jar" };
+    public final String ijDir;
 
     public class Macro {
         private final String name;
@@ -87,12 +86,12 @@ public final class QueryPanel extends JPanel {
 
                 // run macro
                 List<String> processArgs = new ArrayList<String>();
-                processArgs.addAll(Arrays.asList(IJ_CMD));
+                processArgs.addAll(Arrays.asList(ijCmd));
                 processArgs.add(imgFile.getPath());
                 processArgs.add("-batch");
                 processArgs.add(macroName);
                 ProcessBuilder pb = new ProcessBuilder(processArgs);
-                pb.directory(new File(IJ_DIR));
+                pb.directory(new File(ijDir));
 
                 try {
                     StringBuilder sb = new StringBuilder();
@@ -103,7 +102,7 @@ public final class QueryPanel extends JPanel {
                     while ((data = pOut.read()) != -1) {
                         sb.append((char) data);
                     }
-                    
+
                     pOut.close();
 
                     String sr = sb.toString();
@@ -144,7 +143,14 @@ public final class QueryPanel extends JPanel {
 
     private final Macro macroList[] = createMacroList();
 
-    public QueryPanel(PathFind pathFind) {
+    public QueryPanel(PathFind pathFind, String ijDir, String jreDir) {
+        this.ijDir = ijDir;
+
+        this.ijCmd = new String[] {
+                new File(jreDir + File.separator + "bin"
+                        + File.separator + "java").getAbsolutePath(),
+                "-jar", "ij.jar" };
+
         setLayout(new BorderLayout());
 
         pf = pathFind;
@@ -188,7 +194,8 @@ public final class QueryPanel extends JPanel {
         searchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String m = macroList[macroComboBox.getSelectedIndex()].macroName;
-                File mm = new File(IJ_DIR + "/macros", m + ".txt");
+                File mm = new File(QueryPanel.this.ijDir + "/macros", m
+                        + ".txt");
                 byte macroBlob[];
                 try {
                     macroBlob = Util.readFully(new FileInputStream(mm));

@@ -88,11 +88,11 @@ public class PathFind extends JFrame {
 
     private DefaultListModel ssModel;
 
-    private final QueryPanel qp = new QueryPanel(this);
+    private final QueryPanel qp;
 
     private final PairedSlideView psv = new PairedSlideView();
 
-    public PathFind(String filename) {
+    public PathFind(String filename, String ijDir, String jreDir, String trestle_dir) {
         super("PathFind");
         setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -101,6 +101,7 @@ public class PathFind extends JFrame {
         add(psv);
 
         // query bar at bottom
+        qp = new QueryPanel(this, ijDir, jreDir);
         add(qp, BorderLayout.SOUTH);
 
         // search results at top
@@ -146,10 +147,9 @@ public class PathFind extends JFrame {
 
         searchPanel.beginSearch(search);
     }
-    
-    public void stopSearch()
-    {
-    	searchPanel.endSearch();
+
+    public void stopSearch() {
+        searchPanel.endSearch();
     }
 
     private Searchlet prepareSearchlet(double threshold, byte[] macroBlob) {
@@ -218,7 +218,18 @@ public class PathFind extends JFrame {
     }
 
     public static void main(String[] args) {
-        PathFind pf = new PathFind(args[0]);
+        if (args.length != 4) {
+            System.out.println("usage: " + PathFind.class.getName()
+                    + " filename ij_dir jre_dir trestle-20x_dir");
+            return;
+        }
+
+        String filename = args[0];
+        String ijDir = args[1];
+        String jreDir = args[2];
+        String trestleDir = args[3];
+        
+        PathFind pf = new PathFind(filename, ijDir, jreDir, trestleDir);
         pf.setVisible(true);
     }
 
