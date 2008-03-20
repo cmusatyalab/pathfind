@@ -262,4 +262,13 @@ final public class SearchModel extends AbstractListModel implements
         
         fireContentsChanged(this, index, index);
     }
+    
+    public Object removeElement(int index) {
+        WholeslideRegionResult w = list.get(index);
+        list.remove(index);
+        
+        fireIntervalRemoved(this, index, index);
+
+        return w;
+    }
 }

@@ -72,7 +72,7 @@ public class SearchPanel extends JPanel {
                     }
 
                     SearchModel model = (SearchModel) list.getModel();
-                    model.toggleHidden(index);
+                    model.removeElement(index);
                 }
             }
 
