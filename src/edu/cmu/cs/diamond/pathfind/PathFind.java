@@ -92,7 +92,7 @@ public class PathFind extends JFrame {
 
     private final PairedSlideView psv = new PairedSlideView();
 
-    public PathFind(String filename, String ijDir, String jreDir, String trestle_dir) {
+    public PathFind(String filename, String ijDir, String jreDir, String trestleDir) {
         super("PathFind");
         setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -105,7 +105,7 @@ public class PathFind extends JFrame {
         add(qp, BorderLayout.SOUTH);
 
         // search results at top
-        searchPanel = new SearchPanel(this);
+        searchPanel = new SearchPanel(this, trestleDir);
         searchPanel.setVisible(false);
         add(searchPanel, BorderLayout.NORTH);
 

@@ -59,14 +59,14 @@ final public class SearchModel extends AbstractListModel implements
     protected volatile boolean running;
 
     final protected Search search;
-
+    
     final protected int limit;
 
     final protected Object lock = new Object();
 
     final protected List<WholeslideRegionResult> list = new LinkedList<WholeslideRegionResult>();
 
-    public SearchModel(Search search, final Wholeslide ws, int limit) {
+    public SearchModel(Search search, final Wholeslide ws, int limit, final String trestleDir) {
         this.search = search;
         this.limit = limit;
 
@@ -161,7 +161,6 @@ final public class SearchModel extends AbstractListModel implements
             }
 
             private File getFileForCaseName(String caseName) {
-                // XXX hardcoded
                 if (caseName.equals("file1")) {
                     caseName = "case3";
                 } else if (caseName.equals("cases9and10")) {
@@ -170,7 +169,7 @@ final public class SearchModel extends AbstractListModel implements
                 
                 System.out.println("loading wholeslide for " + caseName);
 
-                return new File("/home/agoode/dd/TRESTLE - 20x Images",
+                return new File(trestleDir,
                         caseName.toUpperCase() + ".tif");
             }
 

@@ -20,9 +20,12 @@ public class SearchPanel extends JPanel {
     protected Search theSearch;
 
     final private PathFind pathFind;
+    
+    final String trestleDir;
 
-    public SearchPanel(final PathFind pf) {
+    public SearchPanel(final PathFind pf, String trestleDir) {
         pathFind = pf;
+        this.trestleDir = trestleDir;
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("Search Results"));
@@ -130,7 +133,7 @@ public class SearchPanel extends JPanel {
         deregisterListener();
 
         list.setModel(new SearchModel(theSearch, pathFind.getLeftSlide()
-                .getWholeslide(), 50));
+                .getWholeslide(), 50, trestleDir));
 
         theSearch.start();
 
