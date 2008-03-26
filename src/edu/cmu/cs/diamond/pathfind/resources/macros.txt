@@ -1,2 +1,3 @@
-Nuclear Density;Nuclear_Area
+Nuclear Density (Breast);Nuclear_Area_Breast
+Nuclear Density (Liver);Nuclear_Area
 Cribriform;Crib
