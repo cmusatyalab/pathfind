@@ -181,7 +181,7 @@ public class PathFind extends JFrame {
     }
 
     void setLeftSlide(Wholeslide wholeslide, String title) {
-        final WholeslideView wv = createNewView(wholeslide, title);
+        final WholeslideView wv = createNewView(wholeslide, title, true);
 
         psv.setLeftSlide(wv);
         wv.getInputMap()
@@ -200,7 +200,7 @@ public class PathFind extends JFrame {
         if (wholeslide == null) {
             psv.setRightSlide(null);
         } else {
-            psv.setRightSlide(createNewView(wholeslide, title));
+            psv.setRightSlide(createNewView(wholeslide, title, false));
         }
     }
 
@@ -211,8 +211,8 @@ public class PathFind extends JFrame {
         }
     }
 
-    private WholeslideView createNewView(Wholeslide wholeslide, String title) {
-        WholeslideView wv = new WholeslideView(wholeslide);
+    private WholeslideView createNewView(Wholeslide wholeslide, String title, boolean zoomToFit) {
+        WholeslideView wv = new WholeslideView(wholeslide, zoomToFit);
         wv.setBorder(BorderFactory.createTitledBorder(title));
         return wv;
     }
