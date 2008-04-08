@@ -100,7 +100,7 @@ final public class SearchModel extends AbstractListModel implements
                     int i = 0;
 
                     Pattern p = Pattern
-                            .compile("/([^/-]+)-(\\d+)-(\\d+)\\.ppm$");
+                            .compile("/([^/-]+)-(\\d+)-(\\d+)\\.ppm");
 
                     while (running && i < SearchModel.this.limit) {
                         final Result r = SearchModel.this.search
