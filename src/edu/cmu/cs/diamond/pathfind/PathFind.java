@@ -92,7 +92,7 @@ public class PathFind extends JFrame {
 
     private final PairedSlideView psv = new PairedSlideView();
 
-    public PathFind(String filename, String ijDir, String jreDir, String trestleDir) {
+    public PathFind(String filename, String ijDir, String jreDir, String trestleDir, String sqlHost) {
         super("PathFind");
         setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -105,7 +105,7 @@ public class PathFind extends JFrame {
         add(qp, BorderLayout.SOUTH);
 
         // search results at top
-        searchPanel = new SearchPanel(this, trestleDir);
+        searchPanel = new SearchPanel(this, trestleDir, sqlHost);
         searchPanel.setVisible(false);
         add(searchPanel, BorderLayout.NORTH);
 
@@ -218,9 +218,9 @@ public class PathFind extends JFrame {
     }
 
     public static void main(String[] args) {
-        if (args.length != 4) {
+        if (args.length != 5) {
             System.out.println("usage: " + PathFind.class.getName()
-                    + " filename ij_dir jre_dir trestle-20x_dir");
+                    + " filename ij_dir jre_dir trestle-20x_dir sql_host");
             return;
         }
 
@@ -228,8 +228,9 @@ public class PathFind extends JFrame {
         String ijDir = args[1];
         String jreDir = args[2];
         String trestleDir = args[3];
+        String sqlHost = args[4];
         
-        PathFind pf = new PathFind(filename, ijDir, jreDir, trestleDir);
+        PathFind pf = new PathFind(filename, ijDir, jreDir, trestleDir, sqlHost);
         pf.setVisible(true);
     }
 

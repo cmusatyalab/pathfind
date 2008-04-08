@@ -66,9 +66,12 @@ final public class SearchModel extends AbstractListModel implements
 
     final protected List<WholeslideRegionResult> list = new LinkedList<WholeslideRegionResult>();
 
-    public SearchModel(Search search, final Wholeslide ws, int limit, final String trestleDir) {
+    final protected String sqlHost;
+
+    public SearchModel(Search search, final Wholeslide ws, int limit, final String trestleDir, final String sqlHost) {
         this.search = search;
         this.limit = limit;
+        this.sqlHost = sqlHost;
 
         search.addSearchEventListener(this);
 
@@ -182,7 +185,7 @@ final public class SearchModel extends AbstractListModel implements
 
                 try {
                     conn = DriverManager.getConnection(
-                            "jdbc:mysql://kohinoor.diamond.cs.cmu.edu/diamond",
+                            "jdbc:mysql://" + sqlHost + "/diamond",
                             "diamond", "xxxxxxxx");
                     ps = conn
                             .prepareStatement("select clinical_history, diagnosis, final_diagnosis, gross_description from pathology_case where name=?");
