@@ -8,7 +8,7 @@ import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
+import edu.cmu.cs.wholeslide.gui.WholeslideView;
 
 public class PairedSlideView extends JPanel {
 

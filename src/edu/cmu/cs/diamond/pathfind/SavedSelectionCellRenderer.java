@@ -50,8 +50,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JList;
 import javax.swing.SwingConstants;
 
-import edu.cmu.cs.diamond.wholeslide.Wholeslide;
-import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
+import edu.cmu.cs.wholeslide.Wholeslide;
+import edu.cmu.cs.wholeslide.gui.WholeslideView;
 
 public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
 

@@ -7,8 +7,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-import edu.cmu.cs.diamond.wholeslide.Wholeslide;
-import edu.cmu.cs.diamond.wholeslide.gui.WholeslideView;
+import edu.cmu.cs.wholeslide.Wholeslide;
+import edu.cmu.cs.wholeslide.gui.WholeslideView;
 
 public class WholeslideRegionResult {
     private BufferedImage thumb;

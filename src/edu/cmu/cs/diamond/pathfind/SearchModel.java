@@ -52,7 +52,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.SwingUtilities;
 
 import edu.cmu.cs.diamond.opendiamond.*;
-import edu.cmu.cs.diamond.wholeslide.Wholeslide;
+import edu.cmu.cs.wholeslide.Wholeslide;
 
 final public class SearchModel extends AbstractListModel implements
         SearchEventListener {

@@ -12,7 +12,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import edu.cmu.cs.diamond.opendiamond.Search;
-import edu.cmu.cs.diamond.wholeslide.Wholeslide;
+import edu.cmu.cs.wholeslide.Wholeslide;
 
 public class SearchPanel extends JPanel {
     final protected JList list;
