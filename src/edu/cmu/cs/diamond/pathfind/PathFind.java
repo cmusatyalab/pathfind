@@ -125,13 +125,13 @@ public class PathFind extends JFrame {
         this.scope = scopes.get(0);
     }
 
-    public void startSearch(double threshold, byte[] macroBlob) {
+    public void startSearch(double threshold, byte[] macroBlob, String macroName) {
         System.out.println("start search");
 
         Search search = Search.getSharedInstance();
         // TODO fill in search parameters
         search.setScope(scope);
-        search.setSearchlet(prepareSearchlet(threshold, macroBlob));
+        search.setSearchlet(prepareSearchlet(threshold, macroBlob, macroName));
 
         searchPanel.beginSearch(search);
     }
@@ -140,15 +140,17 @@ public class PathFind extends JFrame {
         searchPanel.endSearch();
     }
 
-    private Searchlet prepareSearchlet(double threshold, byte[] macroBlob) {
+    private Searchlet prepareSearchlet(double threshold, byte[] macroBlob,
+            String macroName) {
         Filter imagej = null;
+        String macroName2 = macroName.replace(' ', '_');
         try {
             FilterCode c = new FilterCode(new FileInputStream(
                     "/usr/share/imagejfind/filter/fil_imagej_exec.so"));
             imagej = new Filter("imagej", c, "f_eval_imagej_exec",
                     "f_init_imagej_exec", "f_fini_imagej_exec",
                     (int) (threshold * 10000), new String[] {},
-                    new String[] {}, 400, macroBlob);
+                    new String[] { macroName2 }, 400, macroBlob);
             System.out.println(imagej);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
