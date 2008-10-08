@@ -197,19 +197,7 @@ public final class QueryPanel extends JPanel {
         searchButton = new JButton("Search");
         searchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String m = macroList[macroComboBox.getSelectedIndex()].macroName;
-                File mm = new File(QueryPanel.this.ijDir + "/macros", m
-                        + ".txt");
-                byte macroBlob[];
-                try {
-                    macroBlob = Util.readFully(new FileInputStream(mm));
-                    pf.startSearch(Double.isNaN(result) ? 0.0 : result,
-                            macroBlob);
-                } catch (FileNotFoundException e1) {
-                    e1.printStackTrace();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+                runRemoteMacro(macroList[macroComboBox.getSelectedIndex()].macroName);
             }
         });
         b.add(searchButton);
@@ -256,5 +244,19 @@ public final class QueryPanel extends JPanel {
     public void clearResult() {
         result = Double.NaN;
         updateResultField();
+    }
+
+    private void runRemoteMacro(String macroName) {
+        File mm = new File(QueryPanel.this.ijDir + "/macros", macroName
+                + ".txt");
+        byte macroBlob[];
+        try {
+            macroBlob = Util.readFully(new FileInputStream(mm));
+            pf.startSearch(Double.isNaN(result) ? 0.0 : result, macroBlob);
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
     }
 }
