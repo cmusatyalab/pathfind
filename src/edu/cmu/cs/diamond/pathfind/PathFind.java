@@ -207,7 +207,7 @@ public class PathFind extends JFrame {
     }
 
     public static void main(String[] args) {
-        if (args.length != 5) {
+        if (args.length != 6) {
             System.out
                     .println("usage: "
                             + PathFind.class.getName()
