@@ -143,13 +143,17 @@ public final class QueryPanel extends JPanel {
 
     private final Macro macroList[] = createMacroList();
 
-    public QueryPanel(PathFind pathFind, String ijDir, String jreDir) {
+    private final String extraPluginsDir;
+
+    public QueryPanel(PathFind pathFind, String ijDir, String extraPluginsDir,
+            String jreDir) {
         this.ijDir = ijDir;
 
+        this.extraPluginsDir = extraPluginsDir;
+
         this.ijCmd = new String[] {
-                new File(jreDir + File.separator + "bin"
-                        + File.separator + "java").getAbsolutePath(),
-                "-jar", "ij.jar" };
+                new File(jreDir + File.separator + "bin" + File.separator
+                        + "java").getAbsolutePath(), "-jar", "ij.jar" };
 
         setLayout(new BorderLayout());
 

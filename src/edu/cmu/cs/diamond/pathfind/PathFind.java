@@ -55,24 +55,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import edu.cmu.cs.diamond.opendiamond.Filter;
-import edu.cmu.cs.diamond.opendiamond.FilterCode;
-import edu.cmu.cs.diamond.opendiamond.Scope;
-import edu.cmu.cs.diamond.opendiamond.ScopeSource;
-import edu.cmu.cs.diamond.opendiamond.Search;
-import edu.cmu.cs.diamond.opendiamond.Searchlet;
+import edu.cmu.cs.diamond.opendiamond.*;
 import edu.cmu.cs.wholeslide.Wholeslide;
 import edu.cmu.cs.wholeslide.gui.WholeslideView;
 
@@ -92,7 +79,8 @@ public class PathFind extends JFrame {
 
     private final PairedSlideView psv = new PairedSlideView();
 
-    public PathFind(String filename, String ijDir, String jreDir, String trestleDir, String sqlHost) {
+    public PathFind(String filename, String ijDir, String extraPluginsDir,
+            String jreDir, String trestleDir, String sqlHost) {
         super("PathFind");
         setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -101,7 +89,7 @@ public class PathFind extends JFrame {
         add(psv);
 
         // query bar at bottom
-        qp = new QueryPanel(this, ijDir, jreDir);
+        qp = new QueryPanel(this, ijDir, extraPluginsDir, jreDir);
         add(qp, BorderLayout.SOUTH);
 
         // search results at top
@@ -211,7 +199,8 @@ public class PathFind extends JFrame {
         }
     }
 
-    private WholeslideView createNewView(Wholeslide wholeslide, String title, boolean zoomToFit) {
+    private WholeslideView createNewView(Wholeslide wholeslide, String title,
+            boolean zoomToFit) {
         WholeslideView wv = new WholeslideView(wholeslide, zoomToFit);
         wv.setBorder(BorderFactory.createTitledBorder(title));
         return wv;
@@ -219,18 +208,22 @@ public class PathFind extends JFrame {
 
     public static void main(String[] args) {
         if (args.length != 5) {
-            System.out.println("usage: " + PathFind.class.getName()
-                    + " filename ij_dir jre_dir trestle-20x_dir sql_host");
+            System.out
+                    .println("usage: "
+                            + PathFind.class.getName()
+                            + " filename ij_dir extra_plugins_dir jre_dir trestle-20x_dir sql_host");
             return;
         }
 
         String filename = args[0];
         String ijDir = args[1];
-        String jreDir = args[2];
-        String trestleDir = args[3];
-        String sqlHost = args[4];
-        
-        PathFind pf = new PathFind(filename, ijDir, jreDir, trestleDir, sqlHost);
+        String extraPluginsDir = args[2];
+        String jreDir = args[3];
+        String trestleDir = args[4];
+        String sqlHost = args[5];
+
+        PathFind pf = new PathFind(filename, ijDir, extraPluginsDir, jreDir,
+                trestleDir, sqlHost);
         pf.setVisible(true);
     }
 
@@ -264,10 +257,11 @@ public class PathFind extends JFrame {
 
         return img;
     }
-    
+
     public WholeslideView getLeftSlide() {
         return psv.getLeftSlide();
     }
+
     public WholeslideView getRightSlide() {
         return psv.getRightSlide();
     }
