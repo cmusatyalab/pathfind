@@ -20,15 +20,25 @@ public class SearchPanel extends JPanel {
     protected Search theSearch;
 
     final private PathFind pathFind;
-    
+
     final String trestleDir;
 
     final private String sqlHost;
 
-    public SearchPanel(final PathFind pf, String trestleDir, String sqlHost) {
+    final private String sqlDB;
+
+    final private String sqlUser;
+
+    final private String sqlPassword;
+
+    public SearchPanel(final PathFind pf, String trestleDir, String sqlHost,
+            String sqlDB, String sqlUser, String sqlPassword) {
         pathFind = pf;
         this.trestleDir = trestleDir;
         this.sqlHost = sqlHost;
+        this.sqlDB = sqlDB;
+        this.sqlUser = sqlUser;
+        this.sqlPassword = sqlPassword;
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("Search Results"));
@@ -84,17 +94,18 @@ public class SearchPanel extends JPanel {
 
             private void popupCaseInfo(String fullInfo) {
                 JFrame j = new JFrame("Case Report");
-                
+
                 JEditorPane text = new JEditorPane();
                 text.setEditable(false);
                 text.setDocument(new HTMLDocument());
                 text.setEditorKit(new HTMLEditorKit());
                 text.setText("<html>" + fullInfo + "</html>");
-                
+
                 JScrollPane jsp = new JScrollPane(text);
-                jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                jsp
+                        .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
                 jsp.setPreferredSize(new Dimension(640, 480));
-                
+
                 j.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 j.add(jsp);
                 j.pack();
@@ -136,7 +147,8 @@ public class SearchPanel extends JPanel {
         deregisterListener();
 
         list.setModel(new SearchModel(theSearch, pathFind.getLeftSlide()
-                .getWholeslide(), 50, trestleDir, sqlHost));
+                .getWholeslide(), 50, trestleDir, sqlHost, sqlDB, sqlUser,
+                sqlPassword));
 
         theSearch.start();
 
@@ -147,7 +159,7 @@ public class SearchPanel extends JPanel {
         if (theSearch != null) {
             theSearch.stop();
         }
-        
+
         deregisterListener();
     }
 }

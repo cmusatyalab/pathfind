@@ -59,19 +59,18 @@ final public class SearchModel extends AbstractListModel implements
     protected volatile boolean running;
 
     final protected Search search;
-    
+
     final protected int limit;
 
     final protected Object lock = new Object();
 
     final protected List<WholeslideRegionResult> list = new LinkedList<WholeslideRegionResult>();
 
-    final protected String sqlHost;
-
-    public SearchModel(Search search, final Wholeslide ws, int limit, final String trestleDir, final String sqlHost) {
+    public SearchModel(Search search, final Wholeslide ws, int limit,
+            final String trestleDir, final String sqlHost, final String sqlDB,
+            final String sqlUser, final String sqlPassword) {
         this.search = search;
         this.limit = limit;
-        this.sqlHost = sqlHost;
 
         search.addSearchEventListener(this);
 
@@ -109,7 +108,7 @@ final public class SearchModel extends AbstractListModel implements
                             break;
                         }
 
-//                        System.out.println(r);
+                        // System.out.println(r);
 
                         String name = r.getObjectName();
                         // TODO get metadata from the server in a different way
@@ -125,7 +124,7 @@ final public class SearchModel extends AbstractListModel implements
                         if (caseName.equals("cases9and10")) {
                             continue;
                         }
-                        
+
                         File resultWS = getFileForCaseName(caseName);
 
                         String sqlResults[] = getCaseInfo(caseName);
@@ -169,11 +168,10 @@ final public class SearchModel extends AbstractListModel implements
                 } else if (caseName.equals("cases9and10")) {
                     caseName = "cases9&10";
                 }
-                
+
                 System.out.println("loading wholeslide for " + caseName);
 
-                return new File(trestleDir,
-                        caseName.toUpperCase() + ".tif");
+                return new File(trestleDir, caseName.toUpperCase() + ".tif");
             }
 
             private void initSQL() {
@@ -184,9 +182,8 @@ final public class SearchModel extends AbstractListModel implements
                 }
 
                 try {
-                    conn = DriverManager.getConnection(
-                            "jdbc:mysql://" + sqlHost + "/diamond",
-                            "diamond", "xxxxxxxx");
+                    conn = DriverManager.getConnection("jdbc:mysql://"
+                            + sqlHost + "/" + sqlDB, sqlUser, sqlPassword);
                     ps = conn
                             .prepareStatement("select clinical_history, diagnosis, final_diagnosis, gross_description from pathology_case where name=?");
                 } catch (SQLException e) {
@@ -261,14 +258,14 @@ final public class SearchModel extends AbstractListModel implements
     public void toggleHidden(int index) {
         WholeslideRegionResult w = list.get(index);
         w.hidden = !w.hidden;
-        
+
         fireContentsChanged(this, index, index);
     }
-    
+
     public Object removeElement(int index) {
         WholeslideRegionResult w = list.get(index);
         list.remove(index);
-        
+
         fireIntervalRemoved(this, index, index);
 
         return w;

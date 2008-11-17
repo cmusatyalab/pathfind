@@ -40,11 +40,7 @@
 
 package edu.cmu.cs.diamond.pathfind;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -80,7 +76,8 @@ public class PathFind extends JFrame {
     private final PairedSlideView psv = new PairedSlideView();
 
     public PathFind(String filename, String ijDir, String extraPluginsDir,
-            String jreDir, String trestleDir, String sqlHost) {
+            String jreDir, String trestleDir, String sqlHost, String sqlDB,
+            String sqlUser, String sqlPassword) {
         super("PathFind");
         setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -93,7 +90,8 @@ public class PathFind extends JFrame {
         add(qp, BorderLayout.SOUTH);
 
         // search results at top
-        searchPanel = new SearchPanel(this, trestleDir, sqlHost);
+        searchPanel = new SearchPanel(this, trestleDir, sqlHost, sqlDB,
+                sqlUser, sqlPassword);
         searchPanel.setVisible(false);
         add(searchPanel, BorderLayout.NORTH);
 
@@ -209,11 +207,11 @@ public class PathFind extends JFrame {
     }
 
     public static void main(String[] args) {
-        if (args.length != 6) {
+        if (args.length != 9) {
             System.out
                     .println("usage: "
                             + PathFind.class.getName()
-                            + " filename ij_dir extra_plugins_dir jre_dir trestle-20x_dir sql_host");
+                            + " filename ij_dir extra_plugins_dir jre_dir trestle-20x_dir sql_host sql_db sql_user sql_password");
             return;
         }
 
@@ -223,9 +221,12 @@ public class PathFind extends JFrame {
         String jreDir = args[3];
         String trestleDir = args[4];
         String sqlHost = args[5];
+        String sqlDB = args[6];
+        String sqlUser = args[7];
+        String sqlPassword = args[8];
 
         PathFind pf = new PathFind(filename, ijDir, extraPluginsDir, jreDir,
-                trestleDir, sqlHost);
+                trestleDir, sqlHost, sqlDB, sqlUser, sqlPassword);
         pf.setVisible(true);
     }
 
