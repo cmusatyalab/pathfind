@@ -68,7 +68,7 @@ public class WholeslideRegionResult {
     public final int thumbSize;
 
     public boolean hidden;
-    
+
     public WholeslideRegionResult(File ws, Shape region, double value,
             int thumbSize, String oneLineInfo, String hoverInfo, String fullInfo) {
         this.ws = ws;
@@ -94,7 +94,8 @@ public class WholeslideRegionResult {
         Wholeslide slide = new Wholeslide(ws);
 
         try {
-            System.out.println("drawing thumbnail from " + Thread.currentThread());
+            System.out.println("drawing thumbnail from "
+                    + Thread.currentThread());
             return drawThumbnail(slide, region, maxSize);
         } finally {
             slide.dispose();

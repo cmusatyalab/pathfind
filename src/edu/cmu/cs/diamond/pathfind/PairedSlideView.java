@@ -52,14 +52,16 @@ import edu.cmu.cs.wholeslide.gui.WholeslideView;
 
 public class PairedSlideView extends JPanel {
 
-	private final JToggleButton linkButton;
-	private final WholeslideView slides[] = new WholeslideView[2];
-	private final JPanel slideViews;
+    private final JToggleButton linkButton;
 
-	public PairedSlideView() {
-		setLayout(new BorderLayout());
-		
-		// main view in center
+    private final WholeslideView slides[] = new WholeslideView[2];
+
+    private final JPanel slideViews;
+
+    public PairedSlideView() {
+        setLayout(new BorderLayout());
+
+        // main view in center
         slideViews = new JPanel(new GridLayout(1, 2));
         add(slideViews);
 
@@ -76,34 +78,34 @@ public class PairedSlideView extends JPanel {
                 }
             }
         });
-	}
+    }
 
-	public WholeslideView getLeftSlide() {
-		return slides[0];
-	}
+    public WholeslideView getLeftSlide() {
+        return slides[0];
+    }
 
-	public WholeslideView getRightSlide() {
-	    return slides[1];
-	}
-	
-	public void setLeftSlide(WholeslideView wv) {
+    public WholeslideView getRightSlide() {
+        return slides[1];
+    }
+
+    public void setLeftSlide(WholeslideView wv) {
         WholeslideView oldSlide = slides[0];
         if (oldSlide != null) {
             oldSlide.unlinkOther();
         }
 
         slides[0] = wv;
-        
+
         slideViews.add(wv, 0);
-	}
-	
-	public void setRightSlide(WholeslideView wv) {
-	    linkButton.setSelected(false);
-	    if (slides[1] != null) {
-	        slideViews.remove(slides[1]);
-	        slides[1].unlinkOther();
-	    }
-	    
+    }
+
+    public void setRightSlide(WholeslideView wv) {
+        linkButton.setSelected(false);
+        if (slides[1] != null) {
+            slideViews.remove(slides[1]);
+            slides[1].unlinkOther();
+        }
+
         if (wv == null) {
             linkButton.setVisible(false);
         } else {
@@ -111,7 +113,7 @@ public class PairedSlideView extends JPanel {
             slideViews.add(wv, 1);
             linkButton.setVisible(true);
         }
-        
+
         slideViews.revalidate();
-	}
+    }
 }
