@@ -145,7 +145,7 @@ public class PathFind extends JFrame {
         String macroName2 = macroName.replace(' ', '_');
         try {
             FilterCode c = new FilterCode(new FileInputStream(
-                    "/usr/share/imagejfind/filter/fil_imagej_exec.so"));
+                    "/opt/snapfind/lib/fil_imagej_exec.so"));
             imagej = new Filter("imagej", c, "f_eval_imagej_exec",
                     "f_init_imagej_exec", "f_fini_imagej_exec",
                     (int) (threshold * 10000), new String[] {},
