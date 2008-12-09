@@ -42,12 +42,12 @@ package edu.cmu.cs.diamond.pathfind;
 
 import javax.swing.DefaultListModel;
 
-import edu.cmu.cs.wholeslide.gui.WholeslideView;
+import edu.cmu.cs.openslide.gui.OpenSlideView;
 
 public class SavedSelectionModel extends DefaultListModel {
-    final private WholeslideView w;
+    final private OpenSlideView w;
 
-    public SavedSelectionModel(WholeslideView w) {
+    public SavedSelectionModel(OpenSlideView w) {
         this.w = w;
     }
 }

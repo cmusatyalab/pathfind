@@ -48,13 +48,13 @@ import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import edu.cmu.cs.wholeslide.gui.WholeslideView;
+import edu.cmu.cs.openslide.gui.OpenSlideView;
 
 public class PairedSlideView extends JPanel {
 
     private final JToggleButton linkButton;
 
-    private final WholeslideView slides[] = new WholeslideView[2];
+    private final OpenSlideView slides[] = new OpenSlideView[2];
 
     private final JPanel slideViews;
 
@@ -80,16 +80,16 @@ public class PairedSlideView extends JPanel {
         });
     }
 
-    public WholeslideView getLeftSlide() {
+    public OpenSlideView getLeftSlide() {
         return slides[0];
     }
 
-    public WholeslideView getRightSlide() {
+    public OpenSlideView getRightSlide() {
         return slides[1];
     }
 
-    public void setLeftSlide(WholeslideView wv) {
-        WholeslideView oldSlide = slides[0];
+    public void setLeftSlide(OpenSlideView wv) {
+        OpenSlideView oldSlide = slides[0];
         if (oldSlide != null) {
             oldSlide.unlinkOther();
         }
@@ -99,7 +99,7 @@ public class PairedSlideView extends JPanel {
         slideViews.add(wv, 0);
     }
 
-    public void setRightSlide(WholeslideView wv) {
+    public void setRightSlide(OpenSlideView wv) {
         linkButton.setSelected(false);
         if (slides[1] != null) {
             slideViews.remove(slides[1]);

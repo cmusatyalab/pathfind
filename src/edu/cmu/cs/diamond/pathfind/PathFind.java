@@ -56,8 +56,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import edu.cmu.cs.diamond.opendiamond.*;
-import edu.cmu.cs.wholeslide.Wholeslide;
-import edu.cmu.cs.wholeslide.gui.WholeslideView;
+import edu.cmu.cs.openslide.OpenSlide;
+import edu.cmu.cs.openslide.gui.OpenSlideView;
 
 public class PathFind extends JFrame {
 
@@ -116,7 +116,7 @@ public class PathFind extends JFrame {
         });
         add(selectionPanel, BorderLayout.WEST);
 
-        setLeftSlide(new Wholeslide(new File(filename)), filename);
+        setLeftSlide(new OpenSlide(new File(filename)), filename);
 
         // load scope
         ScopeSource.commitScope();
@@ -169,8 +169,8 @@ public class PathFind extends JFrame {
         return searchlet;
     }
 
-    void setLeftSlide(Wholeslide wholeslide, String title) {
-        final WholeslideView wv = createNewView(wholeslide, title, true);
+    void setLeftSlide(OpenSlide openslide, String title) {
+        final OpenSlideView wv = createNewView(openslide, title, true);
 
         psv.setLeftSlide(wv);
         wv.getInputMap()
@@ -185,24 +185,24 @@ public class PathFind extends JFrame {
         savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
     }
 
-    void setRightSlide(Wholeslide wholeslide, String title) {
-        if (wholeslide == null) {
+    void setRightSlide(OpenSlide openslide, String title) {
+        if (openslide == null) {
             psv.setRightSlide(null);
         } else {
-            psv.setRightSlide(createNewView(wholeslide, title, false));
+            psv.setRightSlide(createNewView(openslide, title, false));
         }
     }
 
-    protected void saveSelection(WholeslideView wv) {
+    protected void saveSelection(OpenSlideView wv) {
         Shape s = wv.getSelection();
         if (s != null) {
             ssModel.addElement(s);
         }
     }
 
-    private WholeslideView createNewView(Wholeslide wholeslide, String title,
+    private OpenSlideView createNewView(OpenSlide openslide, String title,
             boolean zoomToFit) {
-        WholeslideView wv = new WholeslideView(wholeslide, zoomToFit);
+        OpenSlideView wv = new OpenSlideView(openslide, zoomToFit);
         wv.setBorder(BorderFactory.createTitledBorder(title));
         return wv;
     }
@@ -261,7 +261,7 @@ public class PathFind extends JFrame {
         g.setBackground(Color.WHITE);
         g.clearRect(0, 0, img.getWidth(), img.getHeight());
         g.clip(s);
-        psv.getLeftSlide().getWholeslide().paintRegion(g, 0, 0,
+        psv.getLeftSlide().getOpenSlide().paintRegion(g, 0, 0,
                 (int) bb.getX(), (int) bb.getY(), img.getWidth(),
                 img.getHeight(), 1.0);
         g.dispose();
@@ -269,11 +269,11 @@ public class PathFind extends JFrame {
         return img;
     }
 
-    public WholeslideView getLeftSlide() {
+    public OpenSlideView getLeftSlide() {
         return psv.getLeftSlide();
     }
 
-    public WholeslideView getRightSlide() {
+    public OpenSlideView getRightSlide() {
         return psv.getRightSlide();
     }
 }

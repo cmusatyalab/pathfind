@@ -52,7 +52,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.SwingUtilities;
 
 import edu.cmu.cs.diamond.opendiamond.*;
-import edu.cmu.cs.wholeslide.Wholeslide;
+import edu.cmu.cs.openslide.OpenSlide;
 
 final public class SearchModel extends AbstractListModel implements
         SearchEventListener {
@@ -64,9 +64,9 @@ final public class SearchModel extends AbstractListModel implements
 
     final protected Object lock = new Object();
 
-    final protected List<WholeslideRegionResult> list = new LinkedList<WholeslideRegionResult>();
+    final protected List<OpenSlideRegionResult> list = new LinkedList<OpenSlideRegionResult>();
 
-    public SearchModel(Search search, final Wholeslide ws, int limit,
+    public SearchModel(Search search, final OpenSlide ws, int limit,
             final String trestleDir, final String sqlHost, final String sqlDB,
             final String sqlUser, final String sqlPassword) {
         this.search = search;
@@ -132,7 +132,7 @@ final public class SearchModel extends AbstractListModel implements
                         Rectangle bb = new Rectangle(x, y, 512, 512);
 
                         list
-                                .add(new WholeslideRegionResult(
+                                .add(new OpenSlideRegionResult(
                                         resultWS,
                                         bb,
                                         Util
@@ -169,7 +169,7 @@ final public class SearchModel extends AbstractListModel implements
                     caseName = "cases9&10";
                 }
 
-                System.out.println("loading wholeslide for " + caseName);
+                System.out.println("loading slide for " + caseName);
 
                 return new File(trestleDir, caseName.toUpperCase() + ".tif");
             }
@@ -256,14 +256,14 @@ final public class SearchModel extends AbstractListModel implements
     }
 
     public void toggleHidden(int index) {
-        WholeslideRegionResult w = list.get(index);
+        OpenSlideRegionResult w = list.get(index);
         w.hidden = !w.hidden;
 
         fireContentsChanged(this, index, index);
     }
 
     public Object removeElement(int index) {
-        WholeslideRegionResult w = list.get(index);
+        OpenSlideRegionResult w = list.get(index);
         list.remove(index);
 
         fireIntervalRemoved(this, index, index);

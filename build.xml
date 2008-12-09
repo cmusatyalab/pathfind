@@ -7,8 +7,8 @@
     <path id="PathFind.classpath">
         <pathelement location="/usr/lib/opendiamond-java/opendiamondjava.jar"/>
         <pathelement location="/usr/lib64/opendiamond-java/opendiamondjava.jar"/>
-        <pathelement location="/usr/lib/wholeslide-java/wholeslidejava.jar"/>
-        <pathelement location="/usr/lib64/wholeslide-java/wholeslidejava.jar"/>
+        <pathelement location="/usr/lib/openslide-java/openslidejava.jar"/>
+        <pathelement location="/usr/lib64/openslide-java/openslidejava.jar"/>
         <pathelement location="lib/mysql-connector-java-5.1.7-bin.jar"/>
     </path>
     <target name="init">

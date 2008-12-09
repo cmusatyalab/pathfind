@@ -44,23 +44,19 @@ import java.awt.Component;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.ImageIcon;
-import javax.swing.JList;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
-import edu.cmu.cs.wholeslide.Wholeslide;
-import edu.cmu.cs.wholeslide.gui.WholeslideView;
+import edu.cmu.cs.openslide.OpenSlide;
+import edu.cmu.cs.openslide.gui.OpenSlideView;
 
 public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
 
     final private static int THUMBNAIL_SIZE = 200;
 
-    final private Wholeslide ws;
+    final private OpenSlide ws;
 
-    public SavedSelectionCellRenderer(WholeslideView wv) {
-        ws = wv.getWholeslide();
+    public SavedSelectionCellRenderer(OpenSlideView wv) {
+        ws = wv.getOpenSlide();
     }
 
     @Override
@@ -71,7 +67,7 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
                         cellHasFocus);
 
         Shape s = (Shape) value;
-        BufferedImage thumb = WholeslideRegionResult.drawThumbnail(ws, s,
+        BufferedImage thumb = OpenSlideRegionResult.drawThumbnail(ws, s,
                 THUMBNAIL_SIZE);
 
         c.setText(null);

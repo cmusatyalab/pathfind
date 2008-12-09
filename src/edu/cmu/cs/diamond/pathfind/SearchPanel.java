@@ -52,7 +52,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import edu.cmu.cs.diamond.opendiamond.Search;
-import edu.cmu.cs.wholeslide.Wholeslide;
+import edu.cmu.cs.openslide.OpenSlide;
 
 public class SearchPanel extends JPanel {
     final protected JList list;
@@ -96,13 +96,13 @@ public class SearchPanel extends JPanel {
 
         list.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                WholeslideRegionResult r = (WholeslideRegionResult) list
+                OpenSlideRegionResult r = (OpenSlideRegionResult) list
                         .getSelectedValue();
 
                 if (r == null) {
                     pf.setRightSlide(null, null);
                 } else {
-                    pf.setRightSlide(new Wholeslide(r.ws), "Search Result");
+                    pf.setRightSlide(new OpenSlide(r.ws), "Search Result");
                     pf.getRightSlide().setSelection(r.region);
                     pf.getRightSlide().centerOnSelection();
                 }
@@ -118,7 +118,7 @@ public class SearchPanel extends JPanel {
                         return;
                     }
 
-                    WholeslideRegionResult r = (WholeslideRegionResult) list
+                    OpenSlideRegionResult r = (OpenSlideRegionResult) list
                             .getModel().getElementAt(index);
                     popupCaseInfo(r.fullInfo);
                 } else if (e.getButton() == 2) {
@@ -187,7 +187,7 @@ public class SearchPanel extends JPanel {
         deregisterListener();
 
         list.setModel(new SearchModel(theSearch, pathFind.getLeftSlide()
-                .getWholeslide(), 50, trestleDir, sqlHost, sqlDB, sqlUser,
+                .getOpenSlide(), 50, trestleDir, sqlHost, sqlDB, sqlUser,
                 sqlPassword));
 
         theSearch.start();

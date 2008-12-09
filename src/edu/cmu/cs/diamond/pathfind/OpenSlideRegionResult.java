@@ -47,10 +47,10 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-import edu.cmu.cs.wholeslide.Wholeslide;
-import edu.cmu.cs.wholeslide.gui.WholeslideView;
+import edu.cmu.cs.openslide.OpenSlide;
+import edu.cmu.cs.openslide.gui.OpenSlideView;
 
-public class WholeslideRegionResult {
+public class OpenSlideRegionResult {
     private BufferedImage thumb;
 
     public final File ws;
@@ -69,7 +69,7 @@ public class WholeslideRegionResult {
 
     public boolean hidden;
 
-    public WholeslideRegionResult(File ws, Shape region, double value,
+    public OpenSlideRegionResult(File ws, Shape region, double value,
             int thumbSize, String oneLineInfo, String hoverInfo, String fullInfo) {
         this.ws = ws;
         this.region = region;
@@ -91,7 +91,7 @@ public class WholeslideRegionResult {
     }
 
     private BufferedImage drawThumbnail(int maxSize) {
-        Wholeslide slide = new Wholeslide(ws);
+        OpenSlide slide = new OpenSlide(ws);
 
         try {
             System.out.println("drawing thumbnail from "
@@ -102,8 +102,8 @@ public class WholeslideRegionResult {
         }
     }
 
-    static public BufferedImage drawThumbnail(Wholeslide slide,
-            Shape selection, int maxSize) {
+    static public BufferedImage drawThumbnail(OpenSlide slide, Shape selection,
+            int maxSize) {
         Rectangle2D bb = selection.getBounds2D();
 
         double downsample = Math.max(bb.getWidth(), bb.getHeight()) / maxSize;
@@ -118,7 +118,7 @@ public class WholeslideRegionResult {
         Graphics2D g = thumb.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
-        WholeslideView.paintSelection(g, selection,
+        OpenSlideView.paintSelection(g, selection,
                 (int) (-bb.getX() / downsample),
                 (int) (-bb.getY() / downsample), downsample);
         g.dispose();

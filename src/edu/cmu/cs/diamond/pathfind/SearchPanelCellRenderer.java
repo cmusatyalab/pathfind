@@ -52,7 +52,7 @@ public class SearchPanelCellRenderer extends DefaultListCellRenderer {
             int index, boolean isSelected, boolean cellHasFocus) {
         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-        WholeslideRegionResult r = (WholeslideRegionResult) value;
+        OpenSlideRegionResult r = (OpenSlideRegionResult) value;
 
         setHorizontalAlignment(SwingConstants.CENTER);
         setHorizontalTextPosition(SwingConstants.CENTER);
