@@ -181,15 +181,17 @@ public final class QueryPanel extends JPanel {
 
     private final JSpinner searchBound;
 
-    private final Macro macroList[] = createMacroList();
+    private final Macro macroList[];
 
     private final String extraPluginsDir;
 
     public QueryPanel(PathFind pathFind, String ijDir, String extraPluginsDir,
-            String jreDir) {
+            String macrosMap, String jreDir) throws FileNotFoundException {
         this.ijDir = ijDir;
 
         this.extraPluginsDir = extraPluginsDir;
+
+        macroList = createMacroList(macrosMap);
 
         this.ijCmd = new String[] {
                 new File(jreDir + File.separator + "bin" + File.separator
@@ -255,11 +257,11 @@ public final class QueryPanel extends JPanel {
         add(b);
     }
 
-    private Macro[] createMacroList() {
+    private Macro[] createMacroList(String macrosMap)
+            throws FileNotFoundException {
         List<Macro> r = new ArrayList<Macro>();
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(getClass()
-                .getResourceAsStream("resources/macros.txt")));
+        BufferedReader in = new BufferedReader(new FileReader(macrosMap));
 
         try {
             String line;

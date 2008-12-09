@@ -76,8 +76,9 @@ public class PathFind extends JFrame {
     private final PairedSlideView psv = new PairedSlideView();
 
     public PathFind(String filename, String ijDir, String extraPluginsDir,
-            String jreDir, String trestleDir, String sqlHost, String sqlDB,
-            String sqlUser, String sqlPassword) {
+            String macrosMap, String jreDir, String trestleDir, String sqlHost,
+            String sqlDB, String sqlUser, String sqlPassword)
+            throws FileNotFoundException {
         super("PathFind");
         setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -86,7 +87,7 @@ public class PathFind extends JFrame {
         add(psv);
 
         // query bar at bottom
-        qp = new QueryPanel(this, ijDir, extraPluginsDir, jreDir);
+        qp = new QueryPanel(this, ijDir, extraPluginsDir, macrosMap, jreDir);
         add(qp, BorderLayout.SOUTH);
 
         // search results at top
@@ -207,26 +208,33 @@ public class PathFind extends JFrame {
     }
 
     public static void main(String[] args) {
-        if (args.length != 9) {
+        if (args.length != 10) {
             System.out
                     .println("usage: "
                             + PathFind.class.getName()
-                            + " filename ij_dir extra_plugins_dir jre_dir trestle-20x_dir sql_host sql_db sql_user sql_password");
+                            + " filename ij_dir extra_plugins_dir macrosMap jre_dir trestle-20x_dir sql_host sql_db sql_user sql_password");
             return;
         }
 
         String filename = args[0];
         String ijDir = args[1];
         String extraPluginsDir = args[2];
-        String jreDir = args[3];
-        String trestleDir = args[4];
-        String sqlHost = args[5];
-        String sqlDB = args[6];
-        String sqlUser = args[7];
-        String sqlPassword = args[8];
+        String macrosMap = args[3];
+        String jreDir = args[4];
+        String trestleDir = args[5];
+        String sqlHost = args[6];
+        String sqlDB = args[7];
+        String sqlUser = args[8];
+        String sqlPassword = args[9];
 
-        PathFind pf = new PathFind(filename, ijDir, extraPluginsDir, jreDir,
-                trestleDir, sqlHost, sqlDB, sqlUser, sqlPassword);
+        PathFind pf;
+        try {
+            pf = new PathFind(filename, ijDir, extraPluginsDir, macrosMap,
+                    jreDir, trestleDir, sqlHost, sqlDB, sqlUser, sqlPassword);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
         pf.setVisible(true);
     }
 
