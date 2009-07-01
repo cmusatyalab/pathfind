@@ -49,13 +49,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import edu.cmu.cs.diamond.opendiamond.*;
+import edu.cmu.cs.diamond.opendiamond.Filter;
+import edu.cmu.cs.diamond.opendiamond.FilterCode;
+import edu.cmu.cs.diamond.opendiamond.Search;
+import edu.cmu.cs.diamond.opendiamond.Searchlet;
 import edu.cmu.cs.openslide.OpenSlide;
 import edu.cmu.cs.openslide.gui.OpenSlideView;
 
@@ -66,8 +68,6 @@ public class PathFind extends JFrame {
     private final JPanel selectionPanel;
 
     private final JList savedSelections;
-
-    private final Scope scope;
 
     private DefaultListModel ssModel;
 
@@ -117,11 +117,6 @@ public class PathFind extends JFrame {
         add(selectionPanel, BorderLayout.WEST);
 
         setLeftSlide(new OpenSlide(new File(filename)), filename);
-
-        // load scope
-        ScopeSource.commitScope();
-        List<Scope> scopes = ScopeSource.getPredefinedScopeList();
-        this.scope = scopes.get(0);
     }
 
     public void startSearch(double threshold, byte[] macroBlob, String macroName) {
@@ -129,7 +124,7 @@ public class PathFind extends JFrame {
 
         Search search = Search.getSharedInstance();
         // TODO fill in search parameters
-        search.setScope(scope);
+        search.defineScope();
         search.setSearchlet(prepareSearchlet(threshold, macroBlob, macroName));
 
         searchPanel.beginSearch(search);
@@ -159,7 +154,6 @@ public class PathFind extends JFrame {
 
         // init diamond
         Search search = Search.getSharedInstance();
-        search.setScope(scope);
 
         // make a new searchlet
         Searchlet searchlet = new Searchlet();
@@ -261,9 +255,8 @@ public class PathFind extends JFrame {
         g.setBackground(Color.WHITE);
         g.clearRect(0, 0, img.getWidth(), img.getHeight());
         g.clip(s);
-        psv.getLeftSlide().getOpenSlide().paintRegion(g, 0, 0,
-                (int) bb.getX(), (int) bb.getY(), img.getWidth(),
-                img.getHeight(), 1.0);
+        psv.getLeftSlide().getOpenSlide().paintRegion(g, 0, 0, (int) bb.getX(),
+                (int) bb.getY(), img.getWidth(), img.getHeight(), 1.0);
         g.dispose();
 
         return img;
