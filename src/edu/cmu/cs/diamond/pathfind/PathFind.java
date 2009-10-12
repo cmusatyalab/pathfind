@@ -55,6 +55,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.*;
@@ -145,10 +146,12 @@ public class PathFind extends JFrame {
 
         FilterCode c = new FilterCode(new FileInputStream(
                 "/opt/snapfind/lib/fil_imagej_exec.so"));
+        List<String> dependencies = Collections.emptyList();
+        List<String> arguments = Arrays.asList(new String[] { macroName2 });
         Filter imagej = new Filter("imagej", c, "f_eval_imagej_exec",
                 "f_init_imagej_exec", "f_fini_imagej_exec",
-                (int) (threshold * 10000), new String[] {},
-                new String[] { macroName2 }, 400, macroBlob);
+                (int) (threshold * 10000), dependencies, arguments, 400,
+                macroBlob);
         System.out.println(imagej);
 
         filters.add(imagej);
