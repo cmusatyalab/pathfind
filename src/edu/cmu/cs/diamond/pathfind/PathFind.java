@@ -62,6 +62,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import edu.cmu.cs.diamond.opendiamond.Cookie;
 import edu.cmu.cs.diamond.opendiamond.Filter;
 import edu.cmu.cs.diamond.opendiamond.FilterCode;
 import edu.cmu.cs.diamond.opendiamond.SearchFactory;
@@ -158,7 +159,7 @@ public class PathFind extends JFrame {
 
         // make a new factory
         SearchFactory factory = new SearchFactory(filters, Arrays
-                .asList(new String[] { "imagej" }), SearchFactory
+                .asList(new String[] { "imagej" }), Cookie
                 .createDefaultCookieMap());
         return factory;
     }
