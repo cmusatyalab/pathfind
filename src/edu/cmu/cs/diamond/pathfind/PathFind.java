@@ -40,7 +40,11 @@
 
 package edu.cmu.cs.diamond.pathfind;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -49,6 +53,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -56,8 +63,7 @@ import javax.swing.event.ListSelectionListener;
 
 import edu.cmu.cs.diamond.opendiamond.Filter;
 import edu.cmu.cs.diamond.opendiamond.FilterCode;
-import edu.cmu.cs.diamond.opendiamond.Search;
-import edu.cmu.cs.diamond.opendiamond.Searchlet;
+import edu.cmu.cs.diamond.opendiamond.SearchFactory;
 import edu.cmu.cs.openslide.OpenSlide;
 import edu.cmu.cs.openslide.gui.OpenSlideView;
 
@@ -119,48 +125,39 @@ public class PathFind extends JFrame {
         setLeftSlide(new OpenSlide(new File(filename)), filename);
     }
 
-    public void startSearch(double threshold, byte[] macroBlob, String macroName) {
+    public void startSearch(double threshold, byte[] macroBlob, String macroName)
+            throws IOException, InterruptedException {
         System.out.println("start search");
 
-        Search search = Search.getSharedInstance();
-        // TODO fill in search parameters
-        search.defineScope();
-        search.setSearchlet(prepareSearchlet(threshold, macroBlob, macroName));
+        SearchFactory factory = createFactory(threshold, macroBlob, macroName);
 
-        searchPanel.beginSearch(search);
+        searchPanel.beginSearch(factory.createSearch(null));
     }
 
     public void stopSearch() {
         searchPanel.endSearch();
     }
 
-    private Searchlet prepareSearchlet(double threshold, byte[] macroBlob,
-            String macroName) {
-        Filter imagej = null;
+    private SearchFactory createFactory(double threshold, byte[] macroBlob,
+            String macroName) throws IOException {
+        List<Filter> filters = new ArrayList<Filter>();
         String macroName2 = macroName.replace(' ', '_');
-        try {
-            FilterCode c = new FilterCode(new FileInputStream(
-                    "/opt/snapfind/lib/fil_imagej_exec.so"));
-            imagej = new Filter("imagej", c, "f_eval_imagej_exec",
-                    "f_init_imagej_exec", "f_fini_imagej_exec",
-                    (int) (threshold * 10000), new String[] {},
-                    new String[] { macroName2 }, 400, macroBlob);
-            System.out.println(imagej);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        // init diamond
-        Search search = Search.getSharedInstance();
+        FilterCode c = new FilterCode(new FileInputStream(
+                "/opt/snapfind/lib/fil_imagej_exec.so"));
+        Filter imagej = new Filter("imagej", c, "f_eval_imagej_exec",
+                "f_init_imagej_exec", "f_fini_imagej_exec",
+                (int) (threshold * 10000), new String[] {},
+                new String[] { macroName2 }, 400, macroBlob);
+        System.out.println(imagej);
 
-        // make a new searchlet
-        Searchlet searchlet = new Searchlet();
-        searchlet.addFilter(imagej);
-        searchlet.setApplicationDependencies(new String[] { "imagej" });
+        filters.add(imagej);
 
-        return searchlet;
+        // make a new factory
+        SearchFactory factory = new SearchFactory(filters, Arrays
+                .asList(new String[] { "imagej" }), SearchFactory
+                .createDefaultCookieMap());
+        return factory;
     }
 
     void setLeftSlide(OpenSlide openslide, String title) {

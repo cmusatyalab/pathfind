@@ -161,45 +161,28 @@ public class SearchPanel extends JPanel {
         super.setVisible(visible);
         if (oldVisible != visible && !visible) {
             if (theSearch != null) {
-                theSearch.stop();
+                theSearch.close();
             }
-
-            // deregister listeners
-            deregisterListener();
-        }
-    }
-
-    private void deregisterListener() {
-        ListModel oldModel = list.getModel();
-        if (oldModel instanceof SearchModel) {
-            SearchModel m = (SearchModel) oldModel;
-            m.removeSearchListener();
         }
     }
 
     void beginSearch(Search s) {
         if (theSearch != null) {
-            theSearch.stop();
+            theSearch.close();
         }
 
         theSearch = s;
 
-        deregisterListener();
-
         list.setModel(new SearchModel(theSearch, pathFind.getLeftSlide()
                 .getOpenSlide(), 50, trestleDir, sqlHost, sqlDB, sqlUser,
                 sqlPassword));
-
-        theSearch.start();
 
         setVisible(true);
     }
 
     void endSearch() {
         if (theSearch != null) {
-            theSearch.stop();
+            theSearch.close();
         }
-
-        deregisterListener();
     }
 }

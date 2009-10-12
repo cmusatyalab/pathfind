@@ -239,7 +239,13 @@ public final class QueryPanel extends JPanel {
         searchButton = new JButton("Search");
         searchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                runRemoteMacro(macroList[macroComboBox.getSelectedIndex()].macroName);
+                try {
+                    runRemoteMacro(macroList[macroComboBox.getSelectedIndex()].macroName);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
         b.add(searchButton);
@@ -288,21 +294,16 @@ public final class QueryPanel extends JPanel {
         updateResultField();
     }
 
-    private void runRemoteMacro(String macroName) {
-        try {
-            File mm = new File(QueryPanel.this.ijDir + "/macros", macroName
-                    + ".txt");
-            byte blob1[] = Util.quickTar(new File(extraPluginsDir));
-            byte blob2[] = Util.quickTar(new File[] { mm });
-            byte macroBlob[] = new byte[blob1.length + blob2.length];
-            System.arraycopy(blob1, 0, macroBlob, 0, blob1.length);
-            System.arraycopy(blob2, 0, macroBlob, blob1.length, blob2.length);
-            pf.startSearch(Double.isNaN(result) ? 0.0 : result, macroBlob,
-                    macroName);
-        } catch (FileNotFoundException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
+    private void runRemoteMacro(String macroName) throws InterruptedException,
+            IOException {
+        File mm = new File(QueryPanel.this.ijDir + "/macros", macroName
+                + ".txt");
+        byte blob1[] = Util.quickTar(new File(extraPluginsDir));
+        byte blob2[] = Util.quickTar(new File[] { mm });
+        byte macroBlob[] = new byte[blob1.length + blob2.length];
+        System.arraycopy(blob1, 0, macroBlob, 0, blob1.length);
+        System.arraycopy(blob2, 0, macroBlob, blob1.length, blob2.length);
+        pf.startSearch(Double.isNaN(result) ? 0.0 : result, macroBlob,
+                macroName);
     }
 }

@@ -42,7 +42,12 @@ package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.Rectangle;
 import java.io.File;
-import java.sql.*;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -51,13 +56,12 @@ import java.util.regex.Pattern;
 import javax.swing.AbstractListModel;
 import javax.swing.SwingUtilities;
 
-import edu.cmu.cs.diamond.opendiamond.*;
+import edu.cmu.cs.diamond.opendiamond.Result;
+import edu.cmu.cs.diamond.opendiamond.Search;
+import edu.cmu.cs.diamond.opendiamond.Util;
 import edu.cmu.cs.openslide.OpenSlide;
 
-final public class SearchModel extends AbstractListModel implements
-        SearchEventListener {
-    protected volatile boolean running;
-
+final public class SearchModel extends AbstractListModel {
     final protected Search search;
 
     final protected int limit;
@@ -72,8 +76,6 @@ final public class SearchModel extends AbstractListModel implements
         this.search = search;
         this.limit = limit;
 
-        search.addSearchEventListener(this);
-
         Thread t = new Thread(new Runnable() {
 
             private Connection conn;
@@ -83,25 +85,13 @@ final public class SearchModel extends AbstractListModel implements
             public void run() {
                 initSQL();
 
-                // wait for start
-                synchronized (lock) {
-                    while (!running) {
-                        try {
-                            System.out.println("waiting for start signal");
-                            lock.wait();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
                 try {
                     int i = 0;
 
                     Pattern p = Pattern
                             .compile("/([^/-]+)-(\\d+)-(\\d+)\\.ppm");
 
-                    while (running && i < SearchModel.this.limit) {
+                    while (i < SearchModel.this.limit) {
                         final Result r = SearchModel.this.search
                                 .getNextResult();
                         if (r == null) {
@@ -150,10 +140,10 @@ final public class SearchModel extends AbstractListModel implements
                         });
                     }
                 } catch (InterruptedException e) {
+                } catch (IOException e) {
+                    e.printStackTrace();
                 } finally {
                     System.out.println("search done");
-                    running = false;
-
                     try {
                         ps.close();
                     } catch (SQLException e) {
@@ -229,22 +219,6 @@ final public class SearchModel extends AbstractListModel implements
         t.setDaemon(true);
         t.setPriority(Thread.MIN_PRIORITY);
         t.start();
-    }
-
-    public void searchStarted(SearchEvent e) {
-        synchronized (lock) {
-            System.out.println("sending start notify");
-            running = true;
-            lock.notify();
-        }
-    }
-
-    public void searchStopped(SearchEvent e) {
-        running = false;
-    }
-
-    public void removeSearchListener() {
-        search.removeSearchEventListener(this);
     }
 
     public Object getElementAt(int index) {
