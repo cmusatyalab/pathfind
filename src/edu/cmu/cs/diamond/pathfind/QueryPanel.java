@@ -254,7 +254,11 @@ public final class QueryPanel extends JPanel {
         stopButton = new JButton("Stop");
         stopButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                pf.stopSearch();
+                try {
+                    pf.stopSearch();
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
             }
         });
         b.add(stopButton);

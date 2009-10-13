@@ -136,7 +136,7 @@ public class PathFind extends JFrame {
         searchPanel.beginSearch(factory.createSearch(null));
     }
 
-    public void stopSearch() {
+    public void stopSearch() throws InterruptedException {
         searchPanel.endSearch();
     }
 
