@@ -40,11 +40,7 @@
 
 package edu.cmu.cs.diamond.pathfind;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -62,7 +58,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import edu.cmu.cs.diamond.opendiamond.Cookie;
+import edu.cmu.cs.diamond.opendiamond.CookieMap;
 import edu.cmu.cs.diamond.opendiamond.Filter;
 import edu.cmu.cs.diamond.opendiamond.FilterCode;
 import edu.cmu.cs.diamond.opendiamond.SearchFactory;
@@ -159,7 +155,7 @@ public class PathFind extends JFrame {
 
         // make a new factory
         SearchFactory factory = new SearchFactory(filters, Arrays
-                .asList(new String[] { "imagej" }), Cookie
+                .asList(new String[] { "imagej" }), CookieMap
                 .createDefaultCookieMap());
         return factory;
     }
