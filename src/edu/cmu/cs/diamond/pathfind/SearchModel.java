@@ -100,7 +100,7 @@ final public class SearchModel extends AbstractListModel {
 
                         // System.out.println(r);
 
-                        String name = r.getObjectName();
+                        String name = r.getName();
                         // TODO get metadata from the server in a different way
                         Matcher m = p.matcher(name);
                         if (!m.find()) {
