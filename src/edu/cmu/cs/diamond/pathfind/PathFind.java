@@ -147,8 +147,7 @@ public class PathFind extends JFrame {
         List<String> arguments = Arrays.asList(new String[] { macroName2 });
         Filter imagej = new Filter("imagej", c, "f_eval_imagej_exec",
                 "f_init_imagej_exec", "f_fini_imagej_exec",
-                (int) (threshold * 10000), dependencies, arguments, 400,
-                macroBlob);
+                (int) (threshold * 10000), dependencies, arguments, macroBlob);
         System.out.println(imagej);
 
         filters.add(imagej);
