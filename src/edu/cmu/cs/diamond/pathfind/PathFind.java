@@ -1,7 +1,7 @@
 /*
  *  PathFind -- a Diamond system for pathology
  *
- *  Copyright (c) 2008 Carnegie Mellon University
+ *  Copyright (c) 2008-2009 Carnegie Mellon University
  *  All rights reserved.
  *
  *  PathFind is free software: you can redistribute it and/or modify
@@ -45,7 +45,6 @@ import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -79,24 +78,32 @@ public class PathFind extends JFrame {
 
     private final PairedSlideView psv = new PairedSlideView();
 
-    public PathFind(String filename, String ijDir, String extraPluginsDir,
-            String macrosMap, String jreDir, String trestleDir, String sqlHost,
-            String sqlDB, String sqlUser, String sqlPassword)
+    public PathFind(String ijDir, String extraPluginsDir, String jreDir)
             throws FileNotFoundException {
         super("PathFind");
         setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        OpenSlide os = null;
+        JFileChooser jfc = new JFileChooser();
+        jfc.setAcceptAllFileFilterUsed(false);
+        jfc.setFileFilter(OpenSlide.getFileFilter());
+        int returnVal = jfc.showDialog(this, "Open");
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            os = new OpenSlide(jfc.getSelectedFile());
+        } else {
+            System.exit(0);
+        }
+
         // slides in middle
         add(psv);
 
         // query bar at bottom
-        qp = new QueryPanel(this, ijDir, extraPluginsDir, macrosMap, jreDir);
+        qp = new QueryPanel(this, ijDir, extraPluginsDir, jreDir);
         add(qp, BorderLayout.SOUTH);
 
         // search results at top
-        searchPanel = new SearchPanel(this, trestleDir, sqlHost, sqlDB,
-                sqlUser, sqlPassword);
+        searchPanel = new SearchPanel(this);
         searchPanel.setVisible(false);
         add(searchPanel, BorderLayout.NORTH);
 
@@ -114,13 +121,13 @@ public class PathFind extends JFrame {
         savedSelections.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
                 Shape selection = (Shape) savedSelections.getSelectedValue();
-                psv.getLeftSlide().setSelection(selection);
-                psv.getLeftSlide().centerOnSelection();
+                psv.getSlide().setSelection(selection);
+                psv.getSlide().centerOnSelection();
             }
         });
         add(selectionPanel, BorderLayout.WEST);
 
-        setLeftSlide(new OpenSlide(new File(filename)), filename);
+        setSlide(os, jfc.getSelectedFile().getName());
     }
 
     public void startSearch(double threshold, byte[] macroBlob, String macroName)
@@ -159,10 +166,10 @@ public class PathFind extends JFrame {
         return factory;
     }
 
-    void setLeftSlide(OpenSlide openslide, String title) {
+    void setSlide(OpenSlide openslide, String title) {
         final OpenSlideView wv = createNewView(openslide, title, true);
 
-        psv.setLeftSlide(wv);
+        psv.setSlide(wv);
         wv.getInputMap()
                 .put(KeyStroke.getKeyStroke("INSERT"), "save selection");
         wv.getActionMap().put("save selection", new AbstractAction() {
@@ -175,12 +182,8 @@ public class PathFind extends JFrame {
         savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
     }
 
-    void setRightSlide(OpenSlide openslide, String title) {
-        if (openslide == null) {
-            psv.setRightSlide(null);
-        } else {
-            psv.setRightSlide(createNewView(openslide, title, false));
-        }
+    void setResult(Icon result, String title) {
+        psv.setResult(result);
     }
 
     protected void saveSelection(OpenSlideView wv) {
@@ -198,38 +201,33 @@ public class PathFind extends JFrame {
     }
 
     public static void main(String[] args) {
-        if (args.length != 10) {
-            System.out
-                    .println("usage: "
-                            + PathFind.class.getName()
-                            + " filename ij_dir extra_plugins_dir macrosMap jre_dir trestle-20x_dir sql_host sql_db sql_user sql_password");
+        if (args.length != 3) {
+            System.out.println("usage: " + PathFind.class.getName()
+                    + " ij_dir extra_plugins_dir jre_dir");
             return;
         }
 
-        String filename = args[0];
-        String ijDir = args[1];
-        String extraPluginsDir = args[2];
-        String macrosMap = args[3];
-        String jreDir = args[4];
-        String trestleDir = args[5];
-        String sqlHost = args[6];
-        String sqlDB = args[7];
-        String sqlUser = args[8];
-        String sqlPassword = args[9];
+        final String ijDir = args[0];
+        final String extraPluginsDir = args[1];
+        final String jreDir = args[2];
 
-        PathFind pf;
-        try {
-            pf = new PathFind(filename, ijDir, extraPluginsDir, macrosMap,
-                    jreDir, trestleDir, sqlHost, sqlDB, sqlUser, sqlPassword);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return;
-        }
-        pf.setVisible(true);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                PathFind pf;
+                try {
+                    pf = new PathFind(ijDir, extraPluginsDir, jreDir);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                pf.setVisible(true);
+            }
+        });
     }
 
     public BufferedImage getSelectionAsImage() {
-        Shape s = psv.getLeftSlide().getSelection();
+        Shape s = psv.getSlide().getSelection();
         if (s == null) {
             return null;
         }
@@ -251,18 +249,14 @@ public class PathFind extends JFrame {
         g.setBackground(Color.WHITE);
         g.clearRect(0, 0, img.getWidth(), img.getHeight());
         g.clip(s);
-        psv.getLeftSlide().getOpenSlide().paintRegion(g, 0, 0, (int) bb.getX(),
+        psv.getSlide().getOpenSlide().paintRegion(g, 0, 0, (int) bb.getX(),
                 (int) bb.getY(), img.getWidth(), img.getHeight(), 1.0);
         g.dispose();
 
         return img;
     }
 
-    public OpenSlideView getLeftSlide() {
-        return psv.getLeftSlide();
-    }
-
-    public OpenSlideView getRightSlide() {
-        return psv.getRightSlide();
+    public OpenSlideView getSlide() {
+        return psv.getSlide();
     }
 }

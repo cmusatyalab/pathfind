@@ -1,7 +1,7 @@
 /*
  *  PathFind -- a Diamond system for pathology
  *
- *  Copyright (c) 2008 Carnegie Mellon University
+ *  Copyright (c) 2008-2009 Carnegie Mellon University
  *  All rights reserved.
  *
  *  PathFind is free software: you can redistribute it and/or modify
@@ -41,7 +41,10 @@
 package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.Component;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import javax.swing.*;
@@ -67,8 +70,7 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
                         cellHasFocus);
 
         Shape s = (Shape) value;
-        BufferedImage thumb = OpenSlideRegionResult.drawThumbnail(ws, s,
-                THUMBNAIL_SIZE);
+        BufferedImage thumb = drawThumbnail(ws, s, THUMBNAIL_SIZE);
 
         c.setText(null);
         c.setIcon(new ImageIcon(thumb));
@@ -84,4 +86,27 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
         return c;
     }
 
+    private static BufferedImage drawThumbnail(OpenSlide slide,
+            Shape selection, int maxSize) {
+        Rectangle2D bb = selection.getBounds2D();
+
+        double downsample = Math.max(bb.getWidth(), bb.getHeight()) / maxSize;
+
+        if (downsample < 1.0) {
+            downsample = 1.0;
+        }
+
+        BufferedImage thumb = slide.createThumbnailImage((int) bb.getX(),
+                (int) bb.getY(), (int) bb.getWidth(), (int) bb.getHeight(),
+                maxSize);
+        Graphics2D g = thumb.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        OpenSlideView.paintSelection(g, selection,
+                (int) (-bb.getX() / downsample),
+                (int) (-bb.getY() / downsample), downsample);
+        g.dispose();
+
+        return thumb;
+    }
 }

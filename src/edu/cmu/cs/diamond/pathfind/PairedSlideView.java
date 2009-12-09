@@ -1,7 +1,7 @@
 /*
  *  PathFind -- a Diamond system for pathology
  *
- *  Copyright (c) 2008 Carnegie Mellon University
+ *  Copyright (c) 2008-2009 Carnegie Mellon University
  *  All rights reserved.
  *
  *  PathFind is free software: you can redistribute it and/or modify
@@ -43,20 +43,19 @@ package edu.cmu.cs.diamond.pathfind;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 
+import javax.swing.Icon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JToggleButton;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import edu.cmu.cs.openslide.gui.OpenSlideView;
 
 public class PairedSlideView extends JPanel {
 
-    private final JToggleButton linkButton;
-
-    private final OpenSlideView slides[] = new OpenSlideView[2];
+    private OpenSlideView slide;
 
     private final JPanel slideViews;
+
+    private final JLabel resultLabel = new JLabel();
 
     public PairedSlideView() {
         setLayout(new BorderLayout());
@@ -64,54 +63,23 @@ public class PairedSlideView extends JPanel {
         // main view in center
         slideViews = new JPanel(new GridLayout(1, 2));
         add(slideViews);
-
-        // link button at bottom
-        linkButton = new JToggleButton("Link");
-        add(linkButton, BorderLayout.SOUTH);
-        linkButton.setVisible(false);
-        linkButton.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                if (linkButton.isSelected()) {
-                    slides[0].linkWithOther(slides[1]);
-                } else {
-                    slides[0].unlinkOther();
-                }
-            }
-        });
     }
 
-    public OpenSlideView getLeftSlide() {
-        return slides[0];
+    public OpenSlideView getSlide() {
+        return slide;
     }
 
-    public OpenSlideView getRightSlide() {
-        return slides[1];
+    public void setSlide(OpenSlideView wv) {
+        slide = wv;
+
+        slideViews.add(slide, 0);
     }
 
-    public void setLeftSlide(OpenSlideView wv) {
-        OpenSlideView oldSlide = slides[0];
-        if (oldSlide != null) {
-            oldSlide.unlinkOther();
-        }
-
-        slides[0] = wv;
-
-        slideViews.add(wv, 0);
-    }
-
-    public void setRightSlide(OpenSlideView wv) {
-        linkButton.setSelected(false);
-        if (slides[1] != null) {
-            slideViews.remove(slides[1]);
-            slides[1].unlinkOther();
-        }
-
-        if (wv == null) {
-            linkButton.setVisible(false);
-        } else {
-            slides[1] = wv;
-            slideViews.add(wv, 1);
-            linkButton.setVisible(true);
+    public void setResult(Icon image) {
+        slideViews.remove(resultLabel);
+        resultLabel.setIcon(image);
+        if (image != null) {
+            slideViews.add(slideViews, 1);
         }
 
         slideViews.revalidate();

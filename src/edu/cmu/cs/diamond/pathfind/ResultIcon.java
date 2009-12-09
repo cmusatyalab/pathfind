@@ -1,7 +1,7 @@
 /*
  *  PathFind -- a Diamond system for pathology
  *
- *  Copyright (c) 2008-2009 Carnegie Mellon University
+ *  Copyright (c) 2009 Carnegie Mellon University
  *  All rights reserved.
  *
  *  PathFind is free software: you can redistribute it and/or modify
@@ -40,32 +40,27 @@
 
 package edu.cmu.cs.diamond.pathfind;
 
-import java.awt.Component;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JList;
-import javax.swing.SwingConstants;
+import edu.cmu.cs.diamond.opendiamond.ObjectIdentifier;
 
-public class SearchPanelCellRenderer extends DefaultListCellRenderer {
+public class ResultIcon {
 
-    @Override
-    public Component getListCellRendererComponent(JList list, Object value,
-            int index, boolean isSelected, boolean cellHasFocus) {
-        super.getListCellRendererComponent(list, value, index, isSelected,
-                cellHasFocus);
+    private final ImageIcon icon;
 
-        ResultIcon r = (ResultIcon) value;
+    private final ObjectIdentifier identifier;
 
-        setHorizontalAlignment(SwingConstants.CENTER);
-        setHorizontalTextPosition(SwingConstants.CENTER);
-        setVerticalTextPosition(SwingConstants.BOTTOM);
-        setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+    public ResultIcon(ImageIcon icon, ObjectIdentifier identifier) {
+        this.icon = icon;
+        this.identifier = identifier;
+    }
 
-        setVerticalAlignment(SwingConstants.CENTER);
-        setIcon(r.getIcon());
-        setText(null);
+    public Icon getIcon() {
+        return icon;
+    }
 
-        return this;
+    public ObjectIdentifier getObjectIdentifier() {
+        return identifier;
     }
 }

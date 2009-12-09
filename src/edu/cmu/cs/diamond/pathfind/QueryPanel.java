@@ -1,7 +1,7 @@
 /*
  *  PathFind -- a Diamond system for pathology
  *
- *  Copyright (c) 2008 Carnegie Mellon University
+ *  Copyright (c) 2008-2009 Carnegie Mellon University
  *  All rights reserved.
  *
  *  PathFind is free software: you can redistribute it and/or modify
@@ -186,12 +186,13 @@ public final class QueryPanel extends JPanel {
     private final String extraPluginsDir;
 
     public QueryPanel(PathFind pathFind, String ijDir, String extraPluginsDir,
-            String macrosMap, String jreDir) throws FileNotFoundException {
+            String jreDir) throws FileNotFoundException {
         this.ijDir = ijDir;
 
         this.extraPluginsDir = extraPluginsDir;
 
-        macroList = createMacroList(macrosMap);
+        // macroList = createMacroList(macrosMap);
+        macroList = new Macro[0];
 
         this.ijCmd = new String[] {
                 new File(jreDir + File.separator + "bin" + File.separator

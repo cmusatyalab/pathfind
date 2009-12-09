@@ -1,7 +1,7 @@
 /*
  *  PathFind -- a Diamond system for pathology
  *
- *  Copyright (c) 2008 Carnegie Mellon University
+ *  Copyright (c) 2008-2009 Carnegie Mellon University
  *  All rights reserved.
  *
  *  PathFind is free software: you can redistribute it and/or modify
@@ -42,17 +42,12 @@ package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
 
 import edu.cmu.cs.diamond.opendiamond.Search;
-import edu.cmu.cs.openslide.OpenSlide;
 
 public class SearchPanel extends JPanel {
     final protected JList list;
@@ -61,24 +56,8 @@ public class SearchPanel extends JPanel {
 
     final private PathFind pathFind;
 
-    final String trestleDir;
-
-    final private String sqlHost;
-
-    final private String sqlDB;
-
-    final private String sqlUser;
-
-    final private String sqlPassword;
-
-    public SearchPanel(final PathFind pf, String trestleDir, String sqlHost,
-            String sqlDB, String sqlUser, String sqlPassword) {
+    public SearchPanel(final PathFind pf) {
         pathFind = pf;
-        this.trestleDir = trestleDir;
-        this.sqlHost = sqlHost;
-        this.sqlDB = sqlDB;
-        this.sqlUser = sqlUser;
-        this.sqlPassword = sqlPassword;
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("Search Results"));
@@ -96,60 +75,13 @@ public class SearchPanel extends JPanel {
 
         list.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                OpenSlideRegionResult r = (OpenSlideRegionResult) list
-                        .getSelectedValue();
+                ResultIcon r = (ResultIcon) list.getSelectedValue();
 
                 if (r == null) {
-                    pf.setRightSlide(null, null);
+                    pf.setResult(null, null);
                 } else {
-                    pf.setRightSlide(new OpenSlide(r.ws), "Search Result");
-                    pf.getRightSlide().setSelection(r.region);
-                    pf.getRightSlide().centerOnSelection();
+                    pf.setResult(r.getIcon(), "Search Result");
                 }
-            }
-        });
-
-        list.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    int index = list.locationToIndex(e.getPoint());
-                    if (index == -1) {
-                        return;
-                    }
-
-                    OpenSlideRegionResult r = (OpenSlideRegionResult) list
-                            .getModel().getElementAt(index);
-                    popupCaseInfo(r.fullInfo);
-                } else if (e.getButton() == 2) {
-                    int index = list.locationToIndex(e.getPoint());
-                    if (index == -1) {
-                        return;
-                    }
-
-                    SearchModel model = (SearchModel) list.getModel();
-                    model.removeElement(index);
-                }
-            }
-
-            private void popupCaseInfo(String fullInfo) {
-                JFrame j = new JFrame("Case Report");
-
-                JEditorPane text = new JEditorPane();
-                text.setEditable(false);
-                text.setDocument(new HTMLDocument());
-                text.setEditorKit(new HTMLEditorKit());
-                text.setText("<html>" + fullInfo + "</html>");
-
-                JScrollPane jsp = new JScrollPane(text);
-                jsp
-                        .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-                jsp.setPreferredSize(new Dimension(640, 480));
-
-                j.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                j.add(jsp);
-                j.pack();
-                j.setVisible(true);
             }
         });
     }
@@ -177,10 +109,7 @@ public class SearchPanel extends JPanel {
 
         theSearch = s;
 
-        list.setModel(new SearchModel(theSearch, pathFind.getLeftSlide()
-                .getOpenSlide(), 50, trestleDir, sqlHost, sqlDB, sqlUser,
-                sqlPassword));
-
+        list.setModel(new DefaultListModel());
         setVisible(true);
     }
 
