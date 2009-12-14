@@ -185,6 +185,12 @@ public final class QueryPanel extends JPanel {
 
     private final String extraPluginsDir;
 
+    private final JButton addButton;
+
+    private final JButton removeButton;
+
+    private final JButton editButton;
+
     public QueryPanel(PathFind pathFind, String ijDir, String extraPluginsDir,
             String jreDir) throws FileNotFoundException {
         this.ijDir = ijDir;
@@ -208,13 +214,19 @@ public final class QueryPanel extends JPanel {
         // TODO: dynamic list
         macroComboBox = new JComboBox(macroList);
         b.add(macroComboBox);
-        b.add(Box.createHorizontalStrut(10));
+        ((DefaultComboBoxModel) macroComboBox.getModel())
+                .addElement("zzzzzzzzzzzzzzzzzz");
 
-        // add result
-        resultField = new JLabel();
-        resultField.setPreferredSize(new Dimension(100, 1));
-        clearResult();
-        b.add(resultField);
+        // add/remove/edit
+        addButton = new JButton("+");
+        removeButton = new JButton("-");
+        editButton = new JButton("Edit");
+
+        b.add(addButton);
+        b.add(removeButton);
+        b.add(editButton);
+
+        b.add(Box.createHorizontalStrut(10));
 
         // add compute button
         computeButton = new JButton("Calculate");
@@ -225,14 +237,22 @@ public final class QueryPanel extends JPanel {
             }
         });
         b.add(computeButton);
+
         b.add(Box.createHorizontalStrut(10));
+
+        // add result
+        resultField = new JLabel();
+        resultField.setPreferredSize(new Dimension(100, 1));
+        clearResult();
+        b.add(resultField);
 
         // add divider
         b.add(new JSeparator(SwingConstants.VERTICAL));
 
         // add search range
-        b.add(new JLabel("Search bound: "));
-        searchBound = new JSpinner(new SpinnerNumberModel(0.0, 0.0, null, 0.1));
+        b.add(new JLabel("Threshold: "));
+        searchBound = new JSpinner(new SpinnerNumberModel(0, 0,
+                Integer.MAX_VALUE, 1));
         b.add(searchBound);
         b.add(Box.createHorizontalStrut(10));
 
