@@ -45,6 +45,7 @@ import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -78,22 +79,26 @@ public class PathFind extends JFrame {
 
     private final PairedSlideView psv = new PairedSlideView();
 
-    public PathFind(String ijDir, String extraPluginsDir, String jreDir)
-            throws FileNotFoundException {
+    public PathFind(String ijDir, String extraPluginsDir, String jreDir,
+            File slide) throws FileNotFoundException {
         super("PathFind");
         setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        OpenSlide os = null;
         JFileChooser jfc = new JFileChooser();
         jfc.setAcceptAllFileFilterUsed(false);
         jfc.setFileFilter(OpenSlide.getFileFilter());
-        int returnVal = jfc.showDialog(this, "Open");
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            os = new OpenSlide(jfc.getSelectedFile());
-        } else {
-            System.exit(0);
+
+        if (slide == null) {
+            int returnVal = jfc.showDialog(this, "Open");
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                slide = jfc.getSelectedFile();
+            } else {
+                System.exit(0);
+            }
         }
+
+        OpenSlide os = new OpenSlide(slide);
 
         // slides in middle
         add(psv);
@@ -127,7 +132,7 @@ public class PathFind extends JFrame {
         });
         add(selectionPanel, BorderLayout.WEST);
 
-        setSlide(os, jfc.getSelectedFile().getName());
+        setSlide(os, slide.getName());
     }
 
     public void startSearch(double threshold, byte[] macroBlob, String macroName)
@@ -201,7 +206,7 @@ public class PathFind extends JFrame {
     }
 
     public static void main(String[] args) {
-        if (args.length != 3) {
+        if (args.length != 3 && args.length != 4) {
             System.out.println("usage: " + PathFind.class.getName()
                     + " ij_dir extra_plugins_dir jre_dir");
             return;
@@ -211,12 +216,19 @@ public class PathFind extends JFrame {
         final String extraPluginsDir = args[1];
         final String jreDir = args[2];
 
+        final File slide;
+        if (args.length == 4) {
+            slide = new File(args[3]);
+        } else {
+            slide = null;
+        }
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 PathFind pf;
                 try {
-                    pf = new PathFind(ijDir, extraPluginsDir, jreDir);
+                    pf = new PathFind(ijDir, extraPluginsDir, jreDir, slide);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     return;
