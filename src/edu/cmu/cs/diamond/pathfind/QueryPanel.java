@@ -41,6 +41,7 @@
 package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -49,8 +50,8 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.swing.*;
 
@@ -163,6 +164,10 @@ public final class QueryPanel extends JPanel {
             }
             return result / 10000.0;
         }
+
+        public String getMacroName() {
+            return macroName;
+        }
     }
 
     private final PathFind pf;
@@ -181,7 +186,7 @@ public final class QueryPanel extends JPanel {
 
     private final JSpinner searchBound;
 
-    private final Macro macroList[];
+    private final DefaultComboBoxModel macroListModel = new DefaultComboBoxModel();
 
     private final String extraPluginsDir;
 
@@ -191,14 +196,18 @@ public final class QueryPanel extends JPanel {
 
     private final JButton editButton;
 
+    private final File macrosDir;
+
     public QueryPanel(PathFind pathFind, String ijDir, String extraPluginsDir,
-            String jreDir) throws FileNotFoundException {
+            String jreDir) {
         this.ijDir = ijDir;
+        this.macrosDir = new File(ijDir, "macros");
 
         this.extraPluginsDir = extraPluginsDir;
 
-        // macroList = createMacroList(macrosMap);
-        macroList = new Macro[0];
+        macrosDir.mkdir();
+
+        populateMacroListModel();
 
         this.ijCmd = new String[] {
                 new File(jreDir + File.separator + "bin" + File.separator
@@ -211,11 +220,23 @@ public final class QueryPanel extends JPanel {
         Box b = Box.createHorizontalBox();
 
         // add macro list
-        // TODO: dynamic list
-        macroComboBox = new JComboBox(macroList);
+        macroComboBox = new JComboBox(macroListModel);
+        macroComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList list,
+                    Object value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
+                JLabel r = (JLabel) super.getListCellRendererComponent(list,
+                        value, index, isSelected, cellHasFocus);
+
+                String name = ((File) value).getName().replace("_", " ")
+                        .replaceAll("\\.txt$", "");
+                r.setText(name);
+
+                return r;
+            }
+        });
         b.add(macroComboBox);
-        ((DefaultComboBoxModel) macroComboBox.getModel())
-                .addElement("zzzzzzzzzzzzzzzzzz");
 
         // add/remove/edit
         addButton = new JButton("+");
@@ -232,7 +253,9 @@ public final class QueryPanel extends JPanel {
         computeButton = new JButton("Calculate");
         computeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                result = macroList[macroComboBox.getSelectedIndex()].runMacro();
+                File f = (File) macroComboBox.getSelectedItem();
+                Macro m = new Macro(f.getName(), f.getAbsolutePath());
+                result = m.runMacro();
                 updateResultField();
             }
         });
@@ -261,7 +284,9 @@ public final class QueryPanel extends JPanel {
         searchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    runRemoteMacro(macroList[macroComboBox.getSelectedIndex()].macroName);
+                    File f = (File) macroComboBox.getSelectedItem();
+                    String name = f.getName().replaceAll("\\.txt$", "");
+                    runRemoteMacro(name);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 } catch (IOException e1) {
@@ -288,26 +313,20 @@ public final class QueryPanel extends JPanel {
         add(b);
     }
 
-    private Macro[] createMacroList(String macrosMap)
-            throws FileNotFoundException {
-        List<Macro> r = new ArrayList<Macro>();
-
-        BufferedReader in = new BufferedReader(new FileReader(macrosMap));
-
-        try {
-            String line;
-            while ((line = in.readLine()) != null) {
-                line = line.trim();
-                StringTokenizer t = new StringTokenizer(line, ";");
-                r.add(new Macro(t.nextToken(), t.nextToken()));
+    private void populateMacroListModel() {
+        File[] files = macrosDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return (name.toLowerCase().endsWith(".txt"))
+                        && (name.contains("_"));
             }
+        });
 
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        Collections.sort(Arrays.asList(files));
+
+        for (File f : files) {
+            macroListModel.addElement(f);
         }
-
-        return r.toArray(new Macro[0]);
     }
 
     private void updateResultField() {
