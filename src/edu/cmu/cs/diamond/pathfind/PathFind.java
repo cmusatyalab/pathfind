@@ -81,6 +81,9 @@ public class PathFind extends JFrame {
                 return;
             }
 
+            createNewMacro(newName);
+            editMacro(newName);
+
             qp.populateMacroListModel();
         }
     }
@@ -166,6 +169,16 @@ public class PathFind extends JFrame {
         add(selectionPanel, BorderLayout.WEST);
 
         setSlide(os, slide.getName());
+    }
+
+    void editMacro(String newName) {
+        // TODO Auto-generated method stub
+
+    }
+
+    void createNewMacro(String newName) {
+        // create a blank file if it doesn't exist
+
     }
 
     private JMenuBar createMenuBar() {
