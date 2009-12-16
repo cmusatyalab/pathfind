@@ -190,10 +190,6 @@ public final class QueryPanel extends JPanel {
 
     private final String extraPluginsDir;
 
-    private final JButton addButton;
-
-    private final JButton removeButton;
-
     private final JButton editButton;
 
     private final File macrosDir;
@@ -202,10 +198,12 @@ public final class QueryPanel extends JPanel {
             String jreDir) {
         this.ijDir = ijDir;
         this.macrosDir = new File(ijDir, "macros");
-
         this.extraPluginsDir = extraPluginsDir;
 
         macrosDir.mkdir();
+
+        System.out.printf("macrosDir: %s\nextraPluginsDir: %s\n", macrosDir,
+                extraPluginsDir);
 
         populateMacroListModel();
 
@@ -238,13 +236,8 @@ public final class QueryPanel extends JPanel {
         });
         b.add(macroComboBox);
 
-        // add/remove/edit
-        addButton = new JButton("+");
-        removeButton = new JButton("-");
+        // edit
         editButton = new JButton("Edit");
-
-        b.add(addButton);
-        b.add(removeButton);
         b.add(editButton);
 
         b.add(Box.createHorizontalStrut(10));
@@ -313,12 +306,13 @@ public final class QueryPanel extends JPanel {
         add(b);
     }
 
-    private void populateMacroListModel() {
+    void populateMacroListModel() {
+        macroListModel.removeAllElements();
+
         File[] files = macrosDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return (name.toLowerCase().endsWith(".txt"))
-                        && (name.contains("_"));
+                return name.toLowerCase().endsWith(".txt");
             }
         });
 

@@ -67,6 +67,35 @@ import edu.cmu.cs.openslide.gui.OpenSlideView;
 
 public class PathFind extends JFrame {
 
+    private class CreateMacroAction extends AbstractAction {
+
+        public CreateMacroAction() {
+            super("New Macro...");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String newName = JOptionPane.showInputDialog(PathFind.this,
+                    "Enter the name of the new macro:");
+            if (newName == null) {
+                return;
+            }
+
+            qp.populateMacroListModel();
+        }
+    }
+
+    private static class ExitAction extends AbstractAction {
+        public ExitAction() {
+            super("Exit");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.exit(0);
+        }
+    }
+
     private final SearchPanel searchPanel;
 
     private final JPanel selectionPanel;
@@ -83,6 +112,7 @@ public class PathFind extends JFrame {
             File slide) throws FileNotFoundException {
         super("PathFind");
         setSize(1000, 750);
+        setMinimumSize(new Dimension(1000, 500));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JFileChooser jfc = new JFileChooser();
@@ -106,6 +136,9 @@ public class PathFind extends JFrame {
         // query bar at bottom
         qp = new QueryPanel(this, ijDir, extraPluginsDir, jreDir);
         add(qp, BorderLayout.SOUTH);
+
+        // menubar
+        setJMenuBar(createMenuBar());
 
         // search results at top
         searchPanel = new SearchPanel(this);
@@ -133,6 +166,20 @@ public class PathFind extends JFrame {
         add(selectionPanel, BorderLayout.WEST);
 
         setSlide(os, slide.getName());
+    }
+
+    private JMenuBar createMenuBar() {
+        JMenuBar mb = new JMenuBar();
+
+        JMenu m = new JMenu("Macros");
+        mb.add(m);
+
+        m.add(new CreateMacroAction());
+
+        m.add(new JSeparator());
+        m.add(new ExitAction());
+
+        return mb;
     }
 
     public void startSearch(double threshold, byte[] macroBlob, String macroName)
