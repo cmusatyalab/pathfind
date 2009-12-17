@@ -65,6 +65,21 @@ import edu.cmu.cs.openslide.gui.OpenSlideView;
 
 public class PathFind extends JFrame {
 
+    private class DefineScopeAction extends AbstractAction {
+        public DefineScopeAction() {
+            super("Define Scope");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                cookieMap = CookieMap.createDefaultCookieMap();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+
     private class CreateMacroAction extends AbstractAction {
 
         public CreateMacroAction() {
@@ -118,6 +133,8 @@ public class PathFind extends JFrame {
     private final QueryPanel qp;
 
     private final PairedSlideView psv = new PairedSlideView();
+
+    private CookieMap cookieMap;
 
     public PathFind(String ijDir, String extraPluginsDir, String jreDir,
             File slide) {
@@ -277,9 +294,10 @@ public class PathFind extends JFrame {
     private JMenuBar createMenuBar() {
         JMenuBar mb = new JMenuBar();
 
-        JMenu m = new JMenu("Macros");
+        JMenu m = new JMenu("PathFind");
         mb.add(m);
 
+        m.add(new DefineScopeAction());
         m.add(new CreateMacroAction());
 
         m.add(new JSeparator());
@@ -319,8 +337,7 @@ public class PathFind extends JFrame {
 
         // make a new factory
         SearchFactory factory = new SearchFactory(filters, Arrays
-                .asList(new String[] { "imagej" }), CookieMap
-                .createDefaultCookieMap());
+                .asList(new String[] { "imagej" }), cookieMap);
         return factory;
     }
 
