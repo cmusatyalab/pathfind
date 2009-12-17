@@ -42,11 +42,17 @@ package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import edu.cmu.cs.diamond.opendiamond.Result;
 import edu.cmu.cs.diamond.opendiamond.Search;
 
 public class SearchPanel extends JPanel {
@@ -55,6 +61,8 @@ public class SearchPanel extends JPanel {
     protected Search theSearch;
 
     final private PathFind pathFind;
+
+    private SwingWorker<Object, edu.cmu.cs.diamond.pathfind.ResultIcon> workerFuture;
 
     public SearchPanel(final PathFind pf) {
         pathFind = pf;
@@ -102,14 +110,84 @@ public class SearchPanel extends JPanel {
         }
     }
 
-    void beginSearch(Search s) throws InterruptedException {
+    void beginSearch(final Search s) throws InterruptedException {
         if (theSearch != null) {
             theSearch.close();
         }
 
         theSearch = s;
 
-        list.setModel(new DefaultListModel());
+        final DefaultListModel model = new DefaultListModel();
+        list.setModel(model);
+        workerFuture = new SwingWorker<Object, ResultIcon>() {
+            @Override
+            protected Object doInBackground() throws InterruptedException {
+                // non-AWT thread
+                try {
+                    try {
+                        while (true) {
+                            Result r = s.getNextResult();
+                            if (r == null) {
+                                break;
+                            }
+                            // System.out.println(r);
+
+                            byte[] thumbData = r.getValue("thumbnail.jpeg");
+                            BufferedImage thumb = null;
+                            if (thumbData != null) {
+                                ByteArrayInputStream in = new ByteArrayInputStream(
+                                        thumbData);
+                                try {
+                                    thumb = ImageIO.read(in);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (thumb == null) {
+                                // cook up blank image
+                                thumb = new BufferedImage(200, 150,
+                                        BufferedImage.TYPE_INT_RGB);
+                            }
+
+                            final ResultIcon resultIcon = new ResultIcon(
+                                    new ImageIcon(thumb), r
+                                            .getObjectIdentifier());
+
+                            publish(resultIcon);
+                        }
+                    } finally {
+                        System.out.println("STOP");
+
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (s != null) {
+                                    try {
+                                        s.close();
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                        Thread.currentThread().interrupt();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+                    // TODO pop up something?
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void process(List<ResultIcon> chunks) {
+                // AWT thread
+                for (ResultIcon resultIcon : chunks) {
+                    model.addElement(resultIcon);
+                }
+            }
+        };
+        workerFuture.execute();
         setVisible(true);
     }
 

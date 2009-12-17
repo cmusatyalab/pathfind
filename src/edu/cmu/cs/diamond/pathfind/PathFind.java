@@ -46,10 +46,7 @@ import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -137,7 +134,7 @@ public class PathFind extends JFrame {
     private CookieMap cookieMap;
 
     public PathFind(String ijDir, String extraPluginsDir, String jreDir,
-            File slide) {
+            File slide) throws IOException {
         super("PathFind");
         setSize(1000, 750);
         setMinimumSize(new Dimension(1000, 500));
@@ -157,6 +154,8 @@ public class PathFind extends JFrame {
         }
 
         OpenSlide os = new OpenSlide(slide);
+
+        cookieMap = CookieMap.createDefaultCookieMap();
 
         // slides in middle
         add(psv);
@@ -306,7 +305,7 @@ public class PathFind extends JFrame {
         return mb;
     }
 
-    public void startSearch(double threshold, byte[] macroBlob, String macroName)
+    public void startSearch(int threshold, byte[] macroBlob, String macroName)
             throws IOException, InterruptedException {
         System.out.println("start search");
 
@@ -319,25 +318,66 @@ public class PathFind extends JFrame {
         searchPanel.endSearch();
     }
 
-    private SearchFactory createFactory(double threshold, byte[] macroBlob,
+    private SearchFactory createFactory(int threshold, byte[] macroBlob,
             String macroName) throws IOException {
         List<Filter> filters = new ArrayList<Filter>();
         String macroName2 = macroName.replace(' ', '_');
 
-        FilterCode c = new FilterCode(new FileInputStream(
-                "/opt/snapfind/lib/fil_imagej_exec.so"));
-        List<String> dependencies = Collections.emptyList();
-        List<String> arguments = Arrays.asList(new String[] { macroName2 });
-        Filter imagej = new Filter("imagej", c, "f_eval_imagej_exec",
-                "f_init_imagej_exec", "f_fini_imagej_exec",
-                (int) (threshold * 10000), dependencies, arguments, macroBlob);
-        System.out.println(imagej);
+        InputStream in = null;
 
-        filters.add(imagej);
+        // imagej
+        try {
+            in = new FileInputStream("/opt/snapfind/lib/fil_imagej_exec.so");
+            FilterCode c = new FilterCode(in);
+            List<String> dependencies = Collections.emptyList();
+            List<String> arguments = Arrays.asList(new String[] { macroName2 });
+            Filter imagej = new Filter("imagej", c, "f_eval_imagej_exec",
+                    "f_init_imagej_exec", "f_fini_imagej_exec", threshold,
+                    dependencies, arguments, macroBlob);
+            filters.add(imagej);
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+            }
+        }
+
+        try {
+            in = new FileInputStream("/opt/snapfind/lib/fil_rgb.so");
+            FilterCode c = new FilterCode(in);
+            List<String> dependencies = Collections.emptyList();
+            List<String> arguments = Collections.emptyList();
+            Filter rgb = new Filter("RGB", c, "f_eval_img2rgb",
+                    "f_init_img2rgb", "f_fini_img2rgb", 1, dependencies,
+                    arguments);
+            filters.add(rgb);
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+            }
+        }
+
+        try {
+            in = new FileInputStream("/opt/snapfind/lib/fil_thumb.so");
+            FilterCode c = new FilterCode(in);
+            List<String> dependencies = Arrays.asList(new String[] { "RGB" });
+            List<String> arguments = Arrays
+                    .asList(new String[] { "200", "150" });
+            Filter thumb = new Filter("thumbnail", c, "f_eval_thumbnailer",
+                    "f_init_thumbnailer", "f_fini_thumbnailer", 1,
+                    dependencies, arguments, macroBlob);
+            filters.add(thumb);
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+            }
+        }
 
         // make a new factory
         SearchFactory factory = new SearchFactory(filters, Arrays
-                .asList(new String[] { "imagej" }), cookieMap);
+                .asList(new String[] { "RGB" }), cookieMap);
         return factory;
     }
 
@@ -397,8 +437,12 @@ public class PathFind extends JFrame {
             @Override
             public void run() {
                 PathFind pf;
-                pf = new PathFind(ijDir, extraPluginsDir, jreDir, slide);
-                pf.setVisible(true);
+                try {
+                    pf = new PathFind(ijDir, extraPluginsDir, jreDir, slide);
+                    pf.setVisible(true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

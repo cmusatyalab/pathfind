@@ -184,7 +184,7 @@ public final class QueryPanel extends JPanel {
 
     private final JButton stopButton;
 
-    private final JSpinner searchBound;
+    private final JSpinner threshold;
 
     private final DefaultComboBoxModel macroListModel = new DefaultComboBoxModel();
 
@@ -278,9 +278,9 @@ public final class QueryPanel extends JPanel {
 
         // add search range
         b.add(new JLabel("Threshold: "));
-        searchBound = new JSpinner(new SpinnerNumberModel(0, 0,
+        threshold = new JSpinner(new SpinnerNumberModel(0, 0,
                 Integer.MAX_VALUE, 1));
-        b.add(searchBound);
+        b.add(threshold);
         b.add(Box.createHorizontalStrut(10));
 
         // add search button
@@ -352,7 +352,7 @@ public final class QueryPanel extends JPanel {
         byte macroBlob[] = new byte[blob1.length + blob2.length];
         System.arraycopy(blob1, 0, macroBlob, 0, blob1.length);
         System.arraycopy(blob2, 0, macroBlob, blob1.length, blob2.length);
-        pf.startSearch(Double.isNaN(result) ? 0.0 : result, macroBlob,
-                macroName);
+        pf.startSearch((int) ((Number) threshold.getValue()).doubleValue(),
+                macroBlob, macroName);
     }
 }

@@ -79,7 +79,7 @@ public class PairedSlideView extends JPanel {
         slideViews.remove(resultLabel);
         resultLabel.setIcon(image);
         if (image != null) {
-            slideViews.add(slideViews, 1);
+            slideViews.add(resultLabel, 1);
         }
 
         slideViews.revalidate();
