@@ -42,11 +42,13 @@ package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -179,7 +181,7 @@ public class PathFind extends JFrame {
         setSlide(os, slide.getName());
     }
 
-    void editMacro(File macro) throws IOException {
+    void editMacro(final File macro) throws IOException {
         // read in macro
         FileInputStream in = new FileInputStream(macro);
         String text;
@@ -191,21 +193,77 @@ public class PathFind extends JFrame {
             } catch (IOException e) {
             }
         }
-        JTextArea textArea = new JTextArea(text, 25, 80);
+
+        // editor
+        final JTextArea textArea = new JTextArea(text, 25, 80);
         textArea.setEditable(true);
         textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 
-        // Put the editor pane in a scroll pane.
         JScrollPane textPane = new JScrollPane(textArea);
         textPane
                 .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         textPane.setMinimumSize(new Dimension(10, 10));
 
-        JFrame editorFrame = new JFrame(macro.getName());
+        // top panel
+        JPanel top = new JPanel();
+        top.setLayout(new FlowLayout());
+
+        // save
+        JButton saveButton = new JButton("Save");
+        top.add(saveButton);
+
+        // delete
+        JButton deleteButton = new JButton("Delete");
+        top.add(deleteButton);
+
+        // frame
+        final JFrame editorFrame = new JFrame(macro.getName());
         editorFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         editorFrame.add(textPane);
+        editorFrame.add(top, BorderLayout.NORTH);
         editorFrame.pack();
         editorFrame.setVisible(true);
+
+        // actions
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (JOptionPane.showConfirmDialog(editorFrame,
+                        "Really delete macro “" + macro.getName() + "”?",
+                        "Confirm Deletion", JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
+                    editorFrame.dispose();
+                    macro.delete();
+                    qp.populateMacroListModel();
+                }
+            }
+        });
+
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String text = textArea.getText();
+                try {
+                    File tmp = File.createTempFile("pathfind", ".tmp",
+                            macrosDir);
+                    tmp.deleteOnExit();
+
+                    // write out
+                    FileWriter out = new FileWriter(tmp);
+                    try {
+                        out.write(text);
+                    } finally {
+                        try {
+                            out.close();
+                        } catch (IOException e1) {
+                        }
+                    }
+                    tmp.renameTo(macro);
+                    editorFrame.dispose();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
     }
 
     void createNewMacro(File newFile) throws IOException {
