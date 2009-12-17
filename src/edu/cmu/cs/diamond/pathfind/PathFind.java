@@ -47,7 +47,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,10 +57,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import edu.cmu.cs.diamond.opendiamond.CookieMap;
-import edu.cmu.cs.diamond.opendiamond.Filter;
-import edu.cmu.cs.diamond.opendiamond.FilterCode;
-import edu.cmu.cs.diamond.opendiamond.SearchFactory;
+import edu.cmu.cs.diamond.opendiamond.*;
 import edu.cmu.cs.openslide.OpenSlide;
 import edu.cmu.cs.openslide.gui.OpenSlideView;
 
@@ -75,14 +71,22 @@ public class PathFind extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            String newName = JOptionPane.showInputDialog(PathFind.this,
+            String enteredName = JOptionPane.showInputDialog(PathFind.this,
                     "Enter the name of the new macro:");
-            if (newName == null) {
+            if (enteredName == null) {
                 return;
             }
 
-            createNewMacro(newName);
-            editMacro(newName);
+            String newName = enteredName.replace(" ", "_") + ".txt";
+
+            try {
+                File newFile = new File(macrosDir, newName);
+                createNewMacro(newFile);
+                editMacro(newFile);
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
 
             qp.populateMacroListModel();
         }
@@ -105,6 +109,8 @@ public class PathFind extends JFrame {
 
     private final JList savedSelections;
 
+    private final File macrosDir;
+
     private DefaultListModel ssModel;
 
     private final QueryPanel qp;
@@ -112,7 +118,7 @@ public class PathFind extends JFrame {
     private final PairedSlideView psv = new PairedSlideView();
 
     public PathFind(String ijDir, String extraPluginsDir, String jreDir,
-            File slide) throws FileNotFoundException {
+            File slide) {
         super("PathFind");
         setSize(1000, 750);
         setMinimumSize(new Dimension(1000, 500));
@@ -137,7 +143,9 @@ public class PathFind extends JFrame {
         add(psv);
 
         // query bar at bottom
-        qp = new QueryPanel(this, ijDir, extraPluginsDir, jreDir);
+        macrosDir = new File(ijDir, "macros");
+        qp = new QueryPanel(this, new File(ijDir), macrosDir, new File(
+                extraPluginsDir), new File(jreDir));
         add(qp, BorderLayout.SOUTH);
 
         // menubar
@@ -171,14 +179,41 @@ public class PathFind extends JFrame {
         setSlide(os, slide.getName());
     }
 
-    void editMacro(String newName) {
-        // TODO Auto-generated method stub
+    void editMacro(File macro) throws IOException {
+        // read in macro
+        FileInputStream in = new FileInputStream(macro);
+        String text;
+        try {
+            text = new String(Util.readFully(in));
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+            }
+        }
+        JTextArea textArea = new JTextArea(text, 25, 80);
+        textArea.setEditable(true);
+        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 
+        // Put the editor pane in a scroll pane.
+        JScrollPane textPane = new JScrollPane(textArea);
+        textPane
+                .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        textPane.setMinimumSize(new Dimension(10, 10));
+
+        JFrame editorFrame = new JFrame(macro.getName());
+        editorFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        editorFrame.add(textPane);
+        editorFrame.pack();
+        editorFrame.setVisible(true);
     }
 
-    void createNewMacro(String newName) {
+    void createNewMacro(File newFile) throws IOException {
         // create a blank file if it doesn't exist
-
+        if (!newFile.createNewFile()) {
+            JOptionPane.showMessageDialog(PathFind.this, "Macro “"
+                    + newFile.getName() + "” already exists.");
+        }
     }
 
     private JMenuBar createMenuBar() {
@@ -287,12 +322,7 @@ public class PathFind extends JFrame {
             @Override
             public void run() {
                 PathFind pf;
-                try {
-                    pf = new PathFind(ijDir, extraPluginsDir, jreDir, slide);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    return;
-                }
+                pf = new PathFind(ijDir, extraPluginsDir, jreDir, slide);
                 pf.setVisible(true);
             }
         });

@@ -60,7 +60,7 @@ import edu.cmu.cs.diamond.opendiamond.Util;
 public final class QueryPanel extends JPanel {
     public final String[] ijCmd;
 
-    public final String ijDir;
+    public final File ijDir;
 
     public class Macro {
         private final String name;
@@ -132,7 +132,7 @@ public final class QueryPanel extends JPanel {
                 processArgs.add("-batch");
                 processArgs.add(macroName);
                 ProcessBuilder pb = new ProcessBuilder(processArgs);
-                pb.directory(new File(ijDir));
+                pb.directory(ijDir);
 
                 try {
                     StringBuilder sb = new StringBuilder();
@@ -188,16 +188,16 @@ public final class QueryPanel extends JPanel {
 
     private final DefaultComboBoxModel macroListModel = new DefaultComboBoxModel();
 
-    private final String extraPluginsDir;
+    private final File extraPluginsDir;
 
     private final JButton editButton;
 
     private final File macrosDir;
 
-    public QueryPanel(PathFind pathFind, String ijDir, String extraPluginsDir,
-            String jreDir) {
+    public QueryPanel(PathFind pathFind, File ijDir, File macrosDir,
+            File extraPluginsDir, File jreDir) {
         this.ijDir = ijDir;
-        this.macrosDir = new File(ijDir, "macros");
+        this.macrosDir = macrosDir;
         this.extraPluginsDir = extraPluginsDir;
 
         macrosDir.mkdir();
@@ -238,6 +238,17 @@ public final class QueryPanel extends JPanel {
 
         // edit
         editButton = new JButton("Edit");
+        editButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File f = (File) macroComboBox.getSelectedItem();
+                try {
+                    pf.editMacro(f);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
         b.add(editButton);
 
         b.add(Box.createHorizontalStrut(10));
@@ -336,7 +347,7 @@ public final class QueryPanel extends JPanel {
             IOException {
         File mm = new File(QueryPanel.this.ijDir + "/macros", macroName
                 + ".txt");
-        byte blob1[] = Util.quickTar(new File(extraPluginsDir));
+        byte blob1[] = Util.quickTar(extraPluginsDir);
         byte blob2[] = Util.quickTar(new File[] { mm });
         byte macroBlob[] = new byte[blob1.length + blob2.length];
         System.arraycopy(blob1, 0, macroBlob, 0, blob1.length);
