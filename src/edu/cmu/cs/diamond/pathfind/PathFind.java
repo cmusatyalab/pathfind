@@ -311,7 +311,7 @@ public class PathFind extends JFrame {
 
         SearchFactory factory = createFactory(threshold, macroBlob, macroName);
 
-        searchPanel.beginSearch(factory.createSearch(null));
+        searchPanel.beginSearch(factory.createSearch(null), factory);
     }
 
     public void stopSearch() throws InterruptedException {

@@ -41,32 +41,35 @@
 package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import edu.cmu.cs.diamond.opendiamond.ObjectIdentifier;
 import edu.cmu.cs.diamond.opendiamond.Result;
 import edu.cmu.cs.diamond.opendiamond.Search;
+import edu.cmu.cs.diamond.opendiamond.SearchFactory;
 
 public class SearchPanel extends JPanel {
     final protected JList list;
 
-    protected Search theSearch;
+    private Search theSearch;
 
-    final private PathFind pathFind;
+    private SearchFactory searchFactory;
 
     private SwingWorker<Object, edu.cmu.cs.diamond.pathfind.ResultIcon> workerFuture;
 
     public SearchPanel(final PathFind pf) {
-        pathFind = pf;
-
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("Search Results"));
 
@@ -88,7 +91,31 @@ public class SearchPanel extends JPanel {
                 if (r == null) {
                     pf.setResult(null, null);
                 } else {
-                    pf.setResult(r.getIcon(), "Search Result");
+                    // reexecute
+                    ObjectIdentifier id = r.getObjectIdentifier();
+                    Set<String> attributes = new HashSet<String>();
+                    attributes.add("");
+
+                    Cursor oldCursor = pf.getCursor();
+                    try {
+                        pf.setCursor(Cursor
+                                .getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        Result newR = searchFactory.generateResult(id,
+                                attributes);
+
+                        ByteArrayInputStream in = new ByteArrayInputStream(newR
+                                .getData());
+                        BufferedImage img = ImageIO.read(in);
+                        if (img == null) {
+                            img = new BufferedImage(400, 400,
+                                    BufferedImage.TYPE_INT_RGB);
+                        }
+                        pf.setResult(new ImageIcon(img), "Search Result");
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    } finally {
+                        pf.setCursor(oldCursor);
+                    }
                 }
             }
         });
@@ -110,12 +137,14 @@ public class SearchPanel extends JPanel {
         }
     }
 
-    void beginSearch(final Search s) throws InterruptedException {
+    void beginSearch(final Search s, SearchFactory sf)
+            throws InterruptedException {
         if (theSearch != null) {
             theSearch.close();
         }
 
         theSearch = s;
+        searchFactory = sf;
 
         final DefaultListModel model = new DefaultListModel();
         list.setModel(model);
