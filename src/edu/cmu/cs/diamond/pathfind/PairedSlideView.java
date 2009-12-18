@@ -86,5 +86,6 @@ public class PairedSlideView extends JPanel {
         }
 
         slideViews.revalidate();
+        slideViews.repaint();
     }
 }
