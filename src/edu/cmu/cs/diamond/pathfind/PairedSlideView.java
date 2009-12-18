@@ -73,6 +73,11 @@ public class PairedSlideView extends JPanel {
     }
 
     public void setSlide(OpenSlideView wv) {
+        if (slide != null) {
+            slide.getOpenSlide().dispose();
+            slideViews.remove(slide);
+        }
+
         slide = wv;
 
         slideViews.add(slide, 0);

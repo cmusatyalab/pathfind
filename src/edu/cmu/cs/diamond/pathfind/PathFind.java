@@ -62,6 +62,21 @@ import edu.cmu.cs.openslide.gui.OpenSlideView;
 
 public class PathFind extends JFrame {
 
+    private class OpenCaseAction extends AbstractAction {
+        public OpenCaseAction() {
+            super("Open Case...");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int returnVal = jfc.showDialog(PathFind.this, "Open");
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File slide = jfc.getSelectedFile();
+                setSlide(slide);
+            }
+        }
+    }
+
     private class DefineScopeAction extends AbstractAction {
         public DefineScopeAction() {
             super("Define Scope");
@@ -133,6 +148,8 @@ public class PathFind extends JFrame {
 
     private CookieMap cookieMap;
 
+    private final JFileChooser jfc = new JFileChooser();
+
     public PathFind(String ijDir, String extraPluginsDir, String jreDir,
             File slide) throws IOException {
         super("PathFind");
@@ -140,20 +157,8 @@ public class PathFind extends JFrame {
         setMinimumSize(new Dimension(1000, 500));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JFileChooser jfc = new JFileChooser();
         jfc.setAcceptAllFileFilterUsed(false);
         jfc.setFileFilter(OpenSlide.getFileFilter());
-
-        if (slide == null) {
-            int returnVal = jfc.showDialog(this, "Open");
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                slide = jfc.getSelectedFile();
-            } else {
-                System.exit(0);
-            }
-        }
-
-        OpenSlide os = new OpenSlide(slide);
 
         cookieMap = CookieMap.createDefaultCookieMap();
 
@@ -194,6 +199,13 @@ public class PathFind extends JFrame {
         });
         add(selectionPanel, BorderLayout.WEST);
 
+        if (slide != null) {
+            setSlide(slide);
+        }
+    }
+
+    private void setSlide(File slide) {
+        OpenSlide os = new OpenSlide(slide);
         setSlide(os, slide.getName());
     }
 
@@ -296,6 +308,7 @@ public class PathFind extends JFrame {
         JMenu m = new JMenu("PathFind");
         mb.add(m);
 
+        m.add(new OpenCaseAction());
         m.add(new DefineScopeAction());
         m.add(new CreateMacroAction());
 
@@ -395,6 +408,8 @@ public class PathFind extends JFrame {
         ssModel = new SavedSelectionModel(wv);
         savedSelections.setModel(ssModel);
         savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
+        psv.revalidate();
+        psv.repaint();
     }
 
     void setResult(Icon result, String title) {
