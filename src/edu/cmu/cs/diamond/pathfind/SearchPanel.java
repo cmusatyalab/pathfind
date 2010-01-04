@@ -43,6 +43,8 @@ package edu.cmu.cs.diamond.pathfind;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -116,6 +118,21 @@ public class SearchPanel extends JPanel {
                     } finally {
                         pf.setCursor(oldCursor);
                     }
+                }
+            }
+        });
+
+        list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == 2) {
+                    int index = list.locationToIndex(e.getPoint());
+                    if (index == -1) {
+                        return;
+                    }
+
+                    DefaultListModel model = (DefaultListModel) list.getModel();
+                    model.removeElementAt(index);
                 }
             }
         });
