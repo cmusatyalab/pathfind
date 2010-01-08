@@ -193,7 +193,7 @@ public class PathFind extends JFrame {
         savedSelections.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
                 Shape selection = (Shape) savedSelections.getSelectedValue();
-                psv.getSlide().setSelection(selection);
+                psv.getSlide().addSelection(selection);
                 psv.getSlide().centerOnSelection();
             }
         });
@@ -214,7 +214,7 @@ public class PathFind extends JFrame {
         FileInputStream in = new FileInputStream(macro);
         String text;
         try {
-            text = new String(Util.readFully(in));
+            text = new String(Util.readFully(in), "UTF-8");
         } finally {
             try {
                 in.close();
@@ -416,13 +416,6 @@ public class PathFind extends JFrame {
         psv.setResult(result);
     }
 
-    protected void saveSelection(OpenSlideView wv) {
-        Shape s = wv.getSelection();
-        if (s != null) {
-            ssModel.addElement(s);
-        }
-    }
-
     private OpenSlideView createNewView(OpenSlide openslide, String title,
             boolean zoomToFit) {
         OpenSlideView wv = new OpenSlideView(openslide, zoomToFit);
@@ -462,7 +455,7 @@ public class PathFind extends JFrame {
         });
     }
 
-    public BufferedImage getSelectionAsImage() {
+    public BufferedImage getSelectionAsImage(int selection) {
         Shape s = psv.getSlide().getSelection();
         if (s == null) {
             return null;
