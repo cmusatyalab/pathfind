@@ -59,6 +59,7 @@ import javax.swing.event.ListSelectionListener;
 import edu.cmu.cs.diamond.opendiamond.*;
 import edu.cmu.cs.openslide.OpenSlide;
 import edu.cmu.cs.openslide.gui.OpenSlideView;
+import edu.cmu.cs.openslide.gui.SelectionListModel;
 
 public class PathFind extends JFrame {
 
@@ -194,7 +195,8 @@ public class PathFind extends JFrame {
             public void valueChanged(ListSelectionEvent e) {
                 Shape selection = (Shape) savedSelections.getSelectedValue();
                 psv.getSlide().addSelection(selection);
-                psv.getSlide().centerOnSelection();
+                psv.getSlide().centerOnSelection(
+                        savedSelections.getSelectedIndex());
             }
         });
         add(selectionPanel, BorderLayout.WEST);
@@ -394,6 +396,15 @@ public class PathFind extends JFrame {
         return factory;
     }
 
+    private void saveSelection(OpenSlideView wv) {
+        SelectionListModel slm = wv.getSelectionListModel();
+
+        if (slm.getSize() > 0) {
+            Shape s = slm.get(slm.getSize() - 1);
+            ssModel.addElement(s);
+        }
+    }
+
     void setSlide(OpenSlide openslide, String title) {
         final OpenSlideView wv = createNewView(openslide, title, true);
 
@@ -402,6 +413,7 @@ public class PathFind extends JFrame {
                 .put(KeyStroke.getKeyStroke("INSERT"), "save selection");
         wv.getActionMap().put("save selection", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
+
                 saveSelection(wv);
             }
         });
@@ -456,7 +468,7 @@ public class PathFind extends JFrame {
     }
 
     public BufferedImage getSelectionAsImage(int selection) {
-        Shape s = psv.getSlide().getSelection();
+        Shape s = psv.getSlide().getSelectionListModel().get(selection);
         if (s == null) {
             return null;
         }

@@ -85,7 +85,7 @@ public final class QueryPanel extends JPanel {
 
             try {
                 // grab image
-                BufferedImage img = pf.getSelectionAsImage();
+                BufferedImage img = pf.getSelectionAsImage(0);
                 // JFrame jf = new JFrame();
                 // jf.add(new JLabel(new ImageIcon(img)));
                 // jf.setVisible(true);
