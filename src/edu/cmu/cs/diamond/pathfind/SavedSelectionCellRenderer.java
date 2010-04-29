@@ -50,6 +50,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.*;
 
 import edu.cmu.cs.openslide.OpenSlide;
+import edu.cmu.cs.openslide.gui.Annotation;
 import edu.cmu.cs.openslide.gui.OpenSlideView;
 
 public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
@@ -69,10 +70,10 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
                 .getListCellRendererComponent(list, value, index, isSelected,
                         cellHasFocus);
 
-        Shape s = (Shape) value;
-        BufferedImage thumb = drawThumbnail(ws, s, THUMBNAIL_SIZE);
+        Annotation ann = (Annotation) value;
+        BufferedImage thumb = drawThumbnail(ws, ann.getShape(), THUMBNAIL_SIZE);
 
-        c.setText(null);
+        c.setText(ann.getText());
         c.setIcon(new ImageIcon(thumb));
 
         c.setHorizontalAlignment(SwingConstants.CENTER);
