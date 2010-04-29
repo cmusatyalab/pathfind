@@ -152,6 +152,10 @@ public class PathFind extends JFrame {
 
     private final JFileChooser jfc = new JFileChooser();
 
+    private final JButton selectionDelete;
+
+    private final JButton selectionEditText;
+
     public PathFind(String ijDir, String extraPluginsDir, String jreDir,
             File slide) throws IOException {
         super("PathFind");
@@ -192,17 +196,61 @@ public class PathFind extends JFrame {
         selectionPanel.setBorder(BorderFactory
                 .createTitledBorder("Saved Selections"));
         selectionPanel.setPreferredSize(new Dimension(280, 100));
+
+        // edit/delete buttons
+        JPanel selectionButtons = new JPanel(new FlowLayout());
+
+        selectionDelete = new JButton("Delete");
+        selectionDelete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ssModel.remove(savedSelections.getSelectedIndex());
+            }
+        });
+        selectionButtons.add(selectionDelete);
+
+        selectionEditText = new JButton("Edit Text");
+        selectionEditText.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Annotation a = (Annotation) savedSelections.getSelectedValue();
+                String oldText = a.getText();
+                String newText = JOptionPane.showInputDialog(PathFind.this,
+                        "Enter text:", oldText);
+
+                if (newText != null) {
+                    int index = savedSelections.getSelectedIndex();
+                    ssModel.remove(index);
+                    ssModel.add(index, new Annotation(a.getShape(), newText));
+                    savedSelections.setSelectedIndex(index);
+                }
+            }
+        });
+        selectionButtons.add(selectionEditText);
+
+        updateSelectionButtons();
+
         savedSelections.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
+                updateSelectionButtons();
                 psv.getSlide().centerOnSelection(
                         savedSelections.getSelectedIndex());
             }
         });
+
+        selectionPanel.add(selectionButtons, BorderLayout.SOUTH);
+
         add(selectionPanel, BorderLayout.WEST);
 
         if (slide != null) {
             setSlide(slide);
         }
+    }
+
+    private void updateSelectionButtons() {
+        boolean selected = savedSelections.getSelectedIndex() != -1;
+        selectionDelete.setEnabled(selected);
+        selectionEditText.setEnabled(selected);
     }
 
     private void setSlide(File slide) {
