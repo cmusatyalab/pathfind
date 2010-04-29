@@ -58,6 +58,7 @@ import javax.swing.event.ListSelectionListener;
 
 import edu.cmu.cs.diamond.opendiamond.*;
 import edu.cmu.cs.openslide.OpenSlide;
+import edu.cmu.cs.openslide.gui.Annotation;
 import edu.cmu.cs.openslide.gui.OpenSlideView;
 import edu.cmu.cs.openslide.gui.SelectionListModel;
 
@@ -448,11 +449,12 @@ public class PathFind extends JFrame {
         });
     }
 
-    public BufferedImage getSelectionAsImage(int selection) {
-        Shape s = psv.getSlide().getSelectionListModel().get(selection);
-        if (s == null) {
+    public BufferedImage getSelectionAsImage() {
+        Annotation a = (Annotation) savedSelections.getSelectedValue();
+        if (a == null) {
             return null;
         }
+        Shape s = a.getShape();
 
         Rectangle2D bb = s.getBounds2D();
         if (bb.getWidth() * bb.getHeight() > 6000 * 6000) {
