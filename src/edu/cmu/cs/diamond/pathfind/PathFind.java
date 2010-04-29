@@ -141,7 +141,7 @@ public class PathFind extends JFrame {
 
     private final File macrosDir;
 
-    private DefaultListModel ssModel;
+    private SelectionListModel ssModel;
 
     private final QueryPanel qp;
 
@@ -193,8 +193,6 @@ public class PathFind extends JFrame {
         selectionPanel.setPreferredSize(new Dimension(280, 100));
         savedSelections.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                Shape selection = (Shape) savedSelections.getSelectedValue();
-                psv.getSlide().addSelection(selection);
                 psv.getSlide().centerOnSelection(
                         savedSelections.getSelectedIndex());
             }
@@ -396,28 +394,11 @@ public class PathFind extends JFrame {
         return factory;
     }
 
-    private void saveSelection(OpenSlideView wv) {
-        SelectionListModel slm = wv.getSelectionListModel();
-
-        if (slm.getSize() > 0) {
-            Shape s = slm.get(slm.getSize() - 1);
-            ssModel.addElement(s);
-        }
-    }
-
     void setSlide(OpenSlide openslide, String title) {
         final OpenSlideView wv = createNewView(openslide, title, true);
 
         psv.setSlide(wv);
-        wv.getInputMap()
-                .put(KeyStroke.getKeyStroke("INSERT"), "save selection");
-        wv.getActionMap().put("save selection", new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-
-                saveSelection(wv);
-            }
-        });
-        ssModel = new SavedSelectionModel(wv);
+        ssModel = wv.getSelectionListModel();
         savedSelections.setModel(ssModel);
         savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
         psv.revalidate();
