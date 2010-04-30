@@ -46,6 +46,7 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.Map;
 
 import javax.swing.*;
 
@@ -73,7 +74,8 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
         Annotation ann = (Annotation) value;
         BufferedImage thumb = drawThumbnail(ws, ann.getShape(), THUMBNAIL_SIZE);
 
-        c.setText(ann.getText());
+        Map<String, String> m = ann.getAnnotations();
+        c.setText(m.get("text"));
         c.setIcon(new ImageIcon(thumb));
 
         c.setHorizontalAlignment(SwingConstants.CENTER);

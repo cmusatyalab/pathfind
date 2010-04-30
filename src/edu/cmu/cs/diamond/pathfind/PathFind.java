@@ -47,12 +47,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -214,14 +214,19 @@ public class PathFind extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Annotation a = (Annotation) savedSelections.getSelectedValue();
-                String oldText = a.getText();
-                String newText = JOptionPane.showInputDialog(PathFind.this,
-                        "Enter text:", oldText);
+                String oldText = a.getAnnotations().get("text");
+                final String newText = JOptionPane.showInputDialog(
+                        PathFind.this, "Enter text:", oldText);
 
                 if (newText != null) {
                     int index = savedSelections.getSelectedIndex();
                     ssModel.remove(index);
-                    ssModel.add(index, new Annotation(a.getShape(), newText));
+                    Map<String, String> m = new HashMap<String, String>() {
+                        {
+                            put("text", newText);
+                        }
+                    };
+                    ssModel.add(index, new Annotation(a.getShape(), m));
                     savedSelections.setSelectedIndex(index);
                 }
             }
