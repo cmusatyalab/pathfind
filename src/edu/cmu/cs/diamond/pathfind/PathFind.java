@@ -549,8 +549,25 @@ public class PathFind extends JFrame {
 
     private OpenSlideView createNewView(OpenSlide openslide, String title,
             boolean zoomToFit) {
-        OpenSlideView wv = new OpenSlideView(openslide, zoomToFit);
+        final OpenSlideView wv = new OpenSlideView(openslide, zoomToFit);
         wv.setBorder(BorderFactory.createTitledBorder(title));
+
+        wv.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                int x = (int) wv.getSlideX(e.getX());
+                int y = (int) wv.getSlideY(e.getY());
+                int selection = wv.getSelectionForPoint(x, y);
+                if (selection != -1) {
+                    String text = ssModel.get(selection).getAnnotations().get(
+                            "text");
+                    wv.setToolTipText(text);
+                } else {
+                    wv.setToolTipText(null);
+                }
+            }
+        });
+
         return wv;
     }
 
