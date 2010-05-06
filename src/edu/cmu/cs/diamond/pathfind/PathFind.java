@@ -43,9 +43,13 @@ package edu.cmu.cs.diamond.pathfind;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -61,6 +65,7 @@ import edu.cmu.cs.openslide.OpenSlide;
 import edu.cmu.cs.openslide.gui.Annotation;
 import edu.cmu.cs.openslide.gui.OpenSlideView;
 import edu.cmu.cs.openslide.gui.SelectionListModel;
+import edu.cmu.cs.openslide.gui.Annotation.Bean;
 
 public class PathFind extends JFrame {
 
@@ -74,7 +79,11 @@ public class PathFind extends JFrame {
             int returnVal = jfc.showDialog(PathFind.this, "Open");
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File slide = jfc.getSelectedFile();
-                setSlide(slide);
+                try {
+                    setSlide(slide);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
     }
@@ -156,12 +165,21 @@ public class PathFind extends JFrame {
 
     private final JButton selectionEditText;
 
+    private final File annotationsDir;
+
     public PathFind(String ijDir, String extraPluginsDir, String jreDir,
-            File slide) throws IOException {
+            String annotationsDir, File slide) throws IOException {
         super("PathFind");
         setSize(1000, 750);
         setMinimumSize(new Dimension(1000, 500));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        this.annotationsDir = new File(annotationsDir, "pathfind-annotations-0");
+        this.annotationsDir.mkdirs();
+        if (!this.annotationsDir.isDirectory()) {
+            throw new IllegalArgumentException(
+                    "annotationsDir must be a writable directory");
+        }
 
         jfc.setAcceptAllFileFilterUsed(false);
         jfc.setFileFilter(OpenSlide.getFileFilter());
@@ -258,7 +276,7 @@ public class PathFind extends JFrame {
         selectionEditText.setEnabled(selected);
     }
 
-    private void setSlide(File slide) {
+    private void setSlide(File slide) throws IOException {
         OpenSlide os = new OpenSlide(slide);
         setSlide(os, slide.getName());
     }
@@ -452,11 +470,77 @@ public class PathFind extends JFrame {
         final OpenSlideView wv = createNewView(openslide, title, true);
 
         psv.setSlide(wv);
-        ssModel = wv.getSelectionListModel();
-        savedSelections.setModel(ssModel);
         savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
+        final String qh1 = openslide.getProperties().get(
+                OpenSlide.PROPERTY_NAME_QUICKHASH1);
+        ssModel = loadAnnotations(qh1);
+        if (ssModel == null) {
+            ssModel = wv.getSelectionListModel();
+        } else {
+            wv.setSelectionListModel(ssModel);
+        }
+        savedSelections.setModel(ssModel);
+        ssModel.addListDataListener(new ListDataListener() {
+            @Override
+            public void intervalRemoved(ListDataEvent e) {
+                saveSelections();
+            }
+
+            private void saveSelections() {
+                File ann = new File(annotationsDir, qh1 + ".xml");
+                annotationsDir.mkdirs();
+                XMLEncoder enc = null;
+                try {
+                    enc = new XMLEncoder(new BufferedOutputStream(
+                            new FileOutputStream(ann)));
+                    for (int i = 0; i < ssModel.getSize(); i++) {
+                        enc.writeObject(ssModel.get(i).toBean());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (enc != null) {
+                        enc.close();
+                    }
+                }
+            }
+
+            @Override
+            public void intervalAdded(ListDataEvent e) {
+                saveSelections();
+            }
+
+            @Override
+            public void contentsChanged(ListDataEvent e) {
+                saveSelections();
+            }
+        });
         psv.revalidate();
         psv.repaint();
+    }
+
+    private SelectionListModel loadAnnotations(String quickhash1) {
+        File ann = new File(annotationsDir, quickhash1 + ".xml");
+        XMLDecoder dec = null;
+        try {
+            dec = new XMLDecoder(new BufferedInputStream(new FileInputStream(
+                    ann)));
+            SelectionListModel slm = new SelectionListModel();
+            try {
+                while (true) {
+                    Bean a = (Bean) dec.readObject();
+                    slm.add(a.toAnnotation());
+                }
+            } catch (ArrayIndexOutOfBoundsException done) {
+            }
+            return slm;
+        } catch (FileNotFoundException ignore) {
+        } finally {
+            if (dec != null) {
+                dec.close();
+            }
+        }
+        return null;
     }
 
     void setResult(Icon result, String title) {
@@ -471,19 +555,20 @@ public class PathFind extends JFrame {
     }
 
     public static void main(String[] args) {
-        if (args.length != 3 && args.length != 4) {
+        if (args.length != 4 && args.length != 5) {
             System.out.println("usage: " + PathFind.class.getName()
-                    + " ij_dir extra_plugins_dir jre_dir");
+                    + " ij_dir extra_plugins_dir jre_dir annotations_dir");
             return;
         }
 
         final String ijDir = args[0];
         final String extraPluginsDir = args[1];
         final String jreDir = args[2];
+        final String annotationsDir = args[3];
 
         final File slide;
-        if (args.length == 4) {
-            slide = new File(args[3]);
+        if (args.length == 5) {
+            slide = new File(args[4]);
         } else {
             slide = null;
         }
@@ -493,7 +578,8 @@ public class PathFind extends JFrame {
             public void run() {
                 PathFind pf;
                 try {
-                    pf = new PathFind(ijDir, extraPluginsDir, jreDir, slide);
+                    pf = new PathFind(ijDir, extraPluginsDir, jreDir,
+                            annotationsDir, slide);
                     pf.setVisible(true);
                 } catch (IOException e) {
                     e.printStackTrace();
