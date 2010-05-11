@@ -605,7 +605,7 @@ public class PathFind extends JFrame {
         });
     }
 
-    public BufferedImage getSelectionAsImage() {
+    public BufferedImage getSelectionAsImage() throws IOException {
         Annotation a = (Annotation) savedSelections.getSelectedValue();
         if (a == null) {
             return null;

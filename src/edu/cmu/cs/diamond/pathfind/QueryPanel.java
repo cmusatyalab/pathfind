@@ -77,7 +77,7 @@ public final class QueryPanel extends JPanel {
             return name;
         }
 
-        public double runMacro() {
+        public double runMacro() throws IOException {
             // make hourglass
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             File imgFile = null;
@@ -259,7 +259,11 @@ public final class QueryPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 File f = (File) macroComboBox.getSelectedItem();
                 Macro m = new Macro(f.getName(), f.getAbsolutePath());
-                result = m.runMacro();
+                try {
+                    result = m.runMacro();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
                 updateResultField();
             }
         });

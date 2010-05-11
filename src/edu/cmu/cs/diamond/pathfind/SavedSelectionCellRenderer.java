@@ -46,6 +46,7 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Map;
 
 import javax.swing.*;
@@ -72,7 +73,13 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
                         cellHasFocus);
 
         Annotation ann = (Annotation) value;
-        BufferedImage thumb = drawThumbnail(ws, ann.getShape(), THUMBNAIL_SIZE);
+        BufferedImage thumb;
+        try {
+            thumb = drawThumbnail(ws, ann.getShape(), THUMBNAIL_SIZE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return c;
+        }
 
         Map<String, String> m = ann.getAnnotations();
         c.setText(m.get("text"));
@@ -90,7 +97,7 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
     }
 
     private static BufferedImage drawThumbnail(OpenSlide slide,
-            Shape selection, int maxSize) {
+            Shape selection, int maxSize) throws IOException {
         Rectangle2D bb = selection.getBounds2D();
 
         double downsample = Math.max(bb.getWidth(), bb.getHeight()) / maxSize;
