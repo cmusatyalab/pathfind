@@ -59,6 +59,10 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+
+import org.antlr.stringtemplate.StringTemplate;
 
 import edu.cmu.cs.diamond.opendiamond.*;
 import edu.cmu.cs.openslide.OpenSlide;
@@ -167,8 +171,17 @@ public class PathFind extends JFrame {
 
     private final File annotationsDir;
 
+    private final String bookmarkLabelTemplate;
+
+    private final String bookmarkHoverTemplate;
+
+    private final String regionHoverTemplate;
+
+    private final String bookmarkDoubleClickTemplate;
+
     public PathFind(String ijDir, String extraPluginsDir, String jreDir,
-            String annotationsDir, File slide) throws IOException {
+            String annotationsDir, String interfaceMap, File slide)
+            throws IOException {
         super("PathFind");
         setSize(1000, 750);
         setMinimumSize(new Dimension(1000, 500));
@@ -214,6 +227,44 @@ public class PathFind extends JFrame {
         selectionPanel.setBorder(BorderFactory
                 .createTitledBorder("Saved Selections"));
         selectionPanel.setPreferredSize(new Dimension(280, 100));
+        savedSelections.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int index = savedSelections.locationToIndex(e.getPoint());
+                    if (index == -1) {
+                        return;
+                    }
+
+                    Annotation ann = (Annotation) savedSelections.getModel()
+                            .getElementAt(index);
+                    popupInfo(ann);
+                }
+            }
+
+            private void popupInfo(Annotation ann) {
+                JFrame j = new JFrame("Annotation Info");
+
+                JEditorPane text = new JEditorPane();
+                text.setEditable(false);
+                text.setDocument(new HTMLDocument());
+                text.setEditorKit(new HTMLEditorKit());
+                StringTemplate info = new StringTemplate(
+                        bookmarkDoubleClickTemplate);
+                info.setAttributes(ann.getAnnotations());
+
+                text.setText(info.toString());
+                JScrollPane jsp = new JScrollPane(text);
+                jsp
+                        .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+                jsp.setPreferredSize(new Dimension(640, 480));
+
+                j.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                j.add(jsp);
+                j.pack();
+                j.setVisible(true);
+            }
+        });
 
         // edit/delete buttons
         JPanel selectionButtons = new JPanel(new FlowLayout());
@@ -264,6 +315,28 @@ public class PathFind extends JFrame {
         selectionPanel.add(selectionButtons, BorderLayout.SOUTH);
 
         add(selectionPanel, BorderLayout.WEST);
+
+        // read interface properties
+        Properties interfaceProperties = new Properties();
+        InputStream in = new BufferedInputStream(new FileInputStream(
+                interfaceMap));
+        try {
+            interfaceProperties.load(in);
+        } finally {
+            try {
+                in.close();
+            } catch (IOException ignore) {
+            }
+        }
+
+        bookmarkLabelTemplate = interfaceProperties
+                .getProperty("bookmark-label-template");
+        bookmarkHoverTemplate = interfaceProperties
+                .getProperty("bookmark-hover-template");
+        bookmarkDoubleClickTemplate = interfaceProperties
+                .getProperty("bookmark-doubleclick-template");
+        regionHoverTemplate = interfaceProperties
+                .getProperty("region-hover-template");
 
         if (slide != null) {
             setSlide(slide);
@@ -470,7 +543,8 @@ public class PathFind extends JFrame {
         final OpenSlideView wv = createNewView(openslide, title, true);
 
         psv.setSlide(wv);
-        savedSelections.setCellRenderer(new SavedSelectionCellRenderer(wv));
+        savedSelections.setCellRenderer(new SavedSelectionCellRenderer(
+                openslide, bookmarkLabelTemplate, bookmarkHoverTemplate));
         final String qh1 = openslide.getProperties().get(
                 OpenSlide.PROPERTY_NAME_QUICKHASH1);
         ssModel = loadAnnotations(qh1);
@@ -559,9 +633,12 @@ public class PathFind extends JFrame {
                 int y = (int) wv.getSlideY(e.getY());
                 int selection = wv.getSelectionForPoint(x, y);
                 if (selection != -1) {
-                    String text = ssModel.get(selection).getAnnotations().get(
-                            "text");
-                    wv.setToolTipText(text);
+                    StringTemplate hover = new StringTemplate(
+                            regionHoverTemplate);
+                    hover
+                            .setAttributes(ssModel.get(selection)
+                                    .getAnnotations());
+                    wv.setToolTipText(hover.toString());
                 } else {
                     wv.setToolTipText(null);
                 }
@@ -572,9 +649,11 @@ public class PathFind extends JFrame {
     }
 
     public static void main(String[] args) {
-        if (args.length != 4 && args.length != 5) {
-            System.out.println("usage: " + PathFind.class.getName()
-                    + " ij_dir extra_plugins_dir jre_dir annotations_dir");
+        if (args.length != 5 && args.length != 6) {
+            System.out
+                    .println("usage: "
+                            + PathFind.class.getName()
+                            + " ij_dir extra_plugins_dir jre_dir annotations_dir interface_map");
             return;
         }
 
@@ -582,10 +661,11 @@ public class PathFind extends JFrame {
         final String extraPluginsDir = args[1];
         final String jreDir = args[2];
         final String annotationsDir = args[3];
+        final String interfaceMap = args[4];
 
         final File slide;
-        if (args.length == 5) {
-            slide = new File(args[4]);
+        if (args.length == 6) {
+            slide = new File(args[5]);
         } else {
             slide = null;
         }
@@ -596,7 +676,7 @@ public class PathFind extends JFrame {
                 PathFind pf;
                 try {
                     pf = new PathFind(ijDir, extraPluginsDir, jreDir,
-                            annotationsDir, slide);
+                            annotationsDir, interfaceMap, slide);
                     pf.setVisible(true);
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -51,6 +51,8 @@ import java.util.Map;
 
 import javax.swing.*;
 
+import org.antlr.stringtemplate.StringTemplate;
+
 import edu.cmu.cs.openslide.OpenSlide;
 import edu.cmu.cs.openslide.gui.Annotation;
 import edu.cmu.cs.openslide.gui.OpenSlideView;
@@ -61,8 +63,15 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
 
     final private OpenSlide ws;
 
-    public SavedSelectionCellRenderer(OpenSlideView wv) {
-        ws = wv.getOpenSlide();
+    final private String labelTemplate;
+
+    final private String hoverTemplate;
+
+    public SavedSelectionCellRenderer(OpenSlide osr, String labelTemplate,
+            String hoverTemplate) {
+        ws = osr;
+        this.labelTemplate = labelTemplate;
+        this.hoverTemplate = hoverTemplate;
     }
 
     @Override
@@ -82,8 +91,15 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
         }
 
         Map<String, String> m = ann.getAnnotations();
-        c.setText(m.get("text"));
+
+        StringTemplate text = new StringTemplate(labelTemplate);
+        text.setAttributes(m);
+        c.setText(text.toString());
         c.setIcon(new ImageIcon(thumb));
+
+        StringTemplate hover = new StringTemplate(hoverTemplate);
+        hover.setAttributes(m);
+        c.setToolTipText(hover.toString());
 
         c.setHorizontalAlignment(SwingConstants.CENTER);
         c.setVerticalAlignment(SwingConstants.CENTER);
