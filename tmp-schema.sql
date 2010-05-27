@@ -13,8 +13,7 @@ create table roi (
     id int auto_increment primary key,
     path text not null,
     author_id int not null references author,
-    timestamp timestamp not null default current_timestamp,
-    deleted bit not null default 0
+    timestamp timestamp not null default current_timestamp
   )
   engine = InnoDB;
 
@@ -30,7 +29,8 @@ create table annotation (
 create table roi_slide (
     id int auto_increment primary key,
     quickhash1 text not null,
-    roi_id int not null references roi
+    roi_id int not null references roi,
+    deleted bit not null default 0
   )
   engine = InnoDB;
 
