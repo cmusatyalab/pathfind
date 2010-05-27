@@ -41,6 +41,8 @@
 package edu.cmu.cs.diamond.pathfind;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.cmu.cs.openslide.gui.Annotation;
 import edu.cmu.cs.openslide.gui.SelectionListModel;
@@ -83,7 +85,7 @@ class SQLInterface {
                 .prepareStatement("insert into annotation (roi_id, author_id, text) values (?,?,?)");
 
         selectStatement = conn
-                .prepareStatement("select text, path from roi left join (annotation) on (roi.id=annotation.roi_id) join (roi_slide) on (roi_slide.roi_id=roi.id) where deleted=0 and quickhash1=?;");
+                .prepareStatement("select text, path, author.name from roi left join (annotation) on (roi.id=annotation.roi_id) join (roi_slide) on (roi_slide.roi_id=roi.id) join (author) on (author.id=roi.author_id) where deleted=0 and quickhash1=?;");
     }
 
     public void saveAnnotations(String qh1, SelectionListModel ssModel)
@@ -133,14 +135,19 @@ class SQLInterface {
         while (r.next()) {
             String text = r.getString(1);
             String path = r.getString(2);
+            String author = r.getString(3);
 
             Bean b = new Bean();
             b.setShape(path);
 
+            List<Pair> list = new ArrayList<Pair>();
             if (text != null) {
-                Pair p = new Pair("text", text);
-                b.setAnnotations(new Pair[] { p });
+                list.add(new Pair("text", text));
             }
+            if (author != null) {
+                list.add(new Pair("author", author));
+            }
+            b.setAnnotations(list.toArray(new Pair[0]));
 
             slm.add(b.toAnnotation());
         }
