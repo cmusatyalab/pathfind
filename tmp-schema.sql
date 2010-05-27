@@ -38,3 +38,4 @@ create table roi_slide (
 
 
 insert into author (name) values ('Adam Goode');
+insert into author (name) values ('Satya');
