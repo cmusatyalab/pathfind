@@ -1,7 +1,7 @@
 /*
  *  PathFind -- a Diamond system for pathology
  *
- *  Copyright (c) 2008-2009 Carnegie Mellon University
+ *  Copyright (c) 2008-2010 Carnegie Mellon University
  *  All rights reserved.
  *
  *  PathFind is free software: you can redistribute it and/or modify
@@ -67,11 +67,14 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
 
     final private String hoverTemplate;
 
+    final private ShowGraphicsOrText sgt;
+
     public SavedSelectionCellRenderer(OpenSlide osr, String labelTemplate,
-            String hoverTemplate) {
+            String hoverTemplate, ShowGraphicsOrText sgt) {
         ws = osr;
         this.labelTemplate = labelTemplate;
         this.hoverTemplate = hoverTemplate;
+        this.sgt = sgt;
     }
 
     @Override
@@ -94,12 +97,9 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
 
         StringTemplate text = new StringTemplate(labelTemplate);
         text.setAttributes(m);
-        c.setText(text.toString());
-        c.setIcon(new ImageIcon(thumb));
 
         StringTemplate hover = new StringTemplate(hoverTemplate);
         hover.setAttributes(m);
-        c.setToolTipText(hover.toString());
 
         c.setHorizontalAlignment(SwingConstants.CENTER);
         c.setVerticalAlignment(SwingConstants.CENTER);
@@ -108,6 +108,31 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
         c.setVerticalTextPosition(SwingConstants.BOTTOM);
 
         c.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+
+        switch (sgt) {
+        case SHOW_GRAPHICS:
+            c.setIcon(new ImageIcon(thumb));
+            // XXX
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < text.toString().length(); i++) {
+                sb.append(" ");
+            }
+            c.setText(sb.toString());
+            break;
+
+        case SHOW_TEXT:
+            c.setIcon(new ImageIcon(new BufferedImage(thumb.getWidth(), thumb
+                    .getHeight(), BufferedImage.TYPE_BYTE_BINARY)));
+            c.setText(text.toString());
+            c.setToolTipText(hover.toString());
+            break;
+
+        case SHOW_GRAPHICS_AND_TEXT:
+            c.setIcon(new ImageIcon(thumb));
+            c.setText(text.toString());
+            c.setToolTipText(hover.toString());
+            break;
+        }
 
         return c;
     }

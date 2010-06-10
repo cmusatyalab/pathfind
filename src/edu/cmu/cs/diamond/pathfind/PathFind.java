@@ -1,7 +1,7 @@
 /*
  *  PathFind -- a Diamond system for pathology
  *
- *  Copyright (c) 2008-2009 Carnegie Mellon University
+ *  Copyright (c) 2008-2010 Carnegie Mellon University
  *  All rights reserved.
  *
  *  PathFind is free software: you can redistribute it and/or modify
@@ -179,10 +179,13 @@ public class PathFind extends JFrame {
 
     private final SQLInterface sqlInterface;
 
+    private final SecondWindow secondWindow;
+
     public PathFind(String ijDir, String extraPluginsDir, String jreDir,
             String sqlHost, String sqlUsername, String sqlPassword,
-            String sqlDatabase, String interfaceMap, File slide)
-            throws IOException, ClassNotFoundException, SQLException {
+            String sqlDatabase, String interfaceMap, File slide,
+            boolean twoWindowMode) throws IOException, ClassNotFoundException,
+            SQLException {
         super("PathFind");
         setSize(1000, 750);
         setMinimumSize(new Dimension(1000, 500));
@@ -263,6 +266,33 @@ public class PathFind extends JFrame {
             }
         });
 
+        if (twoWindowMode) {
+            // default hover won't work
+            savedSelections.addMouseMotionListener(new MouseAdapter() {
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    secondWindow.setHover(null);
+                }
+
+                @Override
+                public void mouseMoved(MouseEvent e) {
+                    int index = savedSelections.locationToIndex(e.getPoint());
+                    if (index == -1) {
+                        secondWindow.setHover(null);
+                    } else {
+                        Annotation ann = (Annotation) savedSelections
+                                .getModel().getElementAt(index);
+                        StringTemplate hover = new StringTemplate(
+                                bookmarkHoverTemplate);
+                        hover.setAttributes(ann.getAnnotations());
+                        secondWindow.setHover(hover.toString());
+                    }
+                }
+
+                // TODO update hover when list scrolls/changes without mouse
+            });
+        }
+
         // edit/delete buttons
         JPanel selectionButtons = new JPanel(new FlowLayout());
 
@@ -335,9 +365,23 @@ public class PathFind extends JFrame {
         regionHoverTemplate = interfaceProperties
                 .getProperty("region-hover-template");
 
+        // second window?
+        if (twoWindowMode) {
+            secondWindow = new SecondWindow();
+        } else {
+            secondWindow = null;
+        }
+
         if (slide != null) {
             setSlide(slide);
         }
+
+        if (secondWindow != null) {
+            secondWindow.setMinimumSize(new Dimension(100, 500));
+            secondWindow.pack();
+            secondWindow.setVisible(true);
+        }
+        setVisible(true);
     }
 
     private void updateSelectionButtons() {
@@ -540,8 +584,19 @@ public class PathFind extends JFrame {
         final OpenSlideView wv = createNewView(openslide, title, true);
 
         psv.setSlide(wv);
-        savedSelections.setCellRenderer(new SavedSelectionCellRenderer(
-                openslide, bookmarkLabelTemplate, bookmarkHoverTemplate));
+        if (secondWindow != null) {
+            secondWindow.setCellRenderer(new SavedSelectionCellRenderer(
+                    openslide, bookmarkLabelTemplate, bookmarkHoverTemplate,
+                    ShowGraphicsOrText.SHOW_TEXT));
+            savedSelections.setCellRenderer(new SavedSelectionCellRenderer(
+                    openslide, bookmarkLabelTemplate, bookmarkHoverTemplate,
+                    ShowGraphicsOrText.SHOW_GRAPHICS));
+
+        } else {
+            savedSelections.setCellRenderer(new SavedSelectionCellRenderer(
+                    openslide, bookmarkLabelTemplate, bookmarkHoverTemplate,
+                    ShowGraphicsOrText.SHOW_GRAPHICS_AND_TEXT));
+        }
         final String qh1 = openslide.getProperties().get(
                 OpenSlide.PROPERTY_NAME_QUICKHASH1);
         ssModel = loadAnnotations(qh1);
@@ -551,6 +606,9 @@ public class PathFind extends JFrame {
             wv.setSelectionListModel(ssModel);
         }
         savedSelections.setModel(ssModel);
+        if (secondWindow != null) {
+            secondWindow.setModel(ssModel);
+        }
         ssModel.addListDataListener(new ListDataListener() {
             @Override
             public void intervalRemoved(ListDataEvent e) {
@@ -606,14 +664,22 @@ public class PathFind extends JFrame {
                     hover
                             .setAttributes(ssModel.get(selection)
                                     .getAnnotations());
-                    wv.setToolTipText(hover.toString());
+                    setHover(wv, hover.toString());
                 } else {
-                    wv.setToolTipText(null);
+                    setHover(wv, null);
                 }
             }
         });
 
         return wv;
+    }
+
+    private void setHover(OpenSlideView wv, String hover) {
+        if (secondWindow != null) {
+            secondWindow.setHover(hover);
+        } else {
+            wv.setToolTipText(hover);
+        }
     }
 
     public static void main(String[] args) {
@@ -644,12 +710,10 @@ public class PathFind extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                PathFind pf;
                 try {
-                    pf = new PathFind(ijDir, extraPluginsDir, jreDir, sqlHost,
+                    new PathFind(ijDir, extraPluginsDir, jreDir, sqlHost,
                             sqlUsername, sqlPassword, sqlDatabase,
-                            interfaceMap, slide);
-                    pf.setVisible(true);
+                            interfaceMap, slide, false);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (ClassNotFoundException e) {
