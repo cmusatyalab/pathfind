@@ -234,6 +234,13 @@ public final class QueryPanel extends JPanel {
                 return r;
             }
         });
+        macroComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                // edit button state
+                updateEditButtonEnabled();
+            }
+        });
         b.add(macroComboBox);
 
         // edit
@@ -319,6 +326,12 @@ public final class QueryPanel extends JPanel {
 
         b.add(Box.createHorizontalGlue());
         add(b);
+
+        updateEditButtonEnabled();
+    }
+
+    private void updateEditButtonEnabled() {
+        editButton.setEnabled(macroComboBox.getSelectedIndex() != -1);
     }
 
     void populateMacroListModel() {
