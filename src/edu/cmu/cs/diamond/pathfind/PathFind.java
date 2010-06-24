@@ -624,8 +624,15 @@ public class PathFind extends JFrame {
             }
 
             @Override
-            public void intervalAdded(ListDataEvent e) {
+            public void intervalAdded(final ListDataEvent e) {
                 saveSelections();
+
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        savedSelections.setSelectedIndex(e.getIndex1());
+                    }
+                });
             }
 
             @Override
