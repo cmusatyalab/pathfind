@@ -46,6 +46,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
@@ -128,11 +130,12 @@ public final class QueryPanel extends JPanel {
                 // run macro
                 List<String> processArgs = new ArrayList<String>();
                 processArgs.addAll(Arrays.asList(ijCmd));
-                processArgs.add(imgFile.getPath());
                 processArgs.add("-batch");
                 processArgs.add(macroName);
+                processArgs.add(imgFile.getPath());
                 ProcessBuilder pb = new ProcessBuilder(processArgs);
                 pb.directory(ijDir);
+                System.out.println(processArgs);
 
                 try {
                     StringBuilder sb = new StringBuilder();
@@ -227,9 +230,11 @@ public final class QueryPanel extends JPanel {
                 JLabel r = (JLabel) super.getListCellRendererComponent(list,
                         value, index, isSelected, cellHasFocus);
 
-                String name = ((File) value).getName().replace("_", " ")
-                        .replaceAll("\\.txt$", "");
-                r.setText(name);
+                if (value != null) {
+                    String name = ((File) value).getName().replaceAll("\\.js$",
+                            "");
+                    r.setText(name);
+                }
 
                 return r;
             }
@@ -300,8 +305,7 @@ public final class QueryPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 try {
                     File f = (File) macroComboBox.getSelectedItem();
-                    String name = f.getName().replaceAll("\\.txt$", "");
-                    runRemoteMacro(name);
+                    runRemoteMacro(f.getName());
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 } catch (IOException e1) {
@@ -340,7 +344,7 @@ public final class QueryPanel extends JPanel {
         File[] files = macrosDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".txt");
+                return name.toLowerCase().endsWith(".js");
             }
         });
 
@@ -362,8 +366,7 @@ public final class QueryPanel extends JPanel {
 
     private void runRemoteMacro(String macroName) throws InterruptedException,
             IOException {
-        File mm = new File(QueryPanel.this.ijDir + "/macros", macroName
-                + ".txt");
+        File mm = new File(QueryPanel.this.ijDir + "/macros", macroName);
         byte blob1[] = Util.quickTar(extraPluginsDir);
         byte blob2[] = Util.quickTar(new File[] { mm });
         byte macroBlob[] = new byte[blob1.length + blob2.length];

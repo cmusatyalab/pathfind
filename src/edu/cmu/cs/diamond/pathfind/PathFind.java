@@ -121,7 +121,7 @@ public class PathFind extends JFrame {
                 return;
             }
 
-            String newName = enteredName.replace(" ", "_") + ".txt";
+            String newName = enteredName + ".js";
 
             try {
                 File newFile = new File(macrosDir, newName);
@@ -520,7 +520,6 @@ public class PathFind extends JFrame {
     private SearchFactory createFactory(int threshold, byte[] macroBlob,
             String macroName) throws IOException {
         List<Filter> filters = new ArrayList<Filter>();
-        String macroName2 = macroName.replace(' ', '_');
 
         InputStream in = null;
 
@@ -529,7 +528,7 @@ public class PathFind extends JFrame {
             in = new FileInputStream("/opt/snapfind/lib/fil_imagej_exec.so");
             FilterCode c = new FilterCode(in);
             List<String> dependencies = Collections.emptyList();
-            List<String> arguments = Arrays.asList(new String[] { macroName2 });
+            List<String> arguments = Arrays.asList(new String[] { macroName });
             Filter imagej = new Filter("imagej", c, "f_eval_imagej_exec",
                     "f_init_imagej_exec", "f_fini_imagej_exec", threshold,
                     dependencies, arguments, macroBlob);
