@@ -9,6 +9,8 @@
         <pathelement location="/usr/lib/openslide-java/openslidejava.jar"/>
         <pathelement location="/usr/lib64/openslide-java/openslidejava.jar"/>
         <pathelement location="/usr/share/java/mysql-connector-java.jar"/>
+        <pathelement location="/usr/share/java/stringtemplate.jar"/>
+        <pathelement location="/usr/share/java/antlr.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
