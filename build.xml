@@ -11,6 +11,7 @@
         <pathelement location="/usr/share/java/mysql-connector-java.jar"/>
         <pathelement location="/usr/share/java/stringtemplate.jar"/>
         <pathelement location="/usr/share/java/antlr.jar"/>
+        <pathelement location="/usr/share/java/commons-httpclient.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>

@@ -11,5 +11,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/usr/share/java/antlr.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jakarta-commons-httpclient.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
