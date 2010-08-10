@@ -47,14 +47,13 @@ import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 
 import javax.swing.*;
 
 import org.antlr.stringtemplate.StringTemplate;
 
 import edu.cmu.cs.openslide.OpenSlide;
-import edu.cmu.cs.openslide.gui.Annotation;
 import edu.cmu.cs.openslide.gui.OpenSlideView;
 
 public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
@@ -84,7 +83,7 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
                 .getListCellRendererComponent(list, value, index, isSelected,
                         cellHasFocus);
 
-        Annotation ann = (Annotation) value;
+        SlideAnnotation ann = (SlideAnnotation) value;
         BufferedImage thumb;
         try {
             thumb = drawThumbnail(ws, ann.getShape(), THUMBNAIL_SIZE);
@@ -93,13 +92,17 @@ public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
             return c;
         }
 
-        Map<String, String> m = ann.getAnnotations();
-
+        // TODO show more than the last
         StringTemplate text = new StringTemplate(labelTemplate);
-        text.setAttributes(m);
-
         StringTemplate hover = new StringTemplate(hoverTemplate);
-        hover.setAttributes(m);
+
+        List<SlideAnnotationNote> notes = ann.getNotes();
+
+        if (!notes.isEmpty()) {
+            SlideAnnotationNote n = notes.get(notes.size() - 1);
+            n.populateStringTemplateAttributes(text);
+            n.populateStringTemplateAttributes(hover);
+        }
 
         c.setHorizontalAlignment(SwingConstants.CENTER);
         c.setVerticalAlignment(SwingConstants.CENTER);

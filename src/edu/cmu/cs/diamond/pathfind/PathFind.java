@@ -49,7 +49,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 
@@ -62,6 +61,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.httpclient.HttpClient;
 
 import edu.cmu.cs.diamond.opendiamond.*;
 import edu.cmu.cs.openslide.OpenSlide;
@@ -85,8 +85,6 @@ public class PathFind extends JFrame {
                     setSlide(slide);
                 } catch (IOException e1) {
                     e1.printStackTrace();
-                } catch (SQLException e2) {
-                    e2.printStackTrace();
                 }
             }
         }
@@ -177,22 +175,19 @@ public class PathFind extends JFrame {
 
     private final String bookmarkDoubleClickTemplate;
 
-    private final SQLInterface sqlInterface;
+    private final AnnotationStore annotationStore;
 
     private final SecondWindow secondWindow;
 
     public PathFind(String ijDir, String extraPluginsDir, String jreDir,
-            String sqlHost, String sqlUsername, String sqlPassword,
-            String sqlDatabase, String interfaceMap, File slide,
-            boolean twoWindowMode) throws IOException, ClassNotFoundException,
-            SQLException {
+            AnnotationStore annotationStore, String interfaceMap, File slide,
+            boolean twoWindowMode) throws IOException {
         super("PathFind");
         setSize(1000, 750);
         setMinimumSize(new Dimension(1000, 500));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        sqlInterface = new SQLInterface(sqlHost, sqlUsername, sqlPassword,
-                sqlDatabase);
+        this.annotationStore = annotationStore;
 
         jfc.setAcceptAllFileFilterUsed(false);
         jfc.setFileFilter(OpenSlide.getFileFilter());
@@ -236,13 +231,13 @@ public class PathFind extends JFrame {
                         return;
                     }
 
-                    Annotation ann = (Annotation) savedSelections.getModel()
-                            .getElementAt(index);
+                    SlideAnnotation ann = (SlideAnnotation) savedSelections
+                            .getModel().getElementAt(index);
                     popupInfo(ann);
                 }
             }
 
-            private void popupInfo(Annotation ann) {
+            private void popupInfo(SlideAnnotation ann) {
                 JFrame j = new JFrame("Annotation Info");
 
                 JEditorPane text = new JEditorPane();
@@ -251,7 +246,13 @@ public class PathFind extends JFrame {
                 text.setEditorKit(new HTMLEditorKit());
                 StringTemplate info = new StringTemplate(
                         bookmarkDoubleClickTemplate);
-                info.setAttributes(ann.getAnnotations());
+
+                // TODO show all notes, not just last
+                List<SlideAnnotationNote> list = ann.getNotes();
+                if (!list.isEmpty()) {
+                    list.get(list.size() - 1).populateStringTemplateAttributes(
+                            info);
+                }
 
                 text.setText(info.toString());
                 JScrollPane jsp = new JScrollPane(text);
@@ -280,11 +281,18 @@ public class PathFind extends JFrame {
                     if (index == -1) {
                         secondWindow.setHover(null);
                     } else {
-                        Annotation ann = (Annotation) savedSelections
+                        SlideAnnotation ann = (SlideAnnotation) savedSelections
                                 .getModel().getElementAt(index);
                         StringTemplate hover = new StringTemplate(
                                 bookmarkHoverTemplate);
-                        hover.setAttributes(ann.getAnnotations());
+
+                        // TODO show all notes, not just last
+                        List<SlideAnnotationNote> list = ann.getNotes();
+                        if (!list.isEmpty()) {
+                            list.get(list.size() - 1)
+                                    .populateStringTemplateAttributes(hover);
+                        }
+
                         secondWindow.setHover(hover.toString());
                     }
                 }
@@ -309,20 +317,31 @@ public class PathFind extends JFrame {
         selectionEditText.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Annotation a = (Annotation) savedSelections.getSelectedValue();
-                String oldText = a.getAnnotations().get("text");
+                SlideAnnotation a = (SlideAnnotation) savedSelections
+                        .getSelectedValue();
+
+                // TODO show all notes, not just last
+                SlideAnnotationNote oldNote = null;
+                String oldText = null;
+                Integer id = null;
+
+                id = a.getId();
+
+                List<SlideAnnotationNote> list = a.getNotes();
+                if (!list.isEmpty()) {
+                    oldNote = list.get(list.size() - 1);
+                    oldText = oldNote.getText();
+                }
+
                 final String newText = JOptionPane.showInputDialog(
                         PathFind.this, "Enter text:", oldText);
 
-                if (newText != null) {
+                if ((newText != null) && (!newText.equals(oldText))) {
                     int index = savedSelections.getSelectedIndex();
-                    ssModel.remove(index);
-                    Map<String, String> m = new HashMap<String, String>() {
-                        {
-                            put("text", newText);
-                        }
-                    };
-                    ssModel.add(index, new Annotation(a.getShape(), m));
+                    List<SlideAnnotationNote> list2 = new ArrayList<SlideAnnotationNote>();
+                    list2.add(new SlideAnnotationNote(newText));
+                    ssModel.replace(index, new SlideAnnotation(a.getShape(),
+                            id, null, list2));
                     savedSelections.setSelectedIndex(index);
                 }
             }
@@ -390,7 +409,7 @@ public class PathFind extends JFrame {
         selectionEditText.setEnabled(selected);
     }
 
-    private void setSlide(File slide) throws IOException, SQLException {
+    private void setSlide(File slide) throws IOException {
         OpenSlide os = new OpenSlide(slide);
         setSlide(os, slide.getName());
     }
@@ -579,7 +598,7 @@ public class PathFind extends JFrame {
         return factory;
     }
 
-    void setSlide(OpenSlide openslide, String title) throws SQLException {
+    void setSlide(OpenSlide openslide, String title) throws IOException {
         final OpenSlideView wv = createNewView(openslide, title, true);
 
         psv.setSlide(wv);
@@ -598,12 +617,17 @@ public class PathFind extends JFrame {
         }
         final String qh1 = openslide.getProperties().get(
                 OpenSlide.PROPERTY_NAME_QUICKHASH1);
-        ssModel = loadAnnotations(qh1);
-        if (ssModel == null) {
-            ssModel = wv.getSelectionListModel();
-        } else {
-            wv.setSelectionListModel(ssModel);
-        }
+
+        loadAnnotations(wv, qh1);
+
+        psv.revalidate();
+        psv.repaint();
+    }
+
+    private void loadAnnotations(final OpenSlideView wv, final String qh1)
+            throws IOException {
+        ssModel = annotationStore.getAnnotations(qh1);
+        wv.setSelectionListModel(ssModel);
         savedSelections.setModel(ssModel);
         if (secondWindow != null) {
             secondWindow.setModel(ssModel);
@@ -611,20 +635,21 @@ public class PathFind extends JFrame {
         ssModel.addListDataListener(new ListDataListener() {
             @Override
             public void intervalRemoved(ListDataEvent e) {
-                saveSelections();
+                saveAndLoadAnnotations();
             }
 
-            private void saveSelections() {
+            private void saveAndLoadAnnotations() {
                 try {
-                    sqlInterface.saveAnnotations(qh1, ssModel);
-                } catch (SQLException e) {
+                    annotationStore.saveAnnotations(qh1, ssModel);
+                    loadAnnotations(wv, qh1);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
 
             @Override
             public void intervalAdded(final ListDataEvent e) {
-                saveSelections();
+                saveAndLoadAnnotations();
 
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
@@ -636,17 +661,9 @@ public class PathFind extends JFrame {
 
             @Override
             public void contentsChanged(ListDataEvent e) {
-                saveSelections();
+                saveAndLoadAnnotations();
             }
         });
-        psv.revalidate();
-        psv.repaint();
-    }
-
-    private SelectionListModel loadAnnotations(String quickhash1)
-            throws SQLException {
-        SelectionListModel slm = sqlInterface.getAnnotations(quickhash1);
-        return slm;
     }
 
     void setResult(Icon result, String title) {
@@ -667,9 +684,19 @@ public class PathFind extends JFrame {
                 if (selection != -1) {
                     StringTemplate hover = new StringTemplate(
                             regionHoverTemplate);
-                    hover
-                            .setAttributes(ssModel.get(selection)
-                                    .getAnnotations());
+
+                    // TODO show all notes, not just last
+                    Annotation ann = ssModel.get(selection);
+                    if (ann instanceof SlideAnnotation) {
+                        SlideAnnotation sa = (SlideAnnotation) ann;
+
+                        List<SlideAnnotationNote> list = sa.getNotes();
+                        if (!list.isEmpty()) {
+                            list.get(list.size() - 1)
+                                    .populateStringTemplateAttributes(hover);
+                        }
+                    }
+
                     setHover(wv, hover.toString());
                 } else {
                     setHover(wv, null);
@@ -689,50 +716,55 @@ public class PathFind extends JFrame {
     }
 
     public static void main(String[] args) {
-        if (args.length != 8 && args.length != 9) {
+        if (args.length != 5 && args.length != 6) {
             System.out
                     .println("usage: "
                             + PathFind.class.getName()
-                            + " ij_dir extra_plugins_dir jre_dir sql_host sql_username sql_password sql_database interface_map");
+                            + " ij_dir extra_plugins_dir jre_dir interface_map annotation_uri");
             return;
         }
 
         final String ijDir = args[0];
         final String extraPluginsDir = args[1];
         final String jreDir = args[2];
-        final String sqlHost = args[3];
-        final String sqlUsername = args[4];
-        final String sqlPassword = args[5];
-        final String sqlDatabase = args[6];
-        final String interfaceMap = args[7];
+        final String interfaceMap = args[3];
+        final String annotationUri = args[4];
 
         final File slide;
-        if (args.length == 9) {
-            slide = new File(args[8]);
+        if (args.length == 6) {
+            slide = new File(args[5]);
         } else {
             slide = null;
+        }
+
+        final AnnotationStore annotationStore;
+        if (false) {
+            // annotationStore = new SQLAnnotationStore(sqlHost, sqlUsername,
+            // sqlPassword, sqlDatabase);
+        } else {
+
+            annotationStore = new DjangoAnnotationStore(new HttpClient(),
+                    annotationUri);
         }
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 try {
-                    new PathFind(ijDir, extraPluginsDir, jreDir, sqlHost,
-                            sqlUsername, sqlPassword, sqlDatabase,
-                            interfaceMap, slide, false);
+                    new PathFind(ijDir, extraPluginsDir, jreDir,
+                            annotationStore, interfaceMap, slide, false);
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(null, e, "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
     }
 
-    public BufferedImage getSelectionAsImage() throws IOException {
-        Annotation a = (Annotation) savedSelections.getSelectedValue();
+    BufferedImage getSelectionAsImage() throws IOException {
+        SlideAnnotation a = (SlideAnnotation) savedSelections
+                .getSelectedValue();
         if (a == null) {
             return null;
         }
