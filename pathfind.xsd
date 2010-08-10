@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+            jxb:version="2.0">
+
+<xsd:element name="regions" type="RegionList"/>
+
+<xsd:complexType name="RegionList">
+  <xsd:sequence>
+    <xsd:element name="region" type="Region"
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:anyAttribute processContents="lax"/>
+</xsd:complexType>
+
+<xsd:complexType name="Region">
+  <xsd:sequence>
+    <xsd:element name="path" type="xsd:string"/>
+    <xsd:element name="notes" type="NoteList"
+		 minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:int"/>
+  <xsd:attribute name="created" type="xsd:dateTime"/>
+  <xsd:attribute name="creator" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="NoteList">
+  <xsd:sequence>
+    <xsd:element name="note" type="Note"
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="Note">
+  <xsd:sequence>
+    <xsd:element name="text" type="xsd:string"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:int"/>
+  <xsd:attribute name="created" type="xsd:dateTime"/>
+  <xsd:attribute name="creator" type="xsd:string"/>
+</xsd:complexType>
+
+</xsd:schema>

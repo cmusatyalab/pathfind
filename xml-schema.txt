@@ -1,0 +1,1 @@
+xjc -d src -p edu.cmu.cs.diamond.pathfind.annotations https://kohinoor.diamond.cs.cmu.edu/algum/static/xs/pathfind.xsd
