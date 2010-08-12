@@ -152,7 +152,8 @@ public class DjangoAnnotationStore implements AnnotationStore {
             System.out.println(header);
             String scheme = AuthChallengeParser
                     .extractScheme(header.getValue());
-            Map params = AuthChallengeParser.extractParams(header.getValue());
+            Map<?, ?> params = AuthChallengeParser.extractParams(header
+                    .getValue());
 
             if (!scheme.equals("login")) {
                 throw new IOException(
