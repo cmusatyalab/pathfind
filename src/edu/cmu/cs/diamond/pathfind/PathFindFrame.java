@@ -61,7 +61,6 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
 import org.antlr.stringtemplate.StringTemplate;
-import org.apache.commons.httpclient.HttpClient;
 
 import edu.cmu.cs.diamond.opendiamond.*;
 import edu.cmu.cs.openslide.OpenSlide;
@@ -69,7 +68,7 @@ import edu.cmu.cs.openslide.gui.Annotation;
 import edu.cmu.cs.openslide.gui.OpenSlideView;
 import edu.cmu.cs.openslide.gui.SelectionListModel;
 
-public class PathFind extends JFrame {
+public class PathFindFrame extends JFrame {
 
     private class OpenCaseAction extends AbstractAction {
         public OpenCaseAction() {
@@ -78,7 +77,7 @@ public class PathFind extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            int returnVal = jfc.showDialog(PathFind.this, "Open");
+            int returnVal = jfc.showDialog(PathFindFrame.this, "Open");
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File slide = jfc.getSelectedFile();
                 try {
@@ -113,7 +112,7 @@ public class PathFind extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            String enteredName = JOptionPane.showInputDialog(PathFind.this,
+            String enteredName = JOptionPane.showInputDialog(PathFindFrame.this,
                     "Enter the name of the new macro:");
             if (enteredName == null) {
                 return;
@@ -179,7 +178,7 @@ public class PathFind extends JFrame {
 
     private final SecondWindow secondWindow;
 
-    public PathFind(String ijDir, String extraPluginsDir, String jreDir,
+    public PathFindFrame(String ijDir, String extraPluginsDir, String jreDir,
             AnnotationStore annotationStore, String interfaceMap, File slide,
             boolean twoWindowMode) throws IOException {
         super("PathFind");
@@ -334,7 +333,7 @@ public class PathFind extends JFrame {
                 }
 
                 final String newText = JOptionPane.showInputDialog(
-                        PathFind.this, "Enter text:", oldText);
+                        PathFindFrame.this, "Enter text:", oldText);
 
                 if ((newText != null) && (!newText.equals(oldText))) {
                     int index = savedSelections.getSelectedIndex();
@@ -502,7 +501,7 @@ public class PathFind extends JFrame {
     void createNewMacro(File newFile) throws IOException {
         // create a blank file if it doesn't exist
         if (!newFile.createNewFile()) {
-            JOptionPane.showMessageDialog(PathFind.this, "Macro “"
+            JOptionPane.showMessageDialog(PathFindFrame.this, "Macro “"
                     + newFile.getName() + "” already exists.");
         }
     }
@@ -713,53 +712,6 @@ public class PathFind extends JFrame {
         } else {
             wv.setToolTipText(hover);
         }
-    }
-
-    public static void main(String[] args) {
-        if (args.length != 5 && args.length != 6) {
-            System.out
-                    .println("usage: "
-                            + PathFind.class.getName()
-                            + " ij_dir extra_plugins_dir jre_dir interface_map annotation_uri");
-            return;
-        }
-
-        final String ijDir = args[0];
-        final String extraPluginsDir = args[1];
-        final String jreDir = args[2];
-        final String interfaceMap = args[3];
-        final String annotationUri = args[4];
-
-        final File slide;
-        if (args.length == 6) {
-            slide = new File(args[5]);
-        } else {
-            slide = null;
-        }
-
-        final AnnotationStore annotationStore;
-        if (false) {
-            // annotationStore = new SQLAnnotationStore(sqlHost, sqlUsername,
-            // sqlPassword, sqlDatabase);
-        } else {
-
-            annotationStore = new DjangoAnnotationStore(new HttpClient(),
-                    annotationUri);
-        }
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    new PathFind(ijDir, extraPluginsDir, jreDir,
-                            annotationStore, interfaceMap, slide, false);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(null, e, "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
     }
 
     BufferedImage getSelectionAsImage() throws IOException {

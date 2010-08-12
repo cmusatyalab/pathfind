@@ -49,7 +49,7 @@ import edu.cmu.cs.openslide.gui.Annotation;
 import edu.cmu.cs.openslide.gui.DefaultSelectionListModel;
 import edu.cmu.cs.openslide.gui.SelectionListModel;
 
-class SQLAnnotationStore implements AnnotationStore {
+public class SQLAnnotationStore implements AnnotationStore {
 
     final private Connection conn;
 

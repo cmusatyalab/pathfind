@@ -38,17 +38,59 @@
  *  which carries forward this exception.
  */
 
-package edu.cmu.cs.diamond.pathfind;
+package edu.cmu.cs.diamond.pathfind.main;
 
+import java.io.File;
 import java.io.IOException;
 
-import edu.cmu.cs.openslide.gui.SelectionListModel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
-public interface AnnotationStore {
+import org.apache.commons.httpclient.HttpClient;
 
-    void saveAnnotations(String qh1, SelectionListModel ssModel)
-            throws IOException;
+import edu.cmu.cs.diamond.pathfind.AnnotationStore;
+import edu.cmu.cs.diamond.pathfind.DjangoAnnotationStore;
+import edu.cmu.cs.diamond.pathfind.PathFindFrame;
 
-    SelectionListModel getAnnotations(String quickhash1) throws IOException;
+public class PathFindDjango {
 
+    public static void main(String[] args) {
+        if (args.length != 5 && args.length != 6) {
+            System.out
+                    .println("usage: "
+                            + PathFindDjango.class.getName()
+                            + " ij_dir extra_plugins_dir jre_dir interface_map annotation_uri");
+            return;
+        }
+
+        final String ijDir = args[0];
+        final String extraPluginsDir = args[1];
+        final String jreDir = args[2];
+        final String interfaceMap = args[3];
+        final String annotationUri = args[4];
+
+        final File slide;
+        if (args.length == 6) {
+            slide = new File(args[5]);
+        } else {
+            slide = null;
+        }
+
+        final AnnotationStore annotationStore = new DjangoAnnotationStore(
+                new HttpClient(), annotationUri);
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new PathFindFrame(ijDir, extraPluginsDir, jreDir,
+                            annotationStore, interfaceMap, slide, false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(null, e, "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+    }
 }

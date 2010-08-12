@@ -71,7 +71,7 @@ public class SearchPanel extends JPanel {
 
     private SwingWorker<Object, edu.cmu.cs.diamond.pathfind.ResultIcon> workerFuture;
 
-    public SearchPanel(final PathFind pf) {
+    public SearchPanel(final PathFindFrame pf) {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("Search Results"));
 

@@ -76,7 +76,7 @@ public class DjangoAnnotationStore implements AnnotationStore {
 
     private final HttpClient httpClient;
 
-    DjangoAnnotationStore(HttpClient httpClient, String uriPrefix) {
+    public DjangoAnnotationStore(HttpClient httpClient, String uriPrefix) {
         if (uriPrefix.endsWith("/")) {
             this.uriPrefix = uriPrefix;
         } else {

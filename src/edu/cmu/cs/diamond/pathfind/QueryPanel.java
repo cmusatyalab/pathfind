@@ -173,7 +173,7 @@ public final class QueryPanel extends JPanel {
         }
     }
 
-    private final PathFind pf;
+    private final PathFindFrame pf;
 
     private final JComboBox macroComboBox;
 
@@ -197,7 +197,7 @@ public final class QueryPanel extends JPanel {
 
     private final File macrosDir;
 
-    public QueryPanel(PathFind pathFind, File ijDir, File macrosDir,
+    public QueryPanel(PathFindFrame pathFind, File ijDir, File macrosDir,
             File extraPluginsDir, File jreDir) {
         this.ijDir = ijDir;
         this.macrosDir = macrosDir;
