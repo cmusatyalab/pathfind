@@ -108,8 +108,7 @@ public class SQLAnnotationStore implements AnnotationStore {
 
             // add all
             for (Annotation a : ssModel) {
-                SlideAnnotation sa = (SlideAnnotation) a;
-                String path = SlideAnnotation.shapeToString(sa.getShape());
+                String path = SlideAnnotation.shapeToString(a.getShape());
 
                 // insert path
                 insertRoiStatement.setString(1, path);
@@ -120,20 +119,23 @@ public class SQLAnnotationStore implements AnnotationStore {
                 int roiID = keys.getInt(1);
 
                 // insert text, if not null
-                for (SlideAnnotationNote n : sa.getNotes()) {
-                    String text = n.getText();
-                    if (text != null) {
-                        insertAnnotationStatement.setInt(1, roiID);
-                        insertAnnotationStatement.setInt(2, 1);
-                        insertAnnotationStatement.setString(3, text);
-                        insertAnnotationStatement.execute();
+                if (a instanceof SlideAnnotation) {
+                    SlideAnnotation sa = (SlideAnnotation) a;
+                    for (SlideAnnotationNote n : sa.getNotes()) {
+                        String text = n.getText();
+                        if (text != null) {
+                            insertAnnotationStatement.setInt(1, roiID);
+                            insertAnnotationStatement.setInt(2, 1);
+                            insertAnnotationStatement.setString(3, text);
+                            insertAnnotationStatement.execute();
+                        }
                     }
-
-                    // tie it to the slide
-                    insertRoiSlideStatement.setString(1, qh1);
-                    insertRoiSlideStatement.setInt(2, roiID);
-                    insertRoiSlideStatement.execute();
                 }
+
+                // tie it to the slide
+                insertRoiSlideStatement.setString(1, qh1);
+                insertRoiSlideStatement.setInt(2, roiID);
+                insertRoiSlideStatement.execute();
             }
 
             conn.commit();
