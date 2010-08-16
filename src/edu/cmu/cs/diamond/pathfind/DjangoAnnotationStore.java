@@ -274,14 +274,16 @@ public class DjangoAnnotationStore implements AnnotationStore {
             PostMethod post = new PostMethod(u);
             try {
                 post.addRequestHeader("Referer", u);
-                NameValuePair params[] = { new NameValuePair("xml", sw
-                        .toString()) };
+                NameValuePair params[] = {
+                        new NameValuePair("xml", sw.toString()),
+                        new NameValuePair("csrfmiddlewaretoken", csrftoken) };
                 System.out.println(Arrays.toString(params));
                 post.setRequestBody(params);
 
                 int code = httpClient.executeMethod(post);
                 code = maybeAuthenticate(post, code);
 
+                System.out.println("post code: " + code);
                 System.out.println(post.getResponseBodyAsString());
             } finally {
                 post.releaseConnection();
