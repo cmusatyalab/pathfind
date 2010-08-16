@@ -76,6 +76,8 @@ public class DjangoAnnotationStore implements AnnotationStore {
 
     private final HttpClient httpClient;
 
+    private String csrftoken;
+
     public DjangoAnnotationStore(HttpClient httpClient, String uriPrefix) {
         if (uriPrefix.endsWith("/")) {
             this.uriPrefix = uriPrefix;
@@ -203,7 +205,6 @@ public class DjangoAnnotationStore implements AnnotationStore {
         }
 
         // get cookies
-        String csrftoken = null;
         Cookie[] cookies = httpClient.getState().getCookies();
         for (Cookie c : cookies) {
             System.out.println(c);
