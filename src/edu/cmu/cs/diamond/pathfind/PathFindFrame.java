@@ -546,7 +546,8 @@ public class PathFindFrame extends JFrame {
             in = new FileInputStream("/opt/snapfind/lib/fil_imagej_exec.so");
             FilterCode c = new FilterCode(in);
             List<String> dependencies = Collections.emptyList();
-            List<String> arguments = Arrays.asList(new String[] { macroName });
+            List<String> arguments = Arrays.asList(new String[] { Util
+                    .base64EncodeWithNull(macroName.getBytes("UTF-8")) });
             Filter imagej = new Filter("imagej", c, "f_eval_imagej_exec",
                     "f_init_imagej_exec", "f_fini_imagej_exec", threshold,
                     dependencies, arguments, macroBlob);
