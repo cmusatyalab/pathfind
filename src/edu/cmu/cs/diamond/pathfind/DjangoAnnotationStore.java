@@ -101,25 +101,27 @@ public class DjangoAnnotationStore implements AnnotationStore {
             GetMethod g = new GetMethod(u.toString());
             try {
                 InputStream in = getBody(g);
-                RegionList rl = JAXB.unmarshal(in, RegionList.class);
+                if (in != null) {
+                    RegionList rl = JAXB.unmarshal(in, RegionList.class);
 
-                // convert RegionList
-                for (Region r : rl.getRegion()) {
-                    Shape s = SlideAnnotation.stringToShape(r.getPath());
-                    Integer id = r.getId();
-                    String creator = r.getCreator();
+                    // convert RegionList
+                    for (Region r : rl.getRegion()) {
+                        Shape s = SlideAnnotation.stringToShape(r.getPath());
+                        Integer id = r.getId();
+                        String creator = r.getCreator();
 
-                    List<SlideAnnotationNote> notes = new ArrayList<SlideAnnotationNote>();
-                    for (Note n : r.getNotes().getNote()) {
-                        SlideAnnotationNote san = new SlideAnnotationNote(n
-                                .getCreator(), n.getId(), n.getText());
-                        notes.add(san);
+                        List<SlideAnnotationNote> notes = new ArrayList<SlideAnnotationNote>();
+                        for (Note n : r.getNotes().getNote()) {
+                            SlideAnnotationNote san = new SlideAnnotationNote(
+                                    n.getCreator(), n.getId(), n.getText());
+                            notes.add(san);
+                        }
+
+                        SlideAnnotation sa = new SlideAnnotation(s, id,
+                                creator, notes);
+                        System.out.println(sa);
+                        ssModel.add(sa);
                     }
-
-                    SlideAnnotation sa = new SlideAnnotation(s, id, creator,
-                            notes);
-                    System.out.println(sa);
-                    ssModel.add(sa);
                 }
             } finally {
                 g.releaseConnection();
@@ -136,8 +138,12 @@ public class DjangoAnnotationStore implements AnnotationStore {
 
         int code = httpClient.executeMethod(g);
         System.out.println(code);
-
         code = maybeAuthenticate(g, code);
+
+        if (code == 404) {
+            // not found
+            return null;
+        }
 
         System.out.println("code: " + code);
 
