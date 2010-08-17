@@ -274,7 +274,7 @@ public class DjangoAnnotationStore implements AnnotationStore {
         JAXB.marshal(new ObjectFactory().createRegions(rl), sw);
 
         try {
-            String u = new URI(uriPrefix + qh1 + "/", null, null).toString();
+            String u = new URI(uriPrefix + qh1 + "/").toString();
             System.out.println(u);
 
             PostMethod post = new PostMethod(u);
