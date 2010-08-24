@@ -158,7 +158,7 @@ public class PathFindFrame extends JFrame {
 
     private final PairedSlideView psv = new PairedSlideView();
 
-    private CookieMap cookieMap;
+    private CookieMap cookieMap = CookieMap.emptyCookieMap();
 
     private final JFileChooser jfc = new JFileChooser();
 
@@ -191,7 +191,12 @@ public class PathFindFrame extends JFrame {
         jfc.setAcceptAllFileFilterUsed(false);
         jfc.setFileFilter(OpenSlide.getFileFilter());
 
-        cookieMap = CookieMap.createDefaultCookieMap();
+        try {
+            cookieMap = CookieMap.createDefaultCookieMap();
+        } catch (IOException e) {
+            // non-fatal if the scope has not yet been generated
+            e.printStackTrace();
+        }
 
         // slides in middle
         add(psv);
