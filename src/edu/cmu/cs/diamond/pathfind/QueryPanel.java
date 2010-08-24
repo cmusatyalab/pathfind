@@ -132,6 +132,7 @@ public final class QueryPanel extends JPanel {
                 processArgs.addAll(Arrays.asList(ijCmd));
                 processArgs.add("-batch");
                 processArgs.add(macroName);
+                // XXX should the image come before -batch ?
                 processArgs.add(imgFile.getPath());
                 ProcessBuilder pb = new ProcessBuilder(processArgs);
                 pb.directory(ijDir);
