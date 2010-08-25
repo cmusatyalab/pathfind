@@ -130,10 +130,9 @@ public final class QueryPanel extends JPanel {
                 // run macro
                 List<String> processArgs = new ArrayList<String>();
                 processArgs.addAll(Arrays.asList(ijCmd));
+                processArgs.add(imgFile.getPath());
                 processArgs.add("-batch");
                 processArgs.add(macroName);
-                // XXX should the image come before -batch ?
-                processArgs.add(imgFile.getPath());
                 ProcessBuilder pb = new ProcessBuilder(processArgs);
                 pb.directory(ijDir);
                 System.out.println(processArgs);
@@ -232,9 +231,7 @@ public final class QueryPanel extends JPanel {
                         value, index, isSelected, cellHasFocus);
 
                 if (value != null) {
-                    String name = ((File) value).getName().replaceAll("\\.js$",
-                            "");
-                    r.setText(name);
+                    r.setText(((File) value).getName());
                 }
 
                 return r;
@@ -345,7 +342,9 @@ public final class QueryPanel extends JPanel {
         File[] files = macrosDir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".js");
+                String lc = name.toLowerCase();
+                return lc.endsWith(".js") || lc.endsWith(".txt")
+                        || lc.endsWith(".ijm");
             }
         });
 
