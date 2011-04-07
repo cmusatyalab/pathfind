@@ -548,14 +548,13 @@ public class PathFindFrame extends JFrame {
 
         // imagej
         try {
-            in = new FileInputStream("/opt/snapfind/lib/fil_imagej_exec.so");
+            in = new FileInputStream("/opt/snapfind/lib/fil_imagej_exec");
             FilterCode c = new FilterCode(in);
             List<String> dependencies = Collections.emptyList();
             List<String> arguments = Arrays.asList(new String[] { Util
                     .base64EncodeWithNull(macroName.getBytes("UTF-8")) });
-            Filter imagej = new Filter("imagej", c, "f_eval_imagej_exec",
-                    "f_init_imagej_exec", "f_fini_imagej_exec", threshold,
-                    dependencies, arguments, macroBlob);
+            Filter imagej = new Filter("imagej", c, threshold, dependencies,
+                    arguments, macroBlob);
             filters.add(imagej);
         } finally {
             try {
@@ -565,13 +564,11 @@ public class PathFindFrame extends JFrame {
         }
 
         try {
-            in = new FileInputStream("/opt/snapfind/lib/fil_rgb.so");
+            in = new FileInputStream("/opt/snapfind/lib/fil_rgb");
             FilterCode c = new FilterCode(in);
             List<String> dependencies = Collections.emptyList();
             List<String> arguments = Collections.emptyList();
-            Filter rgb = new Filter("RGB", c, "f_eval_img2rgb",
-                    "f_init_img2rgb", "f_fini_img2rgb", 1, dependencies,
-                    arguments);
+            Filter rgb = new Filter("RGB", c, 1, dependencies, arguments);
             filters.add(rgb);
         } finally {
             try {
@@ -581,14 +578,13 @@ public class PathFindFrame extends JFrame {
         }
 
         try {
-            in = new FileInputStream("/opt/snapfind/lib/fil_thumb.so");
+            in = new FileInputStream("/opt/snapfind/lib/fil_thumb");
             FilterCode c = new FilterCode(in);
             List<String> dependencies = Arrays.asList(new String[] { "RGB" });
             List<String> arguments = Arrays
                     .asList(new String[] { "200", "150" });
-            Filter thumb = new Filter("thumbnail", c, "f_eval_thumbnailer",
-                    "f_init_thumbnailer", "f_fini_thumbnailer", 1,
-                    dependencies, arguments, macroBlob);
+            Filter thumb = new Filter("thumbnail", c, 1, dependencies,
+                    arguments, macroBlob);
             filters.add(thumb);
         } finally {
             try {
