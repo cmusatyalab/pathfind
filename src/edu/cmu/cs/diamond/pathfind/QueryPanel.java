@@ -54,6 +54,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.*;
 
@@ -364,15 +366,32 @@ public final class QueryPanel extends JPanel {
         updateResultField();
     }
 
+    private void encodeResource(ZipOutputStream zos, File file) throws
+            IOException {
+        zos.putNextEntry(new ZipEntry(file.getName()));
+        // stream data into the archive
+        FileInputStream fis = new FileInputStream(file);
+        byte bb[] = new byte[4096];
+        int amount;
+        while ((amount = fis.read(bb)) != -1) {
+            zos.write(bb, 0, amount);
+        }
+        fis.close();
+    }
+
     private void runRemoteMacro(String macroName) throws InterruptedException,
             IOException {
-        File mm = new File(QueryPanel.this.ijDir + "/macros", macroName);
-        byte blob1[] = Util.quickTar(extraPluginsDir);
-        byte blob2[] = Util.quickTar(new File[] { mm });
-        byte macroBlob[] = new byte[blob1.length + blob2.length];
-        System.arraycopy(blob1, 0, macroBlob, 0, blob1.length);
-        System.arraycopy(blob2, 0, macroBlob, blob1.length, blob2.length);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(baos);
+        File macro = new File(QueryPanel.this.ijDir + "/macros", macroName);
+        encodeResource(zos, macro);
+        for (File file : extraPluginsDir.listFiles()) {
+            if (!file.getName().equals(macro.getName())) {
+                encodeResource(zos, file);
+            }
+        }
+        zos.close();
         pf.startSearch((int) ((Number) threshold.getValue()).doubleValue(),
-                macroBlob, macroName);
+                baos.toByteArray(), macroName);
     }
 }
