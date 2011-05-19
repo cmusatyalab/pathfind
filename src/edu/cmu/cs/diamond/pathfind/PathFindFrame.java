@@ -477,8 +477,7 @@ public class PathFindFrame extends JFrame {
         }
 
         // make a new factory
-        SearchFactory factory = new SearchFactory(filters, Arrays
-                .asList(new String[] { "RGB" }), cookieMap);
+        SearchFactory factory = new SearchFactory(filters, cookieMap);
         return factory;
     }
 
