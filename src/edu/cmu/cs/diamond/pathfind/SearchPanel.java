@@ -81,7 +81,7 @@ public class SearchPanel extends JPanel {
         list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         list.setVisibleRowCount(1);
 
-        setPreferredSize(new Dimension(100, 280));
+        setPreferredSize(new Dimension(200, 200));
 
         add(new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
