@@ -667,8 +667,19 @@ public class PathFindFrame extends JFrame {
         });
     }
 
-    void setResult(Icon result, String title) {
-        psv.setResult(result);
+    void setResult(OpenSlide slide, String title, Shape shape) {
+        final OpenSlideView wv = createNewView(slide, title, false);
+        wv.addSelection(shape);
+
+        psv.setResult(wv);
+        psv.revalidate();
+        psv.repaint();
+    }
+
+    void clearResult() {
+        psv.setResult(null);
+        psv.revalidate();
+        psv.repaint();
     }
 
     private OpenSlideView createNewView(OpenSlide openslide, String title,

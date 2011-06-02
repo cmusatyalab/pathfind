@@ -46,10 +46,12 @@ import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.awt.Shape;
+import java.awt.geom.*;
+import java.io.*;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -61,6 +63,8 @@ import edu.cmu.cs.diamond.opendiamond.ObjectIdentifier;
 import edu.cmu.cs.diamond.opendiamond.Result;
 import edu.cmu.cs.diamond.opendiamond.Search;
 import edu.cmu.cs.diamond.opendiamond.SearchFactory;
+import edu.cmu.cs.diamond.opendiamond.Util;
+import edu.cmu.cs.openslide.OpenSlide;
 
 public class SearchPanel extends JPanel {
     final protected JList list;
@@ -91,12 +95,13 @@ public class SearchPanel extends JPanel {
                 ResultIcon r = (ResultIcon) list.getSelectedValue();
 
                 if (r == null) {
-                    pf.setResult(null, null);
+                    pf.clearResult();
                 } else {
                     // reexecute
                     ObjectIdentifier id = r.getObjectIdentifier();
                     Set<String> attributes = new HashSet<String>();
-                    attributes.add("");
+                    attributes.add("openslide.quickhash-1");
+                    attributes.add("tile-bounds");
 
                     Cursor oldCursor = pf.getCursor();
                     try {
@@ -105,14 +110,28 @@ public class SearchPanel extends JPanel {
                         Result newR = searchFactory.generateResult(id,
                                 attributes);
 
-                        ByteArrayInputStream in = new ByteArrayInputStream(newR
-                                .getData());
-                        BufferedImage img = ImageIO.read(in);
-                        if (img == null) {
-                            img = new BufferedImage(400, 400,
-                                    BufferedImage.TYPE_INT_RGB);
-                        }
-                        pf.setResult(new ImageIcon(img), "Search Result");
+                        String quickhash1 = Util.extractString(newR.getValue("openslide.quickhash-1"));
+                        File library = new File("/opt/library/");
+                        File slide = new File(library, quickhash1);
+                        OpenSlide openslide = new OpenSlide(slide);
+
+                        long width = openslide.getLayer0Width();
+
+                        String bounds = Util.extractString(newR.getValue("tile-bounds"));
+                        Scanner sc = new Scanner(bounds);
+                        Double xmin = sc.nextDouble() * width;
+                        Double ymin = sc.nextDouble() * width;
+                        Double xmax = sc.nextDouble() * width;
+                        Double ymax = sc.nextDouble() * width;
+
+                        Path2D p = new Path2D.Double();
+                        p.moveTo(xmin, ymin);
+                        p.lineTo(xmin, ymax);
+                        p.lineTo(xmax, ymax);
+                        p.lineTo(xmax, ymin);
+                        p.closePath();
+
+                        pf.setResult(openslide, quickhash1, p);
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     } finally {

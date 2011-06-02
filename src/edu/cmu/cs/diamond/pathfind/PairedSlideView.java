@@ -43,22 +43,16 @@ package edu.cmu.cs.diamond.pathfind;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 
-import javax.swing.Icon;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 import edu.cmu.cs.openslide.gui.OpenSlideView;
 
 public class PairedSlideView extends JPanel {
 
     private OpenSlideView slide;
+    private OpenSlideView result;
 
     private final JPanel slideViews;
-
-    private final JLabel resultLabel = new JLabel();
-
-    private final JScrollPane scrollPane = new JScrollPane(resultLabel);
 
     public PairedSlideView() {
         setLayout(new BorderLayout());
@@ -83,14 +77,16 @@ public class PairedSlideView extends JPanel {
         slideViews.add(slide, 0);
     }
 
-    public void setResult(Icon image) {
-        slideViews.remove(scrollPane);
-        resultLabel.setIcon(image);
-        if (image != null) {
-            slideViews.add(scrollPane, 1);
+    public void setResult(OpenSlideView wv) {
+        if (result != null) {
+            result.getOpenSlide().dispose();
+            slideViews.remove(result);
         }
 
-        slideViews.revalidate();
-        slideViews.repaint();
+        result = wv;
+
+        if (result != null) {
+                slideViews.add(result, 1);
+        }
     }
 }
