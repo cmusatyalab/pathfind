@@ -368,7 +368,11 @@ public final class QueryPanel extends JPanel {
 
     private void encodeResource(ZipOutputStream zos, File file) throws
             IOException {
-        zos.putNextEntry(new ZipEntry(file.getName()));
+        ZipEntry ze = new ZipEntry(file.getName());
+        // gratuitously storing different timestamps on every run would
+        // defeat server-side result caching
+        ze.setTime(0);
+        zos.putNextEntry(ze);
         // stream data into the archive
         FileInputStream fis = new FileInputStream(file);
         byte bb[] = new byte[4096];
