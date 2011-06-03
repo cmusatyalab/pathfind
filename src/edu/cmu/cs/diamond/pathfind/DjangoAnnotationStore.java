@@ -227,7 +227,7 @@ public class DjangoAnnotationStore implements AnnotationStore {
             NameValuePair params[] = { new NameValuePair("username", username),
                     new NameValuePair("password", password),
                     new NameValuePair("csrfmiddlewaretoken", csrftoken) };
-            System.out.println(Arrays.toString(params));
+            //System.out.println(Arrays.toString(params));
             post.setRequestBody(params);
             httpClient.executeMethod(post);
             System.out.println(post.getResponseBodyAsString());
