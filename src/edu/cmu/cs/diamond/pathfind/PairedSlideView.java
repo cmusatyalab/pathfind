@@ -42,8 +42,10 @@ package edu.cmu.cs.diamond.pathfind;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.event.*;
 
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 
 import edu.cmu.cs.openslide.gui.OpenSlideView;
 
@@ -53,6 +55,7 @@ public class PairedSlideView extends JPanel {
     private OpenSlideView result;
 
     private final JPanel slideViews;
+    private final JToggleButton linker;
 
     public PairedSlideView() {
         setLayout(new BorderLayout());
@@ -60,6 +63,20 @@ public class PairedSlideView extends JPanel {
         // main view in center
         slideViews = new JPanel(new GridLayout(1, 2));
         add(slideViews);
+
+        linker = new JToggleButton("Link");
+        linker.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                switch (e.getStateChange()) {
+                case ItemEvent.SELECTED:
+                    slide.linkWithOther(result);
+                    break;
+                case ItemEvent.DESELECTED:
+                    slide.unlinkOther();
+                    break;
+                }
+            }
+        });
     }
 
     public OpenSlideView getSlide() {
@@ -81,12 +98,16 @@ public class PairedSlideView extends JPanel {
         if (result != null) {
             result.getOpenSlide().dispose();
             slideViews.remove(result);
+
+            remove(linker);
+            linker.setSelected(false);
         }
 
         result = wv;
 
         if (result != null) {
-                slideViews.add(result, 1);
+            slideViews.add(result, 1);
+            add(linker, BorderLayout.SOUTH);
         }
     }
 }
