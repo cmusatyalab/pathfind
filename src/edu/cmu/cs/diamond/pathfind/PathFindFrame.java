@@ -533,7 +533,12 @@ public class PathFindFrame extends JFrame {
 
         SearchFactory factory = createFactory(threshold, macroBlob, macroName);
 
-        searchPanel.beginSearch(factory.createSearch(null), factory);
+        Set<String> attributes = new HashSet<String>();
+        attributes.add("thumbnail.jpeg");
+        attributes.add("openslide.quickhash-1");
+        attributes.add("algum.tile-bounds");
+
+        searchPanel.beginSearch(factory.createSearch(attributes));
     }
 
     public void stopSearch() throws InterruptedException {

@@ -40,10 +40,14 @@
 
 package edu.cmu.cs.diamond.pathfind;
 
+import java.awt.geom.Path2D;
+import java.util.Scanner;
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import edu.cmu.cs.diamond.opendiamond.ObjectIdentifier;
+import edu.cmu.cs.diamond.opendiamond.Util;
 
 public class ResultIcon {
 
@@ -51,9 +55,15 @@ public class ResultIcon {
 
     private final ObjectIdentifier identifier;
 
-    public ResultIcon(ImageIcon icon, ObjectIdentifier identifier) {
+    private final byte[] quickhash1;
+    private final byte[] tilebounds;
+
+    public ResultIcon(ImageIcon icon, ObjectIdentifier identifier,
+                      byte[] quickhash1, byte[] tilebounds) {
         this.icon = icon;
         this.identifier = identifier;
+        this.quickhash1 = quickhash1;
+        this.tilebounds = tilebounds;
     }
 
     public Icon getIcon() {
@@ -62,5 +72,27 @@ public class ResultIcon {
 
     public ObjectIdentifier getObjectIdentifier() {
         return identifier;
+    }
+
+    public String getQuickHash1() {
+        return Util.extractString(quickhash1);
+    }
+
+    public Path2D getTileBounds(long width) {
+        String bounds = Util.extractString(tilebounds);
+
+        Scanner sc = new Scanner(bounds);
+        Double xmin = sc.nextDouble() * width;
+        Double ymin = sc.nextDouble() * width;
+        Double xmax = sc.nextDouble() * width;
+        Double ymax = sc.nextDouble() * width;
+
+        Path2D p = new Path2D.Double();
+        p.moveTo(xmin, ymin);
+        p.lineTo(xmin, ymax);
+        p.lineTo(xmax, ymax);
+        p.lineTo(xmax, ymin);
+        p.closePath();
+        return p;
     }
 }

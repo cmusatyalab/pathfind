@@ -46,12 +46,10 @@ import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.awt.Shape;
-import java.awt.geom.*;
+import java.awt.geom.Path2D;
 import java.io.*;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -62,16 +60,12 @@ import javax.swing.event.ListSelectionListener;
 import edu.cmu.cs.diamond.opendiamond.ObjectIdentifier;
 import edu.cmu.cs.diamond.opendiamond.Result;
 import edu.cmu.cs.diamond.opendiamond.Search;
-import edu.cmu.cs.diamond.opendiamond.SearchFactory;
-import edu.cmu.cs.diamond.opendiamond.Util;
 import edu.cmu.cs.openslide.OpenSlide;
 
 public class SearchPanel extends JPanel {
     final protected JList list;
 
     private Search theSearch;
-
-    private SearchFactory searchFactory;
 
     private SwingWorker<Object, edu.cmu.cs.diamond.pathfind.ResultIcon> workerFuture;
 
@@ -97,41 +91,21 @@ public class SearchPanel extends JPanel {
                 if (r == null) {
                     pf.clearResult();
                 } else {
-                    // reexecute
-                    ObjectIdentifier id = r.getObjectIdentifier();
-                    Set<String> attributes = new HashSet<String>();
-                    attributes.add("openslide.quickhash-1");
-                    attributes.add("tile-bounds");
-
                     Cursor oldCursor = pf.getCursor();
                     try {
                         pf.setCursor(Cursor
                                 .getPredefinedCursor(Cursor.WAIT_CURSOR));
-                        Result newR = searchFactory.generateResult(id,
-                                attributes);
 
-                        String quickhash1 = Util.extractString(newR.getValue("openslide.quickhash-1"));
+                        String quickhash1 = r.getQuickHash1();
+
                         File library = new File("/opt/library/");
-                        File slide = new File(library, quickhash1);
-                        OpenSlide openslide = new OpenSlide(slide);
+                        File slidefile = new File(library, quickhash1);
+                        OpenSlide slide = new OpenSlide(slidefile);
 
-                        long width = openslide.getLayer0Width();
+                        long width = slide.getLayer0Width();
+                        Path2D tile = r.getTileBounds(width);
 
-                        String bounds = Util.extractString(newR.getValue("tile-bounds"));
-                        Scanner sc = new Scanner(bounds);
-                        Double xmin = sc.nextDouble() * width;
-                        Double ymin = sc.nextDouble() * width;
-                        Double xmax = sc.nextDouble() * width;
-                        Double ymax = sc.nextDouble() * width;
-
-                        Path2D p = new Path2D.Double();
-                        p.moveTo(xmin, ymin);
-                        p.lineTo(xmin, ymax);
-                        p.lineTo(xmax, ymax);
-                        p.lineTo(xmax, ymin);
-                        p.closePath();
-
-                        pf.setResult(openslide, quickhash1, p);
+                        pf.setResult(slide, quickhash1, tile);
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     } finally {
@@ -173,14 +147,13 @@ public class SearchPanel extends JPanel {
         }
     }
 
-    void beginSearch(final Search s, SearchFactory sf)
+    void beginSearch(final Search s)
             throws InterruptedException {
         if (theSearch != null) {
             theSearch.close();
         }
 
         theSearch = s;
-        searchFactory = sf;
 
         final DefaultListModel model = new DefaultListModel();
         list.setModel(model);
@@ -214,9 +187,13 @@ public class SearchPanel extends JPanel {
                                         BufferedImage.TYPE_INT_RGB);
                             }
 
+                            byte[] quickhash1 = r.getValue("openslide.quickhash-1");
+                            byte[] tilebounds = r.getValue("algum.tile-bounds");
+
                             final ResultIcon resultIcon = new ResultIcon(
-                                    new ImageIcon(thumb), r
-                                            .getObjectIdentifier());
+                                    new ImageIcon(thumb),
+                                    r.getObjectIdentifier(),
+                                    quickhash1, tilebounds);
 
                             publish(resultIcon);
                         }
