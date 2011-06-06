@@ -154,7 +154,13 @@ public final class QueryPanel extends JPanel {
                     String sr = sb.toString();
                     System.out.println(sr);
                     String srr[] = sr.split("\n");
-                    result = Double.parseDouble(srr[2]);
+
+                    result = 0.0;
+                    for (int i = 0; i < srr.length; i++) {
+                        if (srr[i].equals("RESULT")) {
+                            result = Double.parseDouble(srr[i+2]);
+                        }
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
