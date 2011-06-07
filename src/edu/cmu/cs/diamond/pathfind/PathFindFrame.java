@@ -179,8 +179,9 @@ public class PathFindFrame extends JFrame {
     private final SecondWindow secondWindow;
 
     public PathFindFrame(String ijDir, String extraPluginsDir, String jreDir,
-            AnnotationStore annotationStore, String interfaceMap, File slide,
-            boolean twoWindowMode) throws IOException {
+            AnnotationStore annotationStore, String interfaceMap,
+            String slideMap,File slide, boolean twoWindowMode)
+                throws IOException {
         super("PathFind");
         setSize(1000, 750);
         setMinimumSize(new Dimension(1000, 500));
@@ -211,7 +212,7 @@ public class PathFindFrame extends JFrame {
         setJMenuBar(createMenuBar());
 
         // search results at top
-        searchPanel = new SearchPanel(this);
+        searchPanel = new SearchPanel(this, slideMap);
         searchPanel.setVisible(false);
         add(searchPanel, BorderLayout.NORTH);
 

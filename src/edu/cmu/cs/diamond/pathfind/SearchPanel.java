@@ -49,8 +49,12 @@ import java.awt.image.BufferedImage;
 import java.awt.geom.Path2D;
 import java.io.*;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.MatchResult;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -64,14 +68,35 @@ import edu.cmu.cs.openslide.OpenSlide;
 
 public class SearchPanel extends JPanel {
     final protected JList list;
+    final private Map<String,String> slideHashMap;
 
     private Search theSearch;
 
     private SwingWorker<Object, edu.cmu.cs.diamond.pathfind.ResultIcon> workerFuture;
 
-    public SearchPanel(final PathFindFrame pf) {
+    public SearchPanel(final PathFindFrame pf, String slideMap) {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("Search Results"));
+
+        // Load quickhash1 to slide mappings
+        slideHashMap = new HashMap<String,String>();
+        try {
+            Scanner s = new Scanner(new FileInputStream(slideMap));
+            System.out.println("Parsing " + slideMap);
+            while (s.hasNext()) {
+                // parse md5sum/sha1sum/openslide-quickhash1sum (sha256) output
+                if (s.findInLine("(\\w{32,64}) [ *](.+)") != null) {
+                    MatchResult result = s.match();
+                    String hash = result.group(1);
+                    String file = result.group(2);
+                    slideHashMap.put(hash, file);
+                }
+                s.nextLine();
+            }
+            s.close();
+        } catch (IOException ignore) {
+            System.out.println("Failed to parse " + slideMap);
+        }
 
         list = new JList();
         list.setCellRenderer(new SearchPanelCellRenderer());
@@ -97,15 +122,14 @@ public class SearchPanel extends JPanel {
                                 .getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                         String quickhash1 = r.getQuickHash1();
+                        String slidefile = slideHashMap.get(quickhash1);
 
-                        File library = new File("/opt/library/");
-                        File slidefile = new File(library, quickhash1);
-                        OpenSlide slide = new OpenSlide(slidefile);
+                        OpenSlide slide = new OpenSlide(new File(slidefile));
 
                         long width = slide.getLayer0Width();
                         Path2D tile = r.getTileBounds(width);
 
-                        pf.setResult(slide, quickhash1, tile);
+                        pf.setResult(slide, slidefile, tile);
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     } finally {

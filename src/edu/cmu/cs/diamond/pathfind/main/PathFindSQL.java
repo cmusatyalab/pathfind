@@ -55,7 +55,7 @@ public class PathFindSQL {
 
     public static void main(String[] args) throws ClassNotFoundException,
             SQLException {
-        if (args.length != 8 && args.length != 9) {
+        if (args.length != 9 && args.length != 10) {
             System.out
                     .println("usage: "
                             + PathFindDjango.class.getName()
@@ -67,14 +67,15 @@ public class PathFindSQL {
         final String extraPluginsDir = args[1];
         final String jreDir = args[2];
         final String interfaceMap = args[3];
-        final String sqlHost = args[4];
-        final String sqlUsername = args[5];
-        final String sqlPassword = args[6];
-        final String sqlDatabase = args[7];
+        final String slideMap = args[4];
+        final String sqlHost = args[5];
+        final String sqlUsername = args[6];
+        final String sqlPassword = args[7];
+        final String sqlDatabase = args[8];
 
         final File slide;
-        if (args.length == 9) {
-            slide = new File(args[8]);
+        if (args.length == 10) {
+            slide = new File(args[9]);
         } else {
             slide = null;
         }
@@ -87,7 +88,7 @@ public class PathFindSQL {
             public void run() {
                 try {
                     new PathFindFrame(ijDir, extraPluginsDir, jreDir,
-                            annotationStore, interfaceMap, slide, false);
+                        annotationStore, interfaceMap, slideMap, slide, false);
                 } catch (IOException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(null, e, "Error",
