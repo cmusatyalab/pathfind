@@ -201,8 +201,6 @@ public final class QueryPanel extends JPanel {
 
     private final File extraPluginsDir;
 
-    private final JButton editButton;
-
     private final File macrosDir;
 
     public QueryPanel(PathFindFrame pathFind, File ijDir, File macrosDir,
@@ -245,29 +243,7 @@ public final class QueryPanel extends JPanel {
                 return r;
             }
         });
-        macroComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                // edit button state
-                updateEditButtonEnabled();
-            }
-        });
         b.add(macroComboBox);
-
-        // edit
-        editButton = new JButton("Edit");
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                File f = (File) macroComboBox.getSelectedItem();
-                try {
-                    pf.editMacro(f);
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        });
-        b.add(editButton);
 
         b.add(Box.createHorizontalStrut(10));
 
@@ -336,12 +312,6 @@ public final class QueryPanel extends JPanel {
 
         b.add(Box.createHorizontalGlue());
         add(b);
-
-        updateEditButtonEnabled();
-    }
-
-    private void updateEditButtonEnabled() {
-        editButton.setEnabled(macroComboBox.getSelectedIndex() != -1);
     }
 
     void populateMacroListModel() {

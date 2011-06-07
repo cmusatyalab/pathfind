@@ -104,35 +104,6 @@ public class PathFindFrame extends JFrame {
         }
     }
 
-    private class CreateMacroAction extends AbstractAction {
-
-        public CreateMacroAction() {
-            super("New Macro...");
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String enteredName = JOptionPane.showInputDialog(PathFindFrame.this,
-                    "Enter the name of the new macro:");
-            if (enteredName == null) {
-                return;
-            }
-
-            String newName = enteredName + ".js";
-
-            try {
-                File newFile = new File(macrosDir, newName);
-                createNewMacro(newFile);
-                editMacro(newFile);
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-
-            qp.populateMacroListModel();
-        }
-    }
-
     private static class ExitAction extends AbstractAction {
         public ExitAction() {
             super("Exit");
@@ -419,99 +390,6 @@ public class PathFindFrame extends JFrame {
         setSlide(os, slide.getName());
     }
 
-    void editMacro(final File macro) throws IOException {
-        // read in macro
-        FileInputStream in = new FileInputStream(macro);
-        String text;
-        try {
-            text = new String(Util.readFully(in), "UTF-8");
-        } finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-            }
-        }
-
-        // editor
-        final JTextArea textArea = new JTextArea(text, 25, 80);
-        textArea.setEditable(true);
-        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-
-        JScrollPane textPane = new JScrollPane(textArea);
-        textPane
-                .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        textPane.setMinimumSize(new Dimension(10, 10));
-
-        // top panel
-        JPanel top = new JPanel();
-        top.setLayout(new FlowLayout());
-
-        // save
-        JButton saveButton = new JButton("Save");
-        top.add(saveButton);
-
-        // delete
-        JButton deleteButton = new JButton("Delete");
-        top.add(deleteButton);
-
-        // frame
-        final JFrame editorFrame = new JFrame(macro.getName());
-        editorFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        editorFrame.add(textPane);
-        editorFrame.add(top, BorderLayout.NORTH);
-        editorFrame.pack();
-        editorFrame.setVisible(true);
-
-        // actions
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (JOptionPane.showConfirmDialog(editorFrame,
-                        "Really delete macro “" + macro.getName() + "”?",
-                        "Confirm Deletion", JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
-                    editorFrame.dispose();
-                    macro.delete();
-                    qp.populateMacroListModel();
-                }
-            }
-        });
-
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String text = textArea.getText();
-                try {
-                    File tmp = File.createTempFile("pathfind", ".tmp",
-                            macrosDir);
-                    tmp.deleteOnExit();
-
-                    // write out
-                    FileWriter out = new FileWriter(tmp);
-                    try {
-                        out.write(text);
-                    } finally {
-                        try {
-                            out.close();
-                        } catch (IOException e1) {
-                        }
-                    }
-                    tmp.renameTo(macro);
-                    editorFrame.dispose();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        });
-    }
-
-    void createNewMacro(File newFile) throws IOException {
-        // create a blank file if it doesn't exist
-        if (!newFile.createNewFile()) {
-            JOptionPane.showMessageDialog(PathFindFrame.this, "Macro “"
-                    + newFile.getName() + "” already exists.");
-        }
-    }
-
     private JMenuBar createMenuBar() {
         JMenuBar mb = new JMenuBar();
 
@@ -520,7 +398,6 @@ public class PathFindFrame extends JFrame {
 
         m.add(new OpenCaseAction());
         m.add(new DefineScopeAction());
-        m.add(new CreateMacroAction());
 
         m.add(new JSeparator());
         m.add(new ExitAction());
