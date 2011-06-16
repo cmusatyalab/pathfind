@@ -277,7 +277,7 @@ public final class QueryPanel extends JPanel {
         // add search range
         b.add(new JLabel("Threshold: "));
         threshold = new JSpinner(new SpinnerNumberModel(0, 0,
-                Integer.MAX_VALUE, 1));
+                Integer.MAX_VALUE, 0.1));
         b.add(threshold);
         b.add(Box.createHorizontalStrut(10));
 
@@ -371,7 +371,7 @@ public final class QueryPanel extends JPanel {
             }
         }
         zos.close();
-        pf.startSearch((int) ((Number) threshold.getValue()).doubleValue(),
+        pf.startSearch(((Number) threshold.getValue()).doubleValue(),
                 baos.toByteArray(), macroName);
     }
 }

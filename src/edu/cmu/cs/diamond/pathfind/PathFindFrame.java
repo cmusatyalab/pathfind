@@ -405,8 +405,8 @@ public class PathFindFrame extends JFrame {
         return mb;
     }
 
-    public void startSearch(int threshold, byte[] macroBlob, String macroName)
-            throws IOException, InterruptedException {
+    public void startSearch(double threshold, byte[] macroBlob,
+            String macroName) throws IOException, InterruptedException {
         System.out.println("start search");
 
         SearchFactory factory = createFactory(threshold, macroBlob, macroName);
@@ -423,7 +423,7 @@ public class PathFindFrame extends JFrame {
         searchPanel.endSearch();
     }
 
-    private SearchFactory createFactory(int threshold, byte[] macroBlob,
+    private SearchFactory createFactory(double threshold, byte[] macroBlob,
             String macroName) throws IOException {
         List<Filter> filters = new ArrayList<Filter>();
 
