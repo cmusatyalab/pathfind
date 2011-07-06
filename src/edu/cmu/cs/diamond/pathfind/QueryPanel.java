@@ -50,6 +50,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.DecimalFormat;
@@ -61,6 +63,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import edu.cmu.cs.diamond.opendiamond.Util;
 
@@ -202,7 +206,13 @@ public final class QueryPanel extends JPanel {
 
     private final JButton stopButton;
 
-    private final JSpinner threshold;
+    private final JSpinner minScore;
+
+    private final JSpinner maxScore;
+
+    private final JCheckBox minScoreEnabled;
+
+    private final JCheckBox maxScoreEnabled;
 
     private final DefaultComboBoxModel macroListModel = new DefaultComboBoxModel();
 
@@ -304,14 +314,31 @@ public final class QueryPanel extends JPanel {
         add(b, c);
         b = new JPanel(new GridBagLayout());
 
-        // add search range
-        b.add(new JLabel("Threshold: "));
-        threshold = new JSpinner(new SpinnerNumberModel(0, 0,
+        // add min score
+        JLabel l = new JLabel("Minimum score: ");
+        b.add(l);
+        minScoreEnabled = new JCheckBox();
+        minScoreEnabled.setSelected(true);
+        b.add(minScoreEnabled);
+        minScore = new JSpinner(new SpinnerNumberModel(0, 0,
                 Integer.MAX_VALUE, 0.1));
         c = new GridBagConstraints();
         c.fill = GridBagConstraints.VERTICAL;
-        c.insets = new Insets(0, 0, 0, 10);
-        b.add(threshold, c);
+        c.insets = new Insets(0, 0, 0, 15);
+        b.add(minScore, c);
+        setGuardCheckBox(minScoreEnabled, l);
+
+        // add max score
+        l = new JLabel("Maximum score: ");
+        b.add(l);
+        maxScoreEnabled = new JCheckBox();
+        b.add(maxScoreEnabled);
+        maxScore = new JSpinner(new SpinnerNumberModel(0, 0,
+                Integer.MAX_VALUE, 0.1));
+        c = new GridBagConstraints();
+        c.fill = GridBagConstraints.VERTICAL;
+        b.add(maxScore, c);
+        setGuardCheckBox(maxScoreEnabled, l);
 
         // add space
         c = new GridBagConstraints();
@@ -372,6 +399,25 @@ public final class QueryPanel extends JPanel {
 
         // set widget enablement
         refresh();
+    }
+
+    private static boolean checkBoxSelected(JCheckBox checkBox) {
+        return checkBox.getSelectedObjects() != null;
+    }
+
+    private void setGuardCheckBox(final JCheckBox guard, final JLabel label) {
+        guard.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                refresh();
+            }
+        });
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                guard.doClick();
+            }
+        });
     }
 
     void populateMacroListModel() {
@@ -437,8 +483,13 @@ public final class QueryPanel extends JPanel {
             }
         }
         zos.close();
-        pf.startSearch(((Number) threshold.getValue()).doubleValue(),
-                baos.toByteArray(), macroName);
+        double min = checkBoxSelected(minScoreEnabled) ?
+                ((Number) minScore.getValue()).doubleValue() :
+                Double.NEGATIVE_INFINITY;
+        double max = checkBoxSelected(maxScoreEnabled) ?
+                ((Number) maxScore.getValue()).doubleValue() :
+                Double.POSITIVE_INFINITY;
+        pf.startSearch(min, max, baos.toByteArray(), macroName);
     }
 
     private void refresh() {
@@ -448,7 +499,10 @@ public final class QueryPanel extends JPanel {
         macroComboBox.setEnabled(!running);
         openCaseButton.setEnabled(!running);
         computeButton.setEnabled(!running);
-        threshold.setEnabled(!running);
+        minScore.setEnabled(!running && checkBoxSelected(minScoreEnabled));
+        maxScore.setEnabled(!running && checkBoxSelected(maxScoreEnabled));
+        minScoreEnabled.setEnabled(!running);
+        maxScoreEnabled.setEnabled(!running);
     }
 
     void setSearchRunning(boolean running) {

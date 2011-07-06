@@ -362,11 +362,12 @@ public class PathFindFrame extends JFrame {
         }
     }
 
-    public void startSearch(double threshold, byte[] macroBlob,
+    public void startSearch(double minScore, double maxScore, byte[] macroBlob,
             String macroName) throws IOException, InterruptedException {
         System.out.println("start search");
 
-        SearchFactory factory = createFactory(threshold, macroBlob, macroName);
+        SearchFactory factory = createFactory(minScore, maxScore, macroBlob,
+                macroName);
 
         Set<String> attributes = new HashSet<String>();
         attributes.add("thumbnail.jpeg");
@@ -380,8 +381,8 @@ public class PathFindFrame extends JFrame {
         searchPanel.endSearch();
     }
 
-    private SearchFactory createFactory(double threshold, byte[] macroBlob,
-            String macroName) throws IOException {
+    private SearchFactory createFactory(double minScore, double maxScore,
+            byte[] macroBlob, String macroName) throws IOException {
         List<Filter> filters = new ArrayList<Filter>();
 
         InputStream in = null;
@@ -393,8 +394,8 @@ public class PathFindFrame extends JFrame {
             List<String> dependencies = Collections.emptyList();
             List<String> arguments = Arrays.asList(new String[] { Util
                     .base64EncodeWithNull(macroName.getBytes("UTF-8")) });
-            Filter imagej = new Filter("imagej", c, threshold, dependencies,
-                    arguments, macroBlob);
+            Filter imagej = new Filter("imagej", c, minScore, maxScore,
+                    dependencies, arguments, macroBlob);
             filters.add(imagej);
         } finally {
             try {
