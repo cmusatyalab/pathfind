@@ -70,11 +70,16 @@ public class SearchPanel extends JPanel {
     final protected JList list;
     final private Map<String,String> slideHashMap;
 
+    final private QueryPanel qp;
+
     private Search theSearch;
 
     private SwingWorker<Object, edu.cmu.cs.diamond.pathfind.ResultIcon> workerFuture;
 
-    public SearchPanel(final PathFindFrame pf, String slideMap) {
+    public SearchPanel(final PathFindFrame pf, QueryPanel qp,
+            String slideMap) {
+        this.qp = qp;
+
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("Search Results"));
 
@@ -235,6 +240,7 @@ public class SearchPanel extends JPanel {
                                         Thread.currentThread().interrupt();
                                     }
                                 }
+                                qp.setSearchRunning(false);
                             }
                         });
                     }
@@ -253,6 +259,7 @@ public class SearchPanel extends JPanel {
                 }
             }
         };
+        qp.setSearchRunning(true);
         workerFuture.execute();
         setVisible(true);
     }

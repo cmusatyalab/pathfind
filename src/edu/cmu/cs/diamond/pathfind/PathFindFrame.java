@@ -183,7 +183,7 @@ public class PathFindFrame extends JFrame {
         setJMenuBar(createMenuBar());
 
         // search results at top
-        searchPanel = new SearchPanel(this, slideMap);
+        searchPanel = new SearchPanel(this, qp, slideMap);
         searchPanel.setVisible(false);
         add(searchPanel, BorderLayout.NORTH);
 

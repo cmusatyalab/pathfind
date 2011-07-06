@@ -310,6 +310,9 @@ public final class QueryPanel extends JPanel {
         });
         b.add(stopButton);
 
+        // set widget enablement
+        setSearchRunning(false);
+
         b.add(Box.createHorizontalGlue());
         add(b);
     }
@@ -373,5 +376,13 @@ public final class QueryPanel extends JPanel {
         zos.close();
         pf.startSearch(((Number) threshold.getValue()).doubleValue(),
                 baos.toByteArray(), macroName);
+    }
+
+    void setSearchRunning(boolean running) {
+        searchButton.setEnabled(!running);
+        stopButton.setEnabled(running);
+        macroComboBox.setEnabled(!running);
+        computeButton.setEnabled(!running);
+        threshold.setEnabled(!running);
     }
 }
