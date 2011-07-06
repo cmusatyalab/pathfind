@@ -55,15 +55,24 @@ public class ResultIcon {
 
     private final ObjectIdentifier identifier;
 
-    private final byte[] quickhash1;
-    private final byte[] tilebounds;
+    private final String quickhash1;
+
+    private final String tilebounds;
 
     public ResultIcon(ImageIcon icon, ObjectIdentifier identifier,
                       byte[] quickhash1, byte[] tilebounds) {
         this.icon = icon;
         this.identifier = identifier;
-        this.quickhash1 = quickhash1;
-        this.tilebounds = tilebounds;
+        if (quickhash1 != null) {
+            this.quickhash1 = Util.extractString(quickhash1);
+        } else {
+            this.quickhash1 = null;
+        }
+        if (tilebounds != null) {
+            this.tilebounds = Util.extractString(tilebounds);
+        } else {
+            this.tilebounds = null;
+        }
     }
 
     public Icon getIcon() {
@@ -75,13 +84,15 @@ public class ResultIcon {
     }
 
     public String getQuickHash1() {
-        return Util.extractString(quickhash1);
+        return quickhash1;
     }
 
     public Path2D getTileBounds(long width) {
-        String bounds = Util.extractString(tilebounds);
+        if (tilebounds == null) {
+            return null;
+        }
 
-        Scanner sc = new Scanner(bounds);
+        Scanner sc = new Scanner(tilebounds);
         Double xmin = sc.nextDouble() * width;
         Double ymin = sc.nextDouble() * width;
         Double xmax = sc.nextDouble() * width;
