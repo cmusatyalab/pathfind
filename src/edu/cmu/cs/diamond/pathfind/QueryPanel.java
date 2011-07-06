@@ -210,6 +210,8 @@ public final class QueryPanel extends JPanel {
 
     private final File macrosDir;
 
+    private boolean running;
+
     public QueryPanel(PathFindFrame pathFind, File ijDir, File macrosDir,
             File extraPluginsDir, File jreDir) {
         this.ijDir = ijDir;
@@ -369,7 +371,7 @@ public final class QueryPanel extends JPanel {
         add(b, c);
 
         // set widget enablement
-        setSearchRunning(false);
+        refresh();
     }
 
     void populateMacroListModel() {
@@ -439,7 +441,7 @@ public final class QueryPanel extends JPanel {
                 baos.toByteArray(), macroName);
     }
 
-    void setSearchRunning(boolean running) {
+    private void refresh() {
         defineScopeButton.setEnabled(!running);
         searchButton.setEnabled(!running);
         stopButton.setEnabled(running);
@@ -447,5 +449,10 @@ public final class QueryPanel extends JPanel {
         openCaseButton.setEnabled(!running);
         computeButton.setEnabled(!running);
         threshold.setEnabled(!running);
+    }
+
+    void setSearchRunning(boolean running) {
+        this.running = running;
+        refresh();
     }
 }
