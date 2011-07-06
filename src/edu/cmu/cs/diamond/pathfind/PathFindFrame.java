@@ -70,17 +70,6 @@ import edu.cmu.cs.openslide.gui.SelectionListModel;
 
 public class PathFindFrame extends JFrame {
 
-    private static class ExitAction extends AbstractAction {
-        public ExitAction() {
-            super("Exit");
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            System.exit(0);
-        }
-    }
-
     private final SearchPanel searchPanel;
 
     private final JPanel selectionPanel;
@@ -144,9 +133,6 @@ public class PathFindFrame extends JFrame {
         qp = new QueryPanel(this, new File(ijDir), macrosDir, new File(
                 extraPluginsDir), new File(jreDir));
         add(qp, BorderLayout.SOUTH);
-
-        // menubar
-        setJMenuBar(createMenuBar());
 
         // search results at top
         searchPanel = new SearchPanel(this, qp, slideMap);
@@ -354,17 +340,6 @@ public class PathFindFrame extends JFrame {
     private void setSlide(File slide) throws IOException {
         OpenSlide os = new OpenSlide(slide);
         setSlide(os, slide.getName());
-    }
-
-    private JMenuBar createMenuBar() {
-        JMenuBar mb = new JMenuBar();
-
-        JMenu m = new JMenu("PathFind");
-        mb.add(m);
-
-        m.add(new ExitAction());
-
-        return mb;
     }
 
     public void openCase() {
