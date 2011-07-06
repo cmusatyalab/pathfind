@@ -127,7 +127,20 @@ public class SearchPanel extends JPanel {
                                 .getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                         String quickhash1 = r.getQuickHash1();
+                        if (quickhash1 == null) {
+                            JOptionPane.showMessageDialog(pf,
+                                    "Result is not a whole-slide image.",
+                                    "PathFind", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         String slidefile = slideHashMap.get(quickhash1);
+                        if (slidefile == null) {
+                            JOptionPane.showMessageDialog(pf,
+                                    "Could not locate whole-slide image.",
+                                    "PathFind", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
 
                         OpenSlide slide = new OpenSlide(new File(slidefile));
 
