@@ -40,10 +40,12 @@
 
 package edu.cmu.cs.diamond.pathfind;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -220,11 +222,12 @@ public final class QueryPanel extends JPanel {
                 new File(jreDir + File.separator + "bin" + File.separator
                         + "java").getAbsolutePath(), "-jar", "ij.jar" };
 
-        setLayout(new BorderLayout());
+        setLayout(new GridBagLayout());
 
         pf = pathFind;
 
-        Box b = Box.createHorizontalBox();
+        JPanel b = new JPanel(new GridBagLayout());
+        GridBagConstraints c;
 
         // add macro list
         macroComboBox = new JComboBox(macroListModel);
@@ -243,9 +246,22 @@ public final class QueryPanel extends JPanel {
                 return r;
             }
         });
-        b.add(macroComboBox);
+        c = new GridBagConstraints();
+        c.insets = new Insets(0, 0, 0, 10);
+        b.add(macroComboBox, c);
 
-        b.add(Box.createHorizontalStrut(10));
+        // add space
+        c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        b.add(new JLabel(), c);
+
+        // add result
+        resultField = new JLabel();
+        clearResult();
+        c = new GridBagConstraints();
+        c.insets = new Insets(0, 0, 0, 10);
+        b.add(resultField, c);
 
         // add compute button
         computeButton = new JButton("Calculate");
@@ -263,23 +279,29 @@ public final class QueryPanel extends JPanel {
         });
         b.add(computeButton);
 
-        b.add(Box.createHorizontalStrut(10));
-
-        // add result
-        resultField = new JLabel();
-        resultField.setPreferredSize(new Dimension(100, 1));
-        clearResult();
-        b.add(resultField);
-
-        // add divider
-        b.add(new JSeparator(SwingConstants.VERTICAL));
+        // add first row
+        c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = GridBagConstraints.RELATIVE;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        add(b, c);
+        b = new JPanel(new GridBagLayout());
 
         // add search range
         b.add(new JLabel("Threshold: "));
         threshold = new JSpinner(new SpinnerNumberModel(0, 0,
                 Integer.MAX_VALUE, 0.1));
-        b.add(threshold);
-        b.add(Box.createHorizontalStrut(10));
+        c = new GridBagConstraints();
+        c.fill = GridBagConstraints.VERTICAL;
+        c.insets = new Insets(0, 0, 0, 10);
+        b.add(threshold, c);
+
+        // add space
+        c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        b.add(new JLabel(), c);
 
         // add search button
         searchButton = new JButton("Search");
@@ -295,7 +317,9 @@ public final class QueryPanel extends JPanel {
                 }
             }
         });
-        b.add(searchButton);
+        c = new GridBagConstraints();
+        c.insets = new Insets(0, 0, 0, 2);
+        b.add(searchButton, c);
 
         // add stop button
         stopButton = new JButton("Stop");
@@ -310,11 +334,17 @@ public final class QueryPanel extends JPanel {
         });
         b.add(stopButton);
 
+        // add second row
+        c = new GridBagConstraints();
+        c.insets = new Insets(2, 0, 0, 0);
+        c.gridx = 0;
+        c.gridy = GridBagConstraints.RELATIVE;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1;
+        add(b, c);
+
         // set widget enablement
         setSearchRunning(false);
-
-        b.add(Box.createHorizontalGlue());
-        add(b);
     }
 
     void populateMacroListModel() {
