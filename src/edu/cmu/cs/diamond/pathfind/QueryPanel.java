@@ -52,6 +52,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -367,7 +368,13 @@ public final class QueryPanel extends JPanel {
     }
 
     private void updateResultField() {
-        resultField.setText("Result: " + Double.toString(result));
+        if (!Double.isNaN(result)) {
+            DecimalFormat df = new DecimalFormat();
+            df.setMaximumFractionDigits(3);
+            resultField.setText("Result: " + df.format(result));
+        } else {
+            resultField.setText("");
+        }
     }
 
     public void clearResult() {
