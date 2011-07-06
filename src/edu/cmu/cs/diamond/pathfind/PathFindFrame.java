@@ -70,40 +70,6 @@ import edu.cmu.cs.openslide.gui.SelectionListModel;
 
 public class PathFindFrame extends JFrame {
 
-    private class OpenCaseAction extends AbstractAction {
-        public OpenCaseAction() {
-            super("Open Case...");
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            int returnVal = jfc.showDialog(PathFindFrame.this, "Open");
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File slide = jfc.getSelectedFile();
-                try {
-                    setSlide(slide);
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private class DefineScopeAction extends AbstractAction {
-        public DefineScopeAction() {
-            super("Define Scope");
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                cookieMap = CookieMap.createDefaultCookieMap();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-        }
-    }
-
     private static class ExitAction extends AbstractAction {
         public ExitAction() {
             super("Exit");
@@ -396,13 +362,29 @@ public class PathFindFrame extends JFrame {
         JMenu m = new JMenu("PathFind");
         mb.add(m);
 
-        m.add(new OpenCaseAction());
-        m.add(new DefineScopeAction());
-
-        m.add(new JSeparator());
         m.add(new ExitAction());
 
         return mb;
+    }
+
+    public void openCase() {
+        int returnVal = jfc.showDialog(PathFindFrame.this, "Open");
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File slide = jfc.getSelectedFile();
+            try {
+                setSlide(slide);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+
+    public void defineScope() {
+        try {
+            cookieMap = CookieMap.createDefaultCookieMap();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
     }
 
     public void startSearch(double threshold, byte[] macroBlob,

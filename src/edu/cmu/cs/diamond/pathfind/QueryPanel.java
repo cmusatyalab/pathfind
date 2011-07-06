@@ -192,7 +192,11 @@ public final class QueryPanel extends JPanel {
 
     private double result = Double.NaN;
 
+    private final JButton openCaseButton;
+
     private final JButton computeButton;
+
+    private final JButton defineScopeButton;
 
     private final JButton searchButton;
 
@@ -251,6 +255,15 @@ public final class QueryPanel extends JPanel {
         c.insets = new Insets(0, 0, 0, 10);
         b.add(macroComboBox, c);
 
+        // add open case button
+        openCaseButton = new JButton("Open Case...");
+        openCaseButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                pf.openCase();
+            }
+        });
+        b.add(openCaseButton);
+
         // add space
         c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -303,6 +316,17 @@ public final class QueryPanel extends JPanel {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1;
         b.add(new JLabel(), c);
+
+        // add define scope button
+        defineScopeButton = new JButton("Define Scope");
+        defineScopeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                pf.defineScope();
+            }
+        });
+        c = new GridBagConstraints();
+        c.insets = new Insets(0, 0, 0, 2);
+        b.add(defineScopeButton, c);
 
         // add search button
         searchButton = new JButton("Search");
@@ -416,9 +440,11 @@ public final class QueryPanel extends JPanel {
     }
 
     void setSearchRunning(boolean running) {
+        defineScopeButton.setEnabled(!running);
         searchButton.setEnabled(!running);
         stopButton.setEnabled(running);
         macroComboBox.setEnabled(!running);
+        openCaseButton.setEnabled(!running);
         computeButton.setEnabled(!running);
         threshold.setEnabled(!running);
     }
