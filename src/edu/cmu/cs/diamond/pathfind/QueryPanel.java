@@ -176,7 +176,7 @@ public final class QueryPanel extends JPanel {
                 // reset hourglass
                 setCursor(null);
             }
-            return result / 10000.0;
+            return result;
         }
 
         public String getMacroName() {
