@@ -246,6 +246,17 @@ public final class QueryPanel extends JPanel {
         JPanel b = new JPanel(new GridBagLayout());
         GridBagConstraints c;
 
+        // add open case button
+        openCaseButton = new JButton("Open Case...");
+        openCaseButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                pf.openCase();
+            }
+        });
+        c = new GridBagConstraints();
+        c.insets = new Insets(0, 0, 0, 10);
+        b.add(openCaseButton, c);
+
         // add macro list
         macroComboBox = new JComboBox(macroListModel);
         macroComboBox.setRenderer(new DefaultListCellRenderer() {
@@ -263,18 +274,7 @@ public final class QueryPanel extends JPanel {
                 return r;
             }
         });
-        c = new GridBagConstraints();
-        c.insets = new Insets(0, 0, 0, 10);
-        b.add(macroComboBox, c);
-
-        // add open case button
-        openCaseButton = new JButton("Open Case...");
-        openCaseButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                pf.openCase();
-            }
-        });
-        b.add(openCaseButton);
+        b.add(macroComboBox);
 
         // add space
         c = new GridBagConstraints();
