@@ -55,6 +55,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.MatchResult;
+import java.util.concurrent.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -64,6 +65,8 @@ import javax.swing.event.ListSelectionListener;
 import edu.cmu.cs.diamond.opendiamond.ObjectIdentifier;
 import edu.cmu.cs.diamond.opendiamond.Result;
 import edu.cmu.cs.diamond.opendiamond.Search;
+import edu.cmu.cs.diamond.opendiamond.SearchClosedException;
+import edu.cmu.cs.diamond.opendiamond.ServerStatistics;
 import edu.cmu.cs.openslide.OpenSlide;
 
 public class SearchPanel extends JPanel {
@@ -71,6 +74,9 @@ public class SearchPanel extends JPanel {
     final private Map<String,String> slideHashMap;
 
     final private QueryPanel qp;
+    final private StatisticsBar stats;
+    private ScheduledExecutorService timerExecutor;
+    private ScheduledFuture<?> statsTimerFuture;
 
     private Search theSearch;
 
@@ -109,10 +115,14 @@ public class SearchPanel extends JPanel {
         list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         list.setVisibleRowCount(1);
 
-        setPreferredSize(new Dimension(200, 200));
-
         add(new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+
+        stats = new StatisticsBar();
+        add(stats, BorderLayout.SOUTH);
+
+        int height = 200 + stats.getPreferredSize().height;
+        setPreferredSize(new Dimension(200, height));
 
         list.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
@@ -189,6 +199,22 @@ public class SearchPanel extends JPanel {
         }
     }
 
+    private void startStatsTimer() {
+        timerExecutor = Executors.newSingleThreadScheduledExecutor();
+        statsTimerFuture = timerExecutor.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    updateStats();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }, 0, 500, TimeUnit.MILLISECONDS);
+    }
+
     void beginSearch(final Search s)
             throws InterruptedException {
         if (theSearch != null) {
@@ -196,6 +222,8 @@ public class SearchPanel extends JPanel {
         }
 
         theSearch = s;
+
+        startStatsTimer();
 
         final DefaultListModel model = new DefaultListModel();
         list.setModel(model);
@@ -242,6 +270,8 @@ public class SearchPanel extends JPanel {
                     } finally {
                         System.out.println("STOP");
 
+                        updateStats();
+
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
@@ -253,12 +283,27 @@ public class SearchPanel extends JPanel {
                                         Thread.currentThread().interrupt();
                                     }
                                 }
+
                                 qp.setSearchRunning(false);
+
+                                if (timerExecutor != null) {
+                                    timerExecutor.shutdownNow();
+                                }
+
+                                if (statsTimerFuture != null) {
+                                    statsTimerFuture.cancel(true);
+                                }
+                                stats.setDone();
                             }
                         });
                     }
-                } catch (IOException e) {
-                    // TODO pop up something?
+                } catch (final IOException e) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            stats.showException(e.getCause());
+                        }
+                    });
                     e.printStackTrace();
                 }
                 return null;
@@ -280,6 +325,43 @@ public class SearchPanel extends JPanel {
     void endSearch() throws InterruptedException {
         if (theSearch != null) {
             theSearch.close();
+        }
+    }
+
+    private void updateStats() throws IOException, InterruptedException {
+        try {
+            final Map<String, ServerStatistics> serverStats =
+                theSearch.getStatistics();
+
+            boolean hasStats = false;
+            for (ServerStatistics s : serverStats.values()) {
+                if (s.getTotalObjects() != 0) {
+                    hasStats = true;
+                    break;
+                }
+            }
+            if (hasStats) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        stats.update(serverStats);
+                    }
+                });
+            } else {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        stats.setIndeterminateMessage("Waiting for First Results");
+                    }
+                });
+            }
+        } catch (SearchClosedException ignore) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    stats.setDone();
+                }
+            });
         }
     }
 }
