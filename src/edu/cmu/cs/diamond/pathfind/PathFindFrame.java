@@ -369,12 +369,7 @@ public class PathFindFrame extends JFrame {
         SearchFactory factory = createFactory(minScore, maxScore, macroBlob,
                 macroName);
 
-        Set<String> attributes = new HashSet<String>();
-        attributes.add("thumbnail.jpeg");
-        attributes.add("openslide.quickhash-1");
-        attributes.add("algum.tile-bounds");
-
-        searchPanel.beginSearch(factory.createSearch(attributes));
+        searchPanel.beginSearch(factory);
     }
 
     public void stopSearch() throws InterruptedException {

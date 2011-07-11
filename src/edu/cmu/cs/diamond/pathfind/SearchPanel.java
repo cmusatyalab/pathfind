@@ -65,6 +65,7 @@ import javax.swing.event.ListSelectionListener;
 import edu.cmu.cs.diamond.opendiamond.ObjectIdentifier;
 import edu.cmu.cs.diamond.opendiamond.Result;
 import edu.cmu.cs.diamond.opendiamond.Search;
+import edu.cmu.cs.diamond.opendiamond.SearchFactory;
 import edu.cmu.cs.diamond.opendiamond.SearchClosedException;
 import edu.cmu.cs.diamond.opendiamond.ServerStatistics;
 import edu.cmu.cs.openslide.OpenSlide;
@@ -215,8 +216,15 @@ public class SearchPanel extends JPanel {
         }, 0, 500, TimeUnit.MILLISECONDS);
     }
 
-    void beginSearch(final Search s)
-            throws InterruptedException {
+    void beginSearch(final SearchFactory factory)
+            throws IOException, InterruptedException {
+
+        Set<String> attributes = new HashSet<String>();
+        attributes.add("thumbnail.jpeg");
+        attributes.add("openslide.quickhash-1");
+        attributes.add("algum.tile-bounds");
+
+        final Search s = factory.createSearch(attributes);
         if (theSearch != null) {
             theSearch.close();
         }
