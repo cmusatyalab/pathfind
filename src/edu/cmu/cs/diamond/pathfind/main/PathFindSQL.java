@@ -59,7 +59,7 @@ public class PathFindSQL {
             System.out
                     .println("usage: "
                             + PathFindDjango.class.getName()
-                            + " ij_dir extra_plugins_dir jre_dir interface_map sqlHost sqlUsername sqlPassword sqlDatabase");
+                            + " ij_dir extra_plugins_dir jre_dir interface_map slide_map sqlHost sqlUsername sqlPassword sqlDatabase");
             return;
         }
 
