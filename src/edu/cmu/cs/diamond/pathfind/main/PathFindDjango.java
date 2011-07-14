@@ -55,24 +55,23 @@ import edu.cmu.cs.diamond.pathfind.PathFindFrame;
 public class PathFindDjango {
 
     public static void main(String[] args) {
-        if (args.length != 6 && args.length != 7) {
+        if (args.length != 5 && args.length != 6) {
             System.out
                     .println("usage: "
                             + PathFindDjango.class.getName()
-                            + " ij_dir extra_plugins_dir jre_dir interface_map slide_map annotation_uri");
+                            + " ij_dir extra_plugins_dir interface_map slide_map annotation_uri");
             return;
         }
 
         final String ijDir = args[0];
         final String extraPluginsDir = args[1];
-        final String jreDir = args[2];
-        final String interfaceMap = args[3];
-        final String slideMap = args[4];
-        final String annotationUri = args[5];
+        final String interfaceMap = args[2];
+        final String slideMap = args[3];
+        final String annotationUri = args[4];
 
         final File slide;
-        if (args.length == 7) {
-            slide = new File(args[6]);
+        if (args.length == 6) {
+            slide = new File(args[5]);
         } else {
             slide = null;
         }
@@ -84,8 +83,8 @@ public class PathFindDjango {
             @Override
             public void run() {
                 try {
-                    new PathFindFrame(ijDir, extraPluginsDir, jreDir,
-                        annotationStore, interfaceMap, slideMap, slide, false);
+                    new PathFindFrame(ijDir, extraPluginsDir, annotationStore,
+                        interfaceMap, slideMap, slide, false);
                 } catch (IOException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(null, e, "Error",

@@ -104,7 +104,7 @@ public class PathFindFrame extends JFrame {
 
     private final SecondWindow secondWindow;
 
-    public PathFindFrame(String ijDir, String extraPluginsDir, String jreDir,
+    public PathFindFrame(String ijDir, String extraPluginsDir,
             AnnotationStore annotationStore, String interfaceMap,
             String slideMap,File slide, boolean twoWindowMode)
                 throws IOException {
@@ -131,7 +131,7 @@ public class PathFindFrame extends JFrame {
         // query bar at bottom
         macrosDir = new File(ijDir, "macros");
         qp = new QueryPanel(this, new File(ijDir), macrosDir, new File(
-                extraPluginsDir), new File(jreDir));
+                extraPluginsDir));
         add(qp, BorderLayout.SOUTH);
 
         // search results at top

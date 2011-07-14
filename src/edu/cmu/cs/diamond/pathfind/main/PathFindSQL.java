@@ -55,27 +55,26 @@ public class PathFindSQL {
 
     public static void main(String[] args) throws ClassNotFoundException,
             SQLException {
-        if (args.length != 9 && args.length != 10) {
+        if (args.length != 8 && args.length != 9) {
             System.out
                     .println("usage: "
                             + PathFindDjango.class.getName()
-                            + " ij_dir extra_plugins_dir jre_dir interface_map slide_map sqlHost sqlUsername sqlPassword sqlDatabase");
+                            + " ij_dir extra_plugins_dir interface_map slide_map sqlHost sqlUsername sqlPassword sqlDatabase");
             return;
         }
 
         final String ijDir = args[0];
         final String extraPluginsDir = args[1];
-        final String jreDir = args[2];
-        final String interfaceMap = args[3];
-        final String slideMap = args[4];
-        final String sqlHost = args[5];
-        final String sqlUsername = args[6];
-        final String sqlPassword = args[7];
-        final String sqlDatabase = args[8];
+        final String interfaceMap = args[2];
+        final String slideMap = args[3];
+        final String sqlHost = args[4];
+        final String sqlUsername = args[5];
+        final String sqlPassword = args[6];
+        final String sqlDatabase = args[7];
 
         final File slide;
-        if (args.length == 10) {
-            slide = new File(args[9]);
+        if (args.length == 9) {
+            slide = new File(args[8]);
         } else {
             slide = null;
         }
@@ -87,8 +86,8 @@ public class PathFindSQL {
             @Override
             public void run() {
                 try {
-                    new PathFindFrame(ijDir, extraPluginsDir, jreDir,
-                        annotationStore, interfaceMap, slideMap, slide, false);
+                    new PathFindFrame(ijDir, extraPluginsDir, annotationStore,
+                        interfaceMap, slideMap, slide, false);
                 } catch (IOException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(null, e, "Error",

@@ -69,8 +69,6 @@ import javax.swing.event.ChangeListener;
 import edu.cmu.cs.diamond.opendiamond.Util;
 
 public final class QueryPanel extends JPanel {
-    public final String[] ijCmd;
-
     public final File ijDir;
 
     private final PathFindFrame pf;
@@ -108,7 +106,7 @@ public final class QueryPanel extends JPanel {
     private boolean running;
 
     public QueryPanel(PathFindFrame pathFind, File ijDir, File macrosDir,
-            File extraPluginsDir, File jreDir) {
+            File extraPluginsDir) {
         this.ijDir = ijDir;
         this.macrosDir = macrosDir;
         this.extraPluginsDir = extraPluginsDir;
@@ -119,10 +117,6 @@ public final class QueryPanel extends JPanel {
                 extraPluginsDir);
 
         populateMacroListModel();
-
-        this.ijCmd = new String[] {
-                new File(jreDir + File.separator + "bin" + File.separator
-                        + "java").getAbsolutePath(), "-jar", "ij.jar" };
 
         setLayout(new GridBagLayout());
 
