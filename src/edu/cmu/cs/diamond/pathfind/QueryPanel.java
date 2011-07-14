@@ -73,121 +73,6 @@ public final class QueryPanel extends JPanel {
 
     public final File ijDir;
 
-    public class Macro {
-        private final String name;
-
-        private final String macroName;
-
-        public Macro(String name, String macroName) {
-            this.name = name;
-            this.macroName = macroName;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
-        public double runMacro() throws IOException {
-            // make hourglass
-            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            File imgFile = null;
-            double result = Double.NaN;
-
-            try {
-                // grab image
-                BufferedImage img = pf.getSelectionAsImage();
-                // JFrame jf = new JFrame();
-                // jf.add(new JLabel(new ImageIcon(img)));
-                // jf.setVisible(true);
-                // jf.pack();
-
-                // write tmp image
-                BufferedOutputStream out = null;
-                try {
-                    imgFile = File.createTempFile("pathfind", ".ppm");
-                    imgFile.deleteOnExit();
-                    out = new BufferedOutputStream(
-                            new FileOutputStream(imgFile));
-
-                    out.write("P6\n".getBytes());
-                    out.write(Integer.toString(img.getWidth()).getBytes());
-                    out.write('\n');
-                    out.write(Integer.toString(img.getHeight()).getBytes());
-                    out.write("\n255\n".getBytes());
-
-                    for (int y = 0; y < img.getHeight(); y++) {
-                        for (int x = 0; x < img.getWidth(); x++) {
-                            int pixel = img.getRGB(x, y);
-                            out.write((pixel >> 16) & 0xFF);
-                            out.write((pixel >> 8) & 0xFF);
-                            out.write(pixel & 0xFF);
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (out != null) {
-                        try {
-                            out.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-                // run macro
-                List<String> processArgs = new ArrayList<String>();
-                processArgs.addAll(Arrays.asList(ijCmd));
-                processArgs.add(imgFile.getPath());
-                processArgs.add("-batch");
-                processArgs.add(macroName);
-                ProcessBuilder pb = new ProcessBuilder(processArgs);
-                pb.directory(ijDir);
-                System.out.println(processArgs);
-
-                try {
-                    StringBuilder sb = new StringBuilder();
-                    Process p = pb.start();
-                    BufferedInputStream pOut = new BufferedInputStream(p
-                            .getInputStream());
-                    int data;
-                    while ((data = pOut.read()) != -1) {
-                        sb.append((char) data);
-                    }
-
-                    pOut.close();
-
-                    String sr = sb.toString();
-                    System.out.println(sr);
-                    String srr[] = sr.split("\n");
-
-                    result = 0.0;
-                    for (int i = 0; i < srr.length; i++) {
-                        if (srr[i].equals("RESULT")) {
-                            result = Double.parseDouble(srr[i+2]);
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } finally {
-                // delete temp
-                if (imgFile != null) {
-                    imgFile.delete();
-                }
-
-                // reset hourglass
-                setCursor(null);
-            }
-            return result;
-        }
-
-        public String getMacroName() {
-            return macroName;
-        }
-    }
-
     private final PathFindFrame pf;
 
     private final JComboBox macroComboBox;
@@ -294,13 +179,13 @@ public final class QueryPanel extends JPanel {
         computeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 File f = (File) macroComboBox.getSelectedItem();
-                Macro m = new Macro(f.getName(), f.getAbsolutePath());
                 try {
-                    result = m.runMacro();
+                    calculateScore(f.getName());
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-                updateResultField();
             }
         });
         b.add(computeButton);
@@ -471,8 +356,7 @@ public final class QueryPanel extends JPanel {
         fis.close();
     }
 
-    private void runRemoteMacro(String macroName) throws InterruptedException,
-            IOException {
+    private byte[] encodeMacro(String macroName) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
         File macro = new File(QueryPanel.this.ijDir + "/macros", macroName);
@@ -483,13 +367,54 @@ public final class QueryPanel extends JPanel {
             }
         }
         zos.close();
+        return baos.toByteArray();
+    }
+
+    private void runRemoteMacro(String macroName) throws InterruptedException,
+            IOException {
         double min = checkBoxSelected(minScoreEnabled) ?
                 ((Number) minScore.getValue()).doubleValue() :
                 Double.NEGATIVE_INFINITY;
         double max = checkBoxSelected(maxScoreEnabled) ?
                 ((Number) maxScore.getValue()).doubleValue() :
                 Double.POSITIVE_INFINITY;
-        pf.startSearch(min, max, baos.toByteArray(), macroName);
+        pf.startSearch(min, max, encodeMacro(macroName), macroName);
+    }
+
+    private void calculateScore(String macroName) throws InterruptedException,
+            IOException {
+        result = Double.NaN;
+
+        // make hourglass
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        try {
+            // generate image
+            BufferedImage img = pf.getSelectionAsImage();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            out.write("P6\n".getBytes());
+            out.write(Integer.toString(img.getWidth()).getBytes());
+            out.write('\n');
+            out.write(Integer.toString(img.getHeight()).getBytes());
+            out.write("\n255\n".getBytes());
+
+            for (int y = 0; y < img.getHeight(); y++) {
+                for (int x = 0; x < img.getWidth(); x++) {
+                    int pixel = img.getRGB(x, y);
+                    out.write((pixel >> 16) & 0xFF);
+                    out.write((pixel >> 8) & 0xFF);
+                    out.write(pixel & 0xFF);
+                }
+            }
+
+            // run macro
+            result = pf.generateScore(encodeMacro(macroName), macroName,
+                    out.toByteArray());
+        } finally {
+            // update result
+            updateResultField();
+            // reset hourglass
+            setCursor(null);
+        }
     }
 
     private void refresh() {

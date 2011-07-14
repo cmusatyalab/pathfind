@@ -376,6 +376,26 @@ public class PathFindFrame extends JFrame {
         searchPanel.endSearch();
     }
 
+    public double generateScore(byte[] macroBlob, String macroName,
+            byte[] data) throws IOException, InterruptedException {
+        System.out.println("generate score");
+
+        SearchFactory factory = createFactory(Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY, macroBlob, macroName);
+
+        String attr = "_filter.imagej_score";
+        Set<String> desiredAttributes = new HashSet<String>();
+        desiredAttributes.add(attr);
+
+        Result result = factory.generateResult(data, desiredAttributes);
+        byte[] value = result.getValue(attr);
+        if (value != null) {
+            return Double.valueOf(Util.extractString(value));
+        } else {
+            return Double.NaN;
+        }
+    }
+
     private SearchFactory createFactory(double minScore, double maxScore,
             byte[] macroBlob, String macroName) throws IOException {
         List<Filter> filters = new ArrayList<Filter>();
