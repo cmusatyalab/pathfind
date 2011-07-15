@@ -54,6 +54,10 @@ public abstract class PathFindSearch {
 
     public abstract String getDisplayName();
 
+    // Returns the name of the filter whose score should be reported when
+    // "Calculate" is pressed.
+    public abstract String getFilterName();
+
     public static PathFindSearch fromFile(File file) {
         try {
             FileInputStream in = new FileInputStream(file);
@@ -83,6 +87,10 @@ public abstract class PathFindSearch {
             return displayName;
         }
 
+        public String getFilterName() {
+            return "imagej";
+        }
+
         public List<Filter> getFilters(double minScore, double maxScore)
                 throws IOException {
             List<Filter> filters = new ArrayList<Filter>();
@@ -98,7 +106,7 @@ public abstract class PathFindSearch {
                 FilterCode c = new FilterCode(in);
                 List<String> dependencies = Collections.emptyList();
                 List<String> arguments = Arrays.asList(new String[] { macro });
-                Filter imagej = new Filter("primary", c, minScore, maxScore,
+                Filter imagej = new Filter("imagej", c, minScore, maxScore,
                         dependencies, arguments, Util.encodeZipFile(zipMap));
                 filters.add(imagej);
             } finally {

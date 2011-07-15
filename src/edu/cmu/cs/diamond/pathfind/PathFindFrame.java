@@ -377,7 +377,7 @@ public class PathFindFrame extends JFrame {
         SearchFactory factory = createFactory(Double.NEGATIVE_INFINITY,
                 Double.POSITIVE_INFINITY, search);
 
-        String attr = "_filter.primary_score";
+        String attr = "_filter." + search.getFilterName() + "_score";
         Set<String> desiredAttributes = new HashSet<String>();
         desiredAttributes.add(attr);
 
