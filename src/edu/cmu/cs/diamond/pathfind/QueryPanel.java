@@ -73,7 +73,7 @@ public final class QueryPanel extends JPanel {
 
     private final PathFindFrame pf;
 
-    private final JComboBox macroComboBox;
+    private final JComboBox searchComboBox;
 
     private final JLabel resultField;
 
@@ -97,7 +97,7 @@ public final class QueryPanel extends JPanel {
 
     private final JCheckBox maxScoreEnabled;
 
-    private final DefaultComboBoxModel macroListModel = new DefaultComboBoxModel();
+    private final DefaultComboBoxModel searchListModel = new DefaultComboBoxModel();
 
     private final File extraPluginsDir;
 
@@ -116,7 +116,7 @@ public final class QueryPanel extends JPanel {
         System.out.printf("macrosDir: %s\nextraPluginsDir: %s\n", macrosDir,
                 extraPluginsDir);
 
-        populateMacroListModel();
+        populateSearchListModel();
 
         setLayout(new GridBagLayout());
 
@@ -136,9 +136,9 @@ public final class QueryPanel extends JPanel {
         c.insets = new Insets(0, 0, 0, 10);
         b.add(openCaseButton, c);
 
-        // add macro list
-        macroComboBox = new JComboBox(macroListModel);
-        macroComboBox.setRenderer(new DefaultListCellRenderer() {
+        // add search list
+        searchComboBox = new JComboBox(searchListModel);
+        searchComboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList list,
                     Object value, int index, boolean isSelected,
@@ -153,7 +153,7 @@ public final class QueryPanel extends JPanel {
                 return r;
             }
         });
-        b.add(macroComboBox);
+        b.add(searchComboBox);
 
         // add space
         c = new GridBagConstraints();
@@ -172,7 +172,7 @@ public final class QueryPanel extends JPanel {
         computeButton = new JButton("Calculate");
         computeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                File f = (File) macroComboBox.getSelectedItem();
+                File f = (File) searchComboBox.getSelectedItem();
                 try {
                     calculateScore(f.getName());
                 } catch (InterruptedException e1) {
@@ -241,7 +241,7 @@ public final class QueryPanel extends JPanel {
         searchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    File f = (File) macroComboBox.getSelectedItem();
+                    File f = (File) searchComboBox.getSelectedItem();
                     runRemoteMacro(f.getName());
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
@@ -299,8 +299,8 @@ public final class QueryPanel extends JPanel {
         });
     }
 
-    void populateMacroListModel() {
-        macroListModel.removeAllElements();
+    void populateSearchListModel() {
+        searchListModel.removeAllElements();
 
         File[] files = macrosDir.listFiles(new FilenameFilter() {
             @Override
@@ -314,7 +314,7 @@ public final class QueryPanel extends JPanel {
         Collections.sort(Arrays.asList(files));
 
         for (File f : files) {
-            macroListModel.addElement(f);
+            searchListModel.addElement(f);
         }
     }
 
@@ -415,7 +415,7 @@ public final class QueryPanel extends JPanel {
         defineScopeButton.setEnabled(!running);
         searchButton.setEnabled(!running);
         stopButton.setEnabled(running);
-        macroComboBox.setEnabled(!running);
+        searchComboBox.setEnabled(!running);
         openCaseButton.setEnabled(!running);
         computeButton.setEnabled(!running);
         minScore.setEnabled(!running && checkBoxSelected(minScoreEnabled));
