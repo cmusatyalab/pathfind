@@ -68,8 +68,6 @@ import javax.swing.event.ChangeListener;
 import edu.cmu.cs.diamond.opendiamond.Util;
 
 public final class QueryPanel extends JPanel {
-    public final File ijDir;
-
     private final PathFindFrame pf;
 
     private final JComboBox searchComboBox;
@@ -98,22 +96,12 @@ public final class QueryPanel extends JPanel {
 
     private final DefaultComboBoxModel searchListModel = new DefaultComboBoxModel();
 
-    private final File extraPluginsDir;
-
-    private final File macrosDir;
+    private final File searchDir;
 
     private boolean running;
 
-    public QueryPanel(PathFindFrame pathFind, File ijDir, File macrosDir,
-            File extraPluginsDir) {
-        this.ijDir = ijDir;
-        this.macrosDir = macrosDir;
-        this.extraPluginsDir = extraPluginsDir;
-
-        macrosDir.mkdir();
-
-        System.out.printf("macrosDir: %s\nextraPluginsDir: %s\n", macrosDir,
-                extraPluginsDir);
+    public QueryPanel(PathFindFrame pathFind, File searchDir) {
+        this.searchDir = searchDir;
 
         populateSearchListModel();
 
@@ -306,9 +294,8 @@ public final class QueryPanel extends JPanel {
         // build map of searches sorted by display name
         SortedMap<String, PathFindSearch> searches =
                 new TreeMap<String, PathFindSearch>();
-        for (File f : macrosDir.listFiles()) {
-            PathFindSearch search = PathFindSearch.fromFile(f,
-                    extraPluginsDir);
+        for (File f : searchDir.listFiles()) {
+            PathFindSearch search = PathFindSearch.fromFile(f);
             if (search != null) {
                 searches.put(search.getDisplayName(), search);
             }

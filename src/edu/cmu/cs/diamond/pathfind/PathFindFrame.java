@@ -76,8 +76,6 @@ public class PathFindFrame extends JFrame {
 
     private final JList savedSelections;
 
-    private final File macrosDir;
-
     private SelectionListModel ssModel;
 
     private final QueryPanel qp;
@@ -104,10 +102,9 @@ public class PathFindFrame extends JFrame {
 
     private final SecondWindow secondWindow;
 
-    public PathFindFrame(String ijDir, String extraPluginsDir,
-            AnnotationStore annotationStore, String interfaceMap,
-            String slideMap,File slide, boolean twoWindowMode)
-                throws IOException {
+    public PathFindFrame(String searchDir, AnnotationStore annotationStore,
+            String interfaceMap, String slideMap, File slide,
+            boolean twoWindowMode) throws IOException {
         super("PathFind");
         setSize(1000, 750);
         setMinimumSize(new Dimension(1000, 500));
@@ -129,9 +126,7 @@ public class PathFindFrame extends JFrame {
         add(psv);
 
         // query bar at bottom
-        macrosDir = new File(ijDir, "macros");
-        qp = new QueryPanel(this, new File(ijDir), macrosDir, new File(
-                extraPluginsDir));
+        qp = new QueryPanel(this, new File(searchDir));
         add(qp, BorderLayout.SOUTH);
 
         // search results at top
