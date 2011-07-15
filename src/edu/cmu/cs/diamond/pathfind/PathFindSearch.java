@@ -48,16 +48,11 @@ import java.util.*;
 
 import edu.cmu.cs.diamond.opendiamond.*;
 
-public class PathFindSearch {
-    private final File bundle;
+public abstract class PathFindSearch {
+    public abstract List<Filter> getFilters(double minScore, double maxScore)
+            throws IOException;
 
-    private final String displayName;
-
-    private PathFindSearch(File bundle, Map<String, byte[]> zipMap,
-            Properties p) {
-        this.bundle = bundle;
-        this.displayName = p.getProperty("Name");
-    }
+    public abstract String getDisplayName();
 
     public static PathFindSearch fromFile(File file) {
         try {
@@ -65,42 +60,55 @@ public class PathFindSearch {
             Map<String, byte[]> zipMap = Util.readZipFile(in);
             Properties p = Util.extractManifest(zipMap);
             if ("ImageJ".equals(p.getProperty("Plugin"))) {
-                return new PathFindSearch(file, zipMap, p);
+                return new ImageJSearch(file, zipMap, p);
             }
         } catch (IOException e) {
         }
         return null;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
 
-    public List<Filter> getFilters(double minScore, double maxScore)
-            throws IOException {
-        List<Filter> filters = new ArrayList<Filter>();
+    private static class ImageJSearch extends PathFindSearch {
+        private final File bundle;
 
-        // reread the bundle in case it changed since PathFind was started
-        FileInputStream in = new FileInputStream(bundle);
-        Map<String, byte[]> zipMap = Util.readZipFile(in);
-        Properties p = Util.extractManifest(zipMap);
-        String macro = p.getProperty("Macro");
+        private final String displayName;
 
-        in = new FileInputStream("/opt/snapfind/lib/fil_imagej_exec");
-        try {
-            FilterCode c = new FilterCode(in);
-            List<String> dependencies = Collections.emptyList();
-            List<String> arguments = Arrays.asList(new String[] { macro });
-            Filter imagej = new Filter("primary", c, minScore, maxScore,
-                    dependencies, arguments, Util.encodeZipFile(zipMap));
-            filters.add(imagej);
-        } finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-            }
+        public ImageJSearch(File bundle, Map<String, byte[]> zipMap,
+                Properties p) {
+            this.bundle = bundle;
+            this.displayName = p.getProperty("Name");
         }
 
-        return filters;
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public List<Filter> getFilters(double minScore, double maxScore)
+                throws IOException {
+            List<Filter> filters = new ArrayList<Filter>();
+
+            // reread the bundle in case it changed since PathFind was started
+            FileInputStream in = new FileInputStream(bundle);
+            Map<String, byte[]> zipMap = Util.readZipFile(in);
+            Properties p = Util.extractManifest(zipMap);
+            String macro = p.getProperty("Macro");
+
+            in = new FileInputStream("/opt/snapfind/lib/fil_imagej_exec");
+            try {
+                FilterCode c = new FilterCode(in);
+                List<String> dependencies = Collections.emptyList();
+                List<String> arguments = Arrays.asList(new String[] { macro });
+                Filter imagej = new Filter("primary", c, minScore, maxScore,
+                        dependencies, arguments, Util.encodeZipFile(zipMap));
+                filters.add(imagej);
+            } finally {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
+
+            return filters;
+        }
     }
 }
