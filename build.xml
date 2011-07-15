@@ -4,6 +4,8 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
+    <property name="annotation_dir"
+            value="src/edu/cmu/cs/diamond/pathfind/annotations"/>
     <path id="PathFind.classpath">
         <pathelement location="/usr/share/java/opendiamond.jar"/>
         <pathelement location="/usr/lib/openslide-java/openslidejava.jar"/>
@@ -21,8 +23,22 @@
     </target>
     <target name="clean">
         <delete dir="bin"/>
+        <delete dir="${annotation_dir}"/>
     </target>
-    <target name="build" depends="init">
+    <target name="xjc-check">
+        <uptodate property="xjc.current" srcfile="pathfind.xsd"
+                targetfile="${annotation_dir}"/>
+    </target>
+    <target name="xjc" depends="xjc-check" unless="xjc.current">
+        <exec executable="xjc">
+             <arg value="-d"/>
+             <arg value="src"/>
+             <arg value="-p"/>
+             <arg value="edu.cmu.cs.diamond.pathfind.annotations"/>
+             <arg value="pathfind.xsd"/>
+        </exec>
+    </target>
+    <target name="build" depends="init,xjc" >
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}" encoding="UTF-8">
             <src path="src"/>
