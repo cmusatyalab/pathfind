@@ -22,7 +22,7 @@
     <target name="clean">
         <delete dir="bin"/>
     </target>
-	<target name="build" depends="init">
+    <target name="build" depends="init">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}" encoding="UTF-8">
             <src path="src"/>
