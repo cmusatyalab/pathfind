@@ -1,7 +1,7 @@
 /*
  *  PathFind -- a Diamond system for pathology
  *
- *  Copyright (c) 2008-2009 Carnegie Mellon University
+ *  Copyright (c) 2008-2011 Carnegie Mellon University
  *  All rights reserved.
  *
  *  PathFind is free software: you can redistribute it and/or modify
@@ -57,10 +57,9 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -147,7 +146,7 @@ public final class QueryPanel extends JPanel {
                         value, index, isSelected, cellHasFocus);
 
                 if (value != null) {
-                    r.setText(((File) value).getName());
+                    r.setText(((PathFindSearch) value).getDisplayName());
                 }
 
                 return r;
@@ -172,9 +171,10 @@ public final class QueryPanel extends JPanel {
         computeButton = new JButton("Calculate");
         computeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                File f = (File) searchComboBox.getSelectedItem();
+                PathFindSearch search = (PathFindSearch) searchComboBox
+                        .getSelectedItem();
                 try {
-                    calculateScore(f.getName());
+                    calculateScore(search);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 } catch (IOException e1) {
@@ -241,8 +241,9 @@ public final class QueryPanel extends JPanel {
         searchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    File f = (File) searchComboBox.getSelectedItem();
-                    runRemoteMacro(f.getName());
+                    PathFindSearch search = (PathFindSearch) searchComboBox
+                            .getSelectedItem();
+                    runSearch(search);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 } catch (IOException e1) {
@@ -302,19 +303,20 @@ public final class QueryPanel extends JPanel {
     void populateSearchListModel() {
         searchListModel.removeAllElements();
 
-        File[] files = macrosDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                String lc = name.toLowerCase();
-                return lc.endsWith(".js") || lc.endsWith(".txt")
-                        || lc.endsWith(".ijm");
+        // build map of searches sorted by display name
+        SortedMap<String, PathFindSearch> searches =
+                new TreeMap<String, PathFindSearch>();
+        for (File f : macrosDir.listFiles()) {
+            PathFindSearch search = PathFindSearch.fromFile(f,
+                    extraPluginsDir);
+            if (search != null) {
+                searches.put(search.getDisplayName(), search);
             }
-        });
+        }
 
-        Collections.sort(Arrays.asList(files));
-
-        for (File f : files) {
-            searchListModel.addElement(f);
+        // populate model
+        for (PathFindSearch search : searches.values()) {
+            searchListModel.addElement(search);
         }
     }
 
@@ -333,38 +335,7 @@ public final class QueryPanel extends JPanel {
         updateResultField();
     }
 
-    private void encodeResource(ZipOutputStream zos, File file) throws
-            IOException {
-        ZipEntry ze = new ZipEntry(file.getName());
-        // gratuitously storing different timestamps on every run would
-        // defeat server-side result caching
-        ze.setTime(0);
-        zos.putNextEntry(ze);
-        // stream data into the archive
-        FileInputStream fis = new FileInputStream(file);
-        byte bb[] = new byte[4096];
-        int amount;
-        while ((amount = fis.read(bb)) != -1) {
-            zos.write(bb, 0, amount);
-        }
-        fis.close();
-    }
-
-    private byte[] encodeMacro(String macroName) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ZipOutputStream zos = new ZipOutputStream(baos);
-        File macro = new File(QueryPanel.this.ijDir + "/macros", macroName);
-        encodeResource(zos, macro);
-        for (File file : extraPluginsDir.listFiles()) {
-            if (!file.getName().equals(macro.getName())) {
-                encodeResource(zos, file);
-            }
-        }
-        zos.close();
-        return baos.toByteArray();
-    }
-
-    private void runRemoteMacro(String macroName) throws InterruptedException,
+    private void runSearch(PathFindSearch search) throws InterruptedException,
             IOException {
         double min = checkBoxSelected(minScoreEnabled) ?
                 ((Number) minScore.getValue()).doubleValue() :
@@ -372,11 +343,11 @@ public final class QueryPanel extends JPanel {
         double max = checkBoxSelected(maxScoreEnabled) ?
                 ((Number) maxScore.getValue()).doubleValue() :
                 Double.POSITIVE_INFINITY;
-        pf.startSearch(min, max, encodeMacro(macroName), macroName);
+        pf.startSearch(min, max, search);
     }
 
-    private void calculateScore(String macroName) throws InterruptedException,
-            IOException {
+    private void calculateScore(PathFindSearch search)
+            throws InterruptedException, IOException {
         result = Double.NaN;
 
         // make hourglass
@@ -401,8 +372,7 @@ public final class QueryPanel extends JPanel {
             }
 
             // run macro
-            result = pf.generateScore(encodeMacro(macroName), macroName,
-                    out.toByteArray());
+            result = pf.generateScore(search, out.toByteArray());
         } finally {
             // update result
             updateResultField();

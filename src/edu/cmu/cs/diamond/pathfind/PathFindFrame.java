@@ -1,7 +1,7 @@
 /*
  *  PathFind -- a Diamond system for pathology
  *
- *  Copyright (c) 2008-2010 Carnegie Mellon University
+ *  Copyright (c) 2008-2011 Carnegie Mellon University
  *  All rights reserved.
  *
  *  PathFind is free software: you can redistribute it and/or modify
@@ -362,12 +362,11 @@ public class PathFindFrame extends JFrame {
         }
     }
 
-    public void startSearch(double minScore, double maxScore, byte[] macroBlob,
-            String macroName) throws IOException, InterruptedException {
+    public void startSearch(double minScore, double maxScore,
+            PathFindSearch search) throws IOException, InterruptedException {
         System.out.println("start search");
 
-        SearchFactory factory = createFactory(minScore, maxScore, macroBlob,
-                macroName);
+        SearchFactory factory = createFactory(minScore, maxScore, search);
 
         searchPanel.beginSearch(factory);
     }
@@ -376,14 +375,14 @@ public class PathFindFrame extends JFrame {
         searchPanel.endSearch();
     }
 
-    public double generateScore(byte[] macroBlob, String macroName,
-            byte[] data) throws IOException, InterruptedException {
+    public double generateScore(PathFindSearch search, byte[] data)
+            throws IOException, InterruptedException {
         System.out.println("generate score");
 
         SearchFactory factory = createFactory(Double.NEGATIVE_INFINITY,
-                Double.POSITIVE_INFINITY, macroBlob, macroName);
+                Double.POSITIVE_INFINITY, search);
 
-        String attr = "_filter.imagej_score";
+        String attr = "_filter.primary_score";
         Set<String> desiredAttributes = new HashSet<String>();
         desiredAttributes.add(attr);
 
@@ -397,26 +396,12 @@ public class PathFindFrame extends JFrame {
     }
 
     private SearchFactory createFactory(double minScore, double maxScore,
-            byte[] macroBlob, String macroName) throws IOException {
+            PathFindSearch search) throws IOException {
         List<Filter> filters = new ArrayList<Filter>();
 
         InputStream in = null;
 
-        // imagej
-        try {
-            in = new FileInputStream("/opt/snapfind/lib/fil_imagej_exec");
-            FilterCode c = new FilterCode(in);
-            List<String> dependencies = Collections.emptyList();
-            List<String> arguments = Arrays.asList(new String[] { macroName });
-            Filter imagej = new Filter("imagej", c, minScore, maxScore,
-                    dependencies, arguments, macroBlob);
-            filters.add(imagej);
-        } finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-            }
-        }
+        filters.addAll(search.getFilters(minScore, maxScore));
 
         try {
             in = new FileInputStream("/opt/snapfind/lib/fil_rgb");
