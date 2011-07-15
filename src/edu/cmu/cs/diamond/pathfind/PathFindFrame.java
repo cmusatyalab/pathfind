@@ -439,7 +439,7 @@ public class PathFindFrame extends JFrame {
             List<String> arguments = Arrays
                     .asList(new String[] { "200", "150" });
             Filter thumb = new Filter("thumbnail", c, 1, dependencies,
-                    arguments, macroBlob);
+                    arguments);
             filters.add(thumb);
         } finally {
             try {
