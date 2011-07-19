@@ -181,4 +181,9 @@ public class SQLAnnotationStore implements AnnotationStore {
             throw new IOException(e);
         }
     }
+
+    @Override
+    public String getDescription(String quickhash1) throws IOException {
+        return null;
+    }
 }

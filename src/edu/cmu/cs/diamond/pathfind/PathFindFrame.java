@@ -130,7 +130,7 @@ public class PathFindFrame extends JFrame {
         add(qp, BorderLayout.SOUTH);
 
         // search results at top
-        searchPanel = new SearchPanel(this, qp, slideMap);
+        searchPanel = new SearchPanel(this, qp, slideMap, annotationStore);
         searchPanel.setVisible(false);
         add(searchPanel, BorderLayout.NORTH);
 

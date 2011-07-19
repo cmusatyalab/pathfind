@@ -51,4 +51,5 @@ public interface AnnotationStore {
 
     SelectionListModel getAnnotations(String quickhash1) throws IOException;
 
+    String getDescription(String quickhash1) throws IOException;
 }

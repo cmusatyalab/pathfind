@@ -133,6 +133,32 @@ public class DjangoAnnotationStore implements AnnotationStore {
         return ssModel;
     }
 
+    @Override
+    public String getDescription(String quickhash1)
+            throws IOException {
+        String description = null;
+
+        try {
+            URI u = new URI(uriPrefix + quickhash1 + "/");
+            System.out.println(u);
+
+            GetMethod g = new GetMethod(u.toString());
+            try {
+                InputStream in = getBody(g);
+                if (in != null) {
+                    RegionList rl = JAXB.unmarshal(in, RegionList.class);
+                    description = rl.getDescription();
+                }
+            } finally {
+                g.releaseConnection();
+            }
+        } catch (URISyntaxException e) {
+            throw new IOException(e);
+        }
+
+        return description;
+    }
+
     private InputStream getBody(GetMethod g) throws IOException {
         g.setDoAuthentication(false);
 

@@ -70,6 +70,9 @@ import edu.cmu.cs.diamond.opendiamond.SearchClosedException;
 import edu.cmu.cs.diamond.opendiamond.ServerStatistics;
 import edu.cmu.cs.openslide.OpenSlide;
 
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+
 public class SearchPanel extends JPanel {
     final protected JList list;
     final private Map<String,String> slideHashMap;
@@ -84,7 +87,7 @@ public class SearchPanel extends JPanel {
     private SwingWorker<Object, edu.cmu.cs.diamond.pathfind.ResultIcon> workerFuture;
 
     public SearchPanel(final PathFindFrame pf, QueryPanel qp,
-            String slideMap) {
+            String slideMap, final AnnotationStore annotationStore) {
         this.qp = qp;
 
         setLayout(new BorderLayout());
@@ -180,9 +183,46 @@ public class SearchPanel extends JPanel {
                     DefaultListModel model = (DefaultListModel) list.getModel();
                     model.removeElementAt(index);
                 }
+                if (e.getButton() == 3) {
+                    int index = list.locationToIndex(e.getPoint());
+                    if (index == -1) {
+                        return;
+                    }
+
+                    DefaultListModel model = (DefaultListModel) list.getModel();
+                    ResultIcon r = (ResultIcon) model.elementAt(index);
+
+                    String qh1 = r.getQuickHash1();
+                    try {
+                        String descr = annotationStore.getDescription(qh1);
+                        popupCaseInfo("<pre>" + descr + "</pre>");
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
             }
         });
     }
+
+    private void popupCaseInfo(String fullInfo) {
+        JFrame j = new JFrame("Case Report");
+
+        JEditorPane text = new JEditorPane();
+        text.setEditable(false);
+        text.setDocument(new HTMLDocument());
+        text.setEditorKit(new HTMLEditorKit());
+        text.setText("<html>" + fullInfo + "</html>");
+
+        JScrollPane jsp = new JScrollPane(text);
+        jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        jsp.setPreferredSize(new Dimension(640, 480));
+
+        j.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        j.add(jsp);
+        j.pack();
+        j.setVisible(true);
+    }
+
 
     @Override
     public void setVisible(boolean visible) {
