@@ -30,6 +30,7 @@
                 targetfile="${annotation_dir}"/>
     </target>
     <target name="xjc" depends="xjc-check" unless="xjc.current">
+        <delete dir="${annotation_dir}"/>
         <exec executable="xjc">
              <arg value="-d"/>
              <arg value="src"/>
