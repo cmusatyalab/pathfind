@@ -399,7 +399,7 @@ public class PathFindFrame extends JFrame {
         filters.addAll(search.getFilters(minScore, maxScore));
 
         try {
-            in = new FileInputStream("/opt/snapfind/lib/fil_rgb");
+            in = new FileInputStream("/usr/share/diamond/filters/fil_rgb");
             FilterCode c = new FilterCode(in);
             List<String> dependencies = Collections.emptyList();
             List<String> arguments = Collections.emptyList();
@@ -413,7 +413,7 @@ public class PathFindFrame extends JFrame {
         }
 
         try {
-            in = new FileInputStream("/opt/snapfind/lib/fil_thumb");
+            in = new FileInputStream("/usr/share/diamond/filters/fil_thumb");
             FilterCode c = new FilterCode(in);
             List<String> dependencies = Arrays.asList(new String[] { "RGB" });
             List<String> arguments = Arrays

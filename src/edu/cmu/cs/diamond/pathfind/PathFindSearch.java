@@ -101,7 +101,7 @@ public abstract class PathFindSearch {
             Properties p = Util.extractManifest(zipMap);
             String macro = p.getProperty("Macro");
 
-            in = new FileInputStream("/opt/snapfind/lib/fil_imagej_exec");
+            in = new FileInputStream("/usr/share/diamond/filters/fil_imagej_exec");
             try {
                 FilterCode c = new FilterCode(in);
                 List<String> dependencies = Collections.emptyList();
