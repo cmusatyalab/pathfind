@@ -40,70 +40,49 @@
 
 package edu.cmu.cs.diamond.pathfind;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
 import edu.cmu.cs.diamond.opendiamond.*;
 
 public class PathFindSearch {
-    private final File bundle;
+    private final Bundle bundle;
 
-    private final String displayName;
-
-    private PathFindSearch(File bundle, Map<String, byte[]> zipMap,
-            Properties p) {
+    private PathFindSearch(Bundle bundle) {
         this.bundle = bundle;
-        this.displayName = p.getProperty("Name");
     }
 
     public String getDisplayName() {
-        return displayName;
+        return bundle.getDisplayName();
     }
 
     // Returns the name of the filter whose score should be reported when
-    // "Calculate" is pressed.
-    public String getFilterName() {
-        return "imagej";
+    // "Calculate" is pressed.  Currently this is always the last filter
+    // declared in the bundle.
+    public String getFilterName() throws IOException {
+        List<Filter> filters = getFilters(Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY);
+        return filters.get(filters.size() - 1).getName();
     }
 
     public List<Filter> getFilters(double minScore, double maxScore)
             throws IOException {
-        List<Filter> filters = new ArrayList<Filter>();
-
-        // reread the bundle in case it changed since PathFind was started
-        FileInputStream in = new FileInputStream(bundle);
-        Map<String, byte[]> zipMap = Util.readZipFile(in);
-        Properties p = Util.extractManifest(zipMap);
-        String macro = p.getProperty("Macro");
-
-        in = new FileInputStream("/usr/share/diamond/filters/fil_imagej_exec");
-        try {
-            FilterCode c = new FilterCode(in);
-            List<String> dependencies = Collections.emptyList();
-            List<String> arguments = Arrays.asList(new String[] { macro });
-            Filter imagej = new Filter("imagej", c, minScore, maxScore,
-                    dependencies, arguments, Util.encodeZipFile(zipMap));
-            filters.add(imagej);
-        } finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-            }
-        }
-
-        return filters;
+        // We completely ignore the options declared by the filter bundle.
+        // Instead, we provide two hardcoded option values, minScore and
+        // maxScore.
+        Map<String, String> optionMap = new HashMap<String, String>();
+        optionMap.put("minScore", Double.toString(minScore));
+        optionMap.put("maxScore", Double.toString(maxScore));
+        return bundle.getFilters(optionMap);
     }
 
     public static List<PathFindSearch> getSearches(File searchDir) {
         List<PathFindSearch> searches = new ArrayList<PathFindSearch>();
-        for (File f : searchDir.listFiles()) {
-            PathFindSearch search = fromFile(f);
-            if (search != null) {
-                searches.add(search);
-            }
+        BundleFactory factory = new BundleFactory(Arrays.asList(searchDir),
+                Arrays.asList(new File("/usr/share/diamond/filters")));
+        for (Bundle b : factory.getBundles()) {
+            searches.add(new PathFindSearch(b));
         }
         Collections.sort(searches, new Comparator<PathFindSearch>() {
             @Override
@@ -112,18 +91,5 @@ public class PathFindSearch {
             }
         });
         return searches;
-    }
-
-    private static PathFindSearch fromFile(File file) {
-        try {
-            FileInputStream in = new FileInputStream(file);
-            Map<String, byte[]> zipMap = Util.readZipFile(in);
-            Properties p = Util.extractManifest(zipMap);
-            if ("ImageJ".equals(p.getProperty("Plugin"))) {
-                return new PathFindSearch(file, zipMap, p);
-            }
-        } catch (IOException e) {
-        }
-        return null;
     }
 }
