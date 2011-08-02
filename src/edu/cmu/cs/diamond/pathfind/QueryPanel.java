@@ -55,11 +55,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -94,16 +89,15 @@ public final class QueryPanel extends JPanel {
 
     private final JCheckBox maxScoreEnabled;
 
-    private final DefaultComboBoxModel searchListModel = new DefaultComboBoxModel();
-
-    private final File searchDir;
+    private final DefaultComboBoxModel searchListModel;
 
     private boolean running;
 
     public QueryPanel(PathFindFrame pathFind, File searchDir) {
-        this.searchDir = searchDir;
-
-        populateSearchListModel();
+        searchListModel = new DefaultComboBoxModel();
+        for (PathFindSearch search : PathFindSearch.getSearches(searchDir)) {
+            searchListModel.addElement(search);
+        }
 
         setLayout(new GridBagLayout());
 
@@ -286,25 +280,6 @@ public final class QueryPanel extends JPanel {
                 guard.doClick();
             }
         });
-    }
-
-    void populateSearchListModel() {
-        searchListModel.removeAllElements();
-
-        // build map of searches sorted by display name
-        SortedMap<String, PathFindSearch> searches =
-                new TreeMap<String, PathFindSearch>();
-        for (File f : searchDir.listFiles()) {
-            PathFindSearch search = PathFindSearch.fromFile(f);
-            if (search != null) {
-                searches.put(search.getDisplayName(), search);
-            }
-        }
-
-        // populate model
-        for (PathFindSearch search : searches.values()) {
-            searchListModel.addElement(search);
-        }
     }
 
     private void updateResultField() {

@@ -97,7 +97,24 @@ public class PathFindSearch {
         return filters;
     }
 
-    public static PathFindSearch fromFile(File file) {
+    public static List<PathFindSearch> getSearches(File searchDir) {
+        List<PathFindSearch> searches = new ArrayList<PathFindSearch>();
+        for (File f : searchDir.listFiles()) {
+            PathFindSearch search = fromFile(f);
+            if (search != null) {
+                searches.add(search);
+            }
+        }
+        Collections.sort(searches, new Comparator<PathFindSearch>() {
+            @Override
+            public int compare(PathFindSearch o1, PathFindSearch o2) {
+                return o1.getDisplayName().compareTo(o2.getDisplayName());
+            }
+        });
+        return searches;
+    }
+
+    private static PathFindSearch fromFile(File file) {
         try {
             FileInputStream in = new FileInputStream(file);
             Map<String, byte[]> zipMap = Util.readZipFile(in);
