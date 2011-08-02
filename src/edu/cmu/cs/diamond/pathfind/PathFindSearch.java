@@ -48,15 +48,54 @@ import java.util.*;
 
 import edu.cmu.cs.diamond.opendiamond.*;
 
-public abstract class PathFindSearch {
-    public abstract List<Filter> getFilters(double minScore, double maxScore)
-            throws IOException;
+public class PathFindSearch {
+    private final File bundle;
 
-    public abstract String getDisplayName();
+    private final String displayName;
+
+    private PathFindSearch(File bundle, Map<String, byte[]> zipMap,
+            Properties p) {
+        this.bundle = bundle;
+        this.displayName = p.getProperty("Name");
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
 
     // Returns the name of the filter whose score should be reported when
     // "Calculate" is pressed.
-    public abstract String getFilterName();
+    public String getFilterName() {
+        return "imagej";
+    }
+
+    public List<Filter> getFilters(double minScore, double maxScore)
+            throws IOException {
+        List<Filter> filters = new ArrayList<Filter>();
+
+        // reread the bundle in case it changed since PathFind was started
+        FileInputStream in = new FileInputStream(bundle);
+        Map<String, byte[]> zipMap = Util.readZipFile(in);
+        Properties p = Util.extractManifest(zipMap);
+        String macro = p.getProperty("Macro");
+
+        in = new FileInputStream("/usr/share/diamond/filters/fil_imagej_exec");
+        try {
+            FilterCode c = new FilterCode(in);
+            List<String> dependencies = Collections.emptyList();
+            List<String> arguments = Arrays.asList(new String[] { macro });
+            Filter imagej = new Filter("imagej", c, minScore, maxScore,
+                    dependencies, arguments, Util.encodeZipFile(zipMap));
+            filters.add(imagej);
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+            }
+        }
+
+        return filters;
+    }
 
     public static PathFindSearch fromFile(File file) {
         try {
@@ -64,59 +103,10 @@ public abstract class PathFindSearch {
             Map<String, byte[]> zipMap = Util.readZipFile(in);
             Properties p = Util.extractManifest(zipMap);
             if ("ImageJ".equals(p.getProperty("Plugin"))) {
-                return new ImageJSearch(file, zipMap, p);
+                return new PathFindSearch(file, zipMap, p);
             }
         } catch (IOException e) {
         }
         return null;
-    }
-
-
-    private static class ImageJSearch extends PathFindSearch {
-        private final File bundle;
-
-        private final String displayName;
-
-        public ImageJSearch(File bundle, Map<String, byte[]> zipMap,
-                Properties p) {
-            this.bundle = bundle;
-            this.displayName = p.getProperty("Name");
-        }
-
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        public String getFilterName() {
-            return "imagej";
-        }
-
-        public List<Filter> getFilters(double minScore, double maxScore)
-                throws IOException {
-            List<Filter> filters = new ArrayList<Filter>();
-
-            // reread the bundle in case it changed since PathFind was started
-            FileInputStream in = new FileInputStream(bundle);
-            Map<String, byte[]> zipMap = Util.readZipFile(in);
-            Properties p = Util.extractManifest(zipMap);
-            String macro = p.getProperty("Macro");
-
-            in = new FileInputStream("/usr/share/diamond/filters/fil_imagej_exec");
-            try {
-                FilterCode c = new FilterCode(in);
-                List<String> dependencies = Collections.emptyList();
-                List<String> arguments = Arrays.asList(new String[] { macro });
-                Filter imagej = new Filter("imagej", c, minScore, maxScore,
-                        dependencies, arguments, Util.encodeZipFile(zipMap));
-                filters.add(imagej);
-            } finally {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                }
-            }
-
-            return filters;
-        }
     }
 }
