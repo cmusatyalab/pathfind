@@ -358,10 +358,11 @@ public class PathFindFrame extends JFrame {
     }
 
     public void startSearch(double minScore, double maxScore,
-            PathFindSearch search) throws IOException, InterruptedException {
+            PathFindPredicate predicate) throws IOException,
+            InterruptedException {
         System.out.println("start search");
 
-        SearchFactory factory = createFactory(minScore, maxScore, search);
+        SearchFactory factory = createFactory(minScore, maxScore, predicate);
 
         searchPanel.beginSearch(factory);
     }
@@ -370,14 +371,14 @@ public class PathFindFrame extends JFrame {
         searchPanel.endSearch();
     }
 
-    public double generateScore(PathFindSearch search, byte[] data)
+    public double generateScore(PathFindPredicate predicate, byte[] data)
             throws IOException, InterruptedException {
         System.out.println("generate score");
 
         SearchFactory factory = createFactory(Double.NEGATIVE_INFINITY,
-                Double.POSITIVE_INFINITY, search);
+                Double.POSITIVE_INFINITY, predicate);
 
-        String attr = "_filter." + search.getFilterName() + "_score";
+        String attr = "_filter." + predicate.getFilterName() + "_score";
         Set<String> desiredAttributes = new HashSet<String>();
         desiredAttributes.add(attr);
 
@@ -391,12 +392,12 @@ public class PathFindFrame extends JFrame {
     }
 
     private SearchFactory createFactory(double minScore, double maxScore,
-            PathFindSearch search) throws IOException {
+            PathFindPredicate predicate) throws IOException {
         List<Filter> filters = new ArrayList<Filter>();
 
         InputStream in = null;
 
-        filters.addAll(search.getFilters(minScore, maxScore));
+        filters.addAll(predicate.getFilters(minScore, maxScore));
 
         try {
             in = new FileInputStream("/usr/share/diamond/filters/fil_rgb");

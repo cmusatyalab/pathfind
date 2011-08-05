@@ -46,10 +46,10 @@ import java.util.*;
 
 import edu.cmu.cs.diamond.opendiamond.*;
 
-public class PathFindSearch {
+public class PathFindPredicate {
     private final Bundle bundle;
 
-    private PathFindSearch(Bundle bundle) {
+    private PathFindPredicate(Bundle bundle) {
         this.bundle = bundle;
     }
 
@@ -77,19 +77,22 @@ public class PathFindSearch {
         return bundle.getFilters(optionMap);
     }
 
-    public static List<PathFindSearch> getSearches(File searchDir) {
-        List<PathFindSearch> searches = new ArrayList<PathFindSearch>();
-        BundleFactory factory = new BundleFactory(Arrays.asList(searchDir),
+    public static List<PathFindPredicate> getPredicates(
+            File predicateDir) {
+        List<PathFindPredicate> predicates =
+                new ArrayList<PathFindPredicate>();
+        BundleFactory factory = new BundleFactory(
+                Arrays.asList(predicateDir),
                 Arrays.asList(new File("/usr/share/diamond/filters")));
         for (Bundle b : factory.getBundles()) {
-            searches.add(new PathFindSearch(b));
+            predicates.add(new PathFindPredicate(b));
         }
-        Collections.sort(searches, new Comparator<PathFindSearch>() {
+        Collections.sort(predicates, new Comparator<PathFindPredicate>() {
             @Override
-            public int compare(PathFindSearch o1, PathFindSearch o2) {
+            public int compare(PathFindPredicate o1, PathFindPredicate o2) {
                 return o1.getDisplayName().compareTo(o2.getDisplayName());
             }
         });
-        return searches;
+        return predicates;
     }
 }

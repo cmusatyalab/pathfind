@@ -95,8 +95,9 @@ public final class QueryPanel extends JPanel {
 
     public QueryPanel(PathFindFrame pathFind, File searchDir) {
         searchListModel = new DefaultComboBoxModel();
-        for (PathFindSearch search : PathFindSearch.getSearches(searchDir)) {
-            searchListModel.addElement(search);
+        for (PathFindPredicate predicate :
+                PathFindPredicate.getPredicates(searchDir)) {
+            searchListModel.addElement(predicate);
         }
 
         setLayout(new GridBagLayout());
@@ -128,7 +129,7 @@ public final class QueryPanel extends JPanel {
                         value, index, isSelected, cellHasFocus);
 
                 if (value != null) {
-                    r.setText(((PathFindSearch) value).getDisplayName());
+                    r.setText(((PathFindPredicate) value).getDisplayName());
                 }
 
                 return r;
@@ -153,10 +154,10 @@ public final class QueryPanel extends JPanel {
         computeButton = new JButton("Calculate");
         computeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                PathFindSearch search = (PathFindSearch) searchComboBox
-                        .getSelectedItem();
+                PathFindPredicate predicate = (PathFindPredicate)
+                        searchComboBox.getSelectedItem();
                 try {
-                    calculateScore(search);
+                    calculateScore(predicate);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 } catch (IOException e1) {
@@ -223,9 +224,9 @@ public final class QueryPanel extends JPanel {
         searchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    PathFindSearch search = (PathFindSearch) searchComboBox
-                            .getSelectedItem();
-                    runSearch(search);
+                    PathFindPredicate predicate = (PathFindPredicate)
+                            searchComboBox.getSelectedItem();
+                    runSearch(predicate);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 } catch (IOException e1) {
@@ -297,18 +298,18 @@ public final class QueryPanel extends JPanel {
         updateResultField();
     }
 
-    private void runSearch(PathFindSearch search) throws InterruptedException,
-            IOException {
+    private void runSearch(PathFindPredicate predicate) throws
+            InterruptedException, IOException {
         double min = checkBoxSelected(minScoreEnabled) ?
                 ((Number) minScore.getValue()).doubleValue() :
                 Double.NEGATIVE_INFINITY;
         double max = checkBoxSelected(maxScoreEnabled) ?
                 ((Number) maxScore.getValue()).doubleValue() :
                 Double.POSITIVE_INFINITY;
-        pf.startSearch(min, max, search);
+        pf.startSearch(min, max, predicate);
     }
 
-    private void calculateScore(PathFindSearch search)
+    private void calculateScore(PathFindPredicate predicate)
             throws InterruptedException, IOException {
         result = Double.NaN;
 
@@ -334,7 +335,7 @@ public final class QueryPanel extends JPanel {
             }
 
             // run macro
-            result = pf.generateScore(search, out.toByteArray());
+            result = pf.generateScore(predicate, out.toByteArray());
         } finally {
             // update result
             updateResultField();
