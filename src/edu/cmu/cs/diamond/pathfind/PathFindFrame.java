@@ -102,7 +102,7 @@ public class PathFindFrame extends JFrame {
 
     private final SecondWindow secondWindow;
 
-    public PathFindFrame(String searchDir, AnnotationStore annotationStore,
+    public PathFindFrame(String predicateDir, AnnotationStore annotationStore,
             String interfaceMap, String slideMap, File slide,
             boolean twoWindowMode) throws IOException {
         super("PathFind");
@@ -126,7 +126,7 @@ public class PathFindFrame extends JFrame {
         add(psv);
 
         // query bar at bottom
-        qp = new QueryPanel(this, new File(searchDir));
+        qp = new QueryPanel(this, new File(predicateDir));
         add(qp, BorderLayout.SOUTH);
 
         // search results at top

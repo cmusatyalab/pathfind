@@ -59,11 +59,11 @@ public class PathFindDjango {
             System.out
                     .println("usage: "
                             + PathFindDjango.class.getName()
-                            + " search_dir interface_map slide_map annotation_uri");
+                            + " predicate_dir interface_map slide_map annotation_uri");
             return;
         }
 
-        final String searchDir = args[0];
+        final String predicateDir = args[0];
         final String interfaceMap = args[1];
         final String slideMap = args[2];
         final String annotationUri = args[3];
@@ -82,8 +82,8 @@ public class PathFindDjango {
             @Override
             public void run() {
                 try {
-                    new PathFindFrame(searchDir, annotationStore, interfaceMap,
-                            slideMap, slide, false);
+                    new PathFindFrame(predicateDir, annotationStore,
+                            interfaceMap, slideMap, slide, false);
                 } catch (IOException e) {
                     e.printStackTrace();
                     JOptionPane.showMessageDialog(null, e, "Error",

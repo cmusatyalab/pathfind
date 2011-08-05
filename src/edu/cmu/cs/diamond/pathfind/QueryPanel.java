@@ -93,10 +93,10 @@ public final class QueryPanel extends JPanel {
 
     private boolean running;
 
-    public QueryPanel(PathFindFrame pathFind, File searchDir) {
+    public QueryPanel(PathFindFrame pathFind, File predicateDir) {
         searchListModel = new DefaultComboBoxModel();
         for (PathFindPredicate predicate :
-                PathFindPredicate.getPredicates(searchDir)) {
+                PathFindPredicate.getPredicates(predicateDir)) {
             searchListModel.addElement(predicate);
         }
 
