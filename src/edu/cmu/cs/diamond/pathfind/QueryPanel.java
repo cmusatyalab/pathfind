@@ -65,7 +65,7 @@ import edu.cmu.cs.diamond.opendiamond.Util;
 public final class QueryPanel extends JPanel {
     private final PathFindFrame pf;
 
-    private final JComboBox searchComboBox;
+    private final JComboBox predicateComboBox;
 
     private final JLabel resultField;
 
@@ -89,15 +89,15 @@ public final class QueryPanel extends JPanel {
 
     private final JCheckBox maxScoreEnabled;
 
-    private final DefaultComboBoxModel searchListModel;
+    private final DefaultComboBoxModel predicateListModel;
 
     private boolean running;
 
     public QueryPanel(PathFindFrame pathFind, File predicateDir) {
-        searchListModel = new DefaultComboBoxModel();
+        predicateListModel = new DefaultComboBoxModel();
         for (PathFindPredicate predicate :
                 PathFindPredicate.getPredicates(predicateDir)) {
-            searchListModel.addElement(predicate);
+            predicateListModel.addElement(predicate);
         }
 
         setLayout(new GridBagLayout());
@@ -118,9 +118,9 @@ public final class QueryPanel extends JPanel {
         c.insets = new Insets(0, 0, 0, 10);
         b.add(openCaseButton, c);
 
-        // add search list
-        searchComboBox = new JComboBox(searchListModel);
-        searchComboBox.setRenderer(new DefaultListCellRenderer() {
+        // add predicate list
+        predicateComboBox = new JComboBox(predicateListModel);
+        predicateComboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList list,
                     Object value, int index, boolean isSelected,
@@ -135,7 +135,7 @@ public final class QueryPanel extends JPanel {
                 return r;
             }
         });
-        b.add(searchComboBox);
+        b.add(predicateComboBox);
 
         // add space
         c = new GridBagConstraints();
@@ -155,7 +155,7 @@ public final class QueryPanel extends JPanel {
         computeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 PathFindPredicate predicate = (PathFindPredicate)
-                        searchComboBox.getSelectedItem();
+                        predicateComboBox.getSelectedItem();
                 try {
                     calculateScore(predicate);
                 } catch (InterruptedException e1) {
@@ -225,7 +225,7 @@ public final class QueryPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 try {
                     PathFindPredicate predicate = (PathFindPredicate)
-                            searchComboBox.getSelectedItem();
+                            predicateComboBox.getSelectedItem();
                     runSearch(predicate);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
@@ -348,7 +348,7 @@ public final class QueryPanel extends JPanel {
         defineScopeButton.setEnabled(!running);
         searchButton.setEnabled(!running);
         stopButton.setEnabled(running);
-        searchComboBox.setEnabled(!running);
+        predicateComboBox.setEnabled(!running);
         openCaseButton.setEnabled(!running);
         computeButton.setEnabled(!running);
         minScore.setEnabled(!running && checkBoxSelected(minScoreEnabled));
