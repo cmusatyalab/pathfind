@@ -84,7 +84,7 @@ public class PathFindPredicate {
         BundleFactory factory = new BundleFactory(
                 Arrays.asList(predicateDir),
                 Arrays.asList(new File("/usr/share/diamond/filters")));
-        for (Bundle b : factory.getBundles()) {
+        for (Bundle b : factory.getBundles(BundleType.PREDICATE)) {
             predicates.add(new PathFindPredicate(b));
         }
         Collections.sort(predicates, new Comparator<PathFindPredicate>() {
