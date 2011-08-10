@@ -57,8 +57,6 @@ import java.io.*;
 import java.text.DecimalFormat;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import edu.cmu.cs.diamond.opendiamond.Util;
 
@@ -269,9 +267,9 @@ public final class QueryPanel extends JPanel {
     }
 
     private void setGuardCheckBox(final JCheckBox guard, final JLabel label) {
-        guard.addChangeListener(new ChangeListener() {
+        guard.addItemListener(new ItemListener() {
             @Override
-            public void stateChanged(ChangeEvent e) {
+            public void itemStateChanged(ItemEvent e) {
                 refresh();
             }
         });
