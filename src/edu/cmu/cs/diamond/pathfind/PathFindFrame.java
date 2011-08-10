@@ -276,6 +276,7 @@ public class PathFindFrame extends JFrame {
         savedSelections.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
                 updateSelectionButtons();
+                qp.selectionChanged();
                 psv.getSlide().centerOnSelection(
                         savedSelections.getSelectedIndex());
             }
@@ -560,6 +561,11 @@ public class PathFindFrame extends JFrame {
         } else {
             wv.setToolTipText(hover);
         }
+    }
+
+    boolean haveSelection() {
+        return savedSelections != null &&
+                savedSelections.getSelectedIndex() != -1;
     }
 
     BufferedImage getSelectionAsImage() throws IOException {

@@ -348,7 +348,7 @@ public final class QueryPanel extends JPanel {
         stopButton.setEnabled(running);
         predicateComboBox.setEnabled(!running);
         openCaseButton.setEnabled(!running);
-        computeButton.setEnabled(!running);
+        computeButton.setEnabled(!running && pf.haveSelection());
         minScore.setEnabled(!running && checkBoxSelected(minScoreEnabled));
         maxScore.setEnabled(!running && checkBoxSelected(maxScoreEnabled));
         minScoreEnabled.setEnabled(!running);
@@ -357,6 +357,11 @@ public final class QueryPanel extends JPanel {
 
     void setSearchRunning(boolean running) {
         this.running = running;
+        refresh();
+    }
+
+    // called by PathFindFrame when the selection has changed
+    void selectionChanged() {
         refresh();
     }
 }
