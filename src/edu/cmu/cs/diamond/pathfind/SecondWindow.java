@@ -45,7 +45,7 @@ import java.awt.Dimension;
 
 import javax.swing.*;
 
-import edu.cmu.cs.openslide.gui.SelectionListModel;
+import org.openslide.gui.SelectionListModel;
 
 class SecondWindow extends JFrame {
     private final JList savedSelections;

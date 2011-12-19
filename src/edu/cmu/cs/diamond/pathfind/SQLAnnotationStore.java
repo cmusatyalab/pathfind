@@ -45,9 +45,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cmu.cs.openslide.gui.Annotation;
-import edu.cmu.cs.openslide.gui.DefaultSelectionListModel;
-import edu.cmu.cs.openslide.gui.SelectionListModel;
+import org.openslide.gui.Annotation;
+import org.openslide.gui.DefaultSelectionListModel;
+import org.openslide.gui.SelectionListModel;
 
 public class SQLAnnotationStore implements AnnotationStore {
 
@@ -94,7 +94,7 @@ public class SQLAnnotationStore implements AnnotationStore {
      * 
      * @see
      * edu.cmu.cs.diamond.pathfind.AnnotationStore#saveAnnotations(java.lang
-     * .String, edu.cmu.cs.openslide.gui.SelectionListModel)
+     * .String, org.openslide.gui.SelectionListModel)
      */
 
     // TODO preserve existing ids

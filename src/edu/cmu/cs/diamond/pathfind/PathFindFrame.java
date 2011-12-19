@@ -63,10 +63,11 @@ import javax.swing.text.html.HTMLEditorKit;
 import org.antlr.stringtemplate.StringTemplate;
 
 import edu.cmu.cs.diamond.opendiamond.*;
-import edu.cmu.cs.openslide.OpenSlide;
-import edu.cmu.cs.openslide.gui.Annotation;
-import edu.cmu.cs.openslide.gui.OpenSlideView;
-import edu.cmu.cs.openslide.gui.SelectionListModel;
+
+import org.openslide.OpenSlide;
+import org.openslide.gui.Annotation;
+import org.openslide.gui.OpenSlideView;
+import org.openslide.gui.SelectionListModel;
 
 public class PathFindFrame extends JFrame {
 

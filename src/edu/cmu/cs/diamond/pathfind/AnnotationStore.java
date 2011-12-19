@@ -42,7 +42,7 @@ package edu.cmu.cs.diamond.pathfind;
 
 import java.io.IOException;
 
-import edu.cmu.cs.openslide.gui.SelectionListModel;
+import org.openslide.gui.SelectionListModel;
 
 public interface AnnotationStore {
 

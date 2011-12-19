@@ -68,7 +68,8 @@ import edu.cmu.cs.diamond.opendiamond.Search;
 import edu.cmu.cs.diamond.opendiamond.SearchFactory;
 import edu.cmu.cs.diamond.opendiamond.SearchClosedException;
 import edu.cmu.cs.diamond.opendiamond.ServerStatistics;
-import edu.cmu.cs.openslide.OpenSlide;
+
+import org.openslide.OpenSlide;
 
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;

@@ -66,9 +66,10 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 
 import edu.cmu.cs.diamond.pathfind.annotations.*;
-import edu.cmu.cs.openslide.gui.Annotation;
-import edu.cmu.cs.openslide.gui.DefaultSelectionListModel;
-import edu.cmu.cs.openslide.gui.SelectionListModel;
+
+import org.openslide.gui.Annotation;
+import org.openslide.gui.DefaultSelectionListModel;
+import org.openslide.gui.SelectionListModel;
 
 public class DjangoAnnotationStore implements AnnotationStore {
 

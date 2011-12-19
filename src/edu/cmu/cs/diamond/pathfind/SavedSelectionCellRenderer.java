@@ -53,8 +53,8 @@ import javax.swing.*;
 
 import org.antlr.stringtemplate.StringTemplate;
 
-import edu.cmu.cs.openslide.OpenSlide;
-import edu.cmu.cs.openslide.gui.OpenSlideView;
+import org.openslide.OpenSlide;
+import org.openslide.gui.OpenSlideView;
 
 public class SavedSelectionCellRenderer extends DefaultListCellRenderer {
 

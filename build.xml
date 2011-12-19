@@ -8,8 +8,8 @@
             value="src/edu/cmu/cs/diamond/pathfind/annotations"/>
     <path id="PathFind.classpath">
         <pathelement location="/usr/share/java/opendiamond.jar"/>
-        <pathelement location="/usr/lib/openslide-java/openslidejava.jar"/>
-        <pathelement location="/usr/lib64/openslide-java/openslidejava.jar"/>
+        <pathelement location="/usr/lib/openslide-java/openslide.jar"/>
+        <pathelement location="/usr/lib64/openslide-java/openslide.jar"/>
         <pathelement location="/usr/share/java/mysql-connector-java.jar"/>
         <pathelement location="/usr/share/java/stringtemplate.jar"/>
         <pathelement location="/usr/share/java/antlr.jar"/>

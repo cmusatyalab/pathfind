@@ -47,7 +47,7 @@ import java.awt.event.*;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import edu.cmu.cs.openslide.gui.OpenSlideView;
+import org.openslide.gui.OpenSlideView;
 
 public class PairedSlideView extends JPanel {
 

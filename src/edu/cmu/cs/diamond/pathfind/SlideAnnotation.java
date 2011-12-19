@@ -46,7 +46,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import edu.cmu.cs.openslide.gui.Annotation;
+import org.openslide.gui.Annotation;
 
 
 class SlideAnnotation implements Annotation {
